@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle} from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,6 +25,16 @@ interface ProductModalProps {
     product?: ProductItem;
 }
 
+const categoryOptions = [
+    "Indoor",
+    "Outdoor",
+    "Tent Decoration",
+    "Raw Materials",
+    "Machinery",
+    "Solar Lights",
+    "Others",
+];
+
 const ProductModal: React.FC<ProductModalProps> = ({
     isOpen,
     onClose,
@@ -32,6 +47,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         wattage: "",
         price: "",
         link: "",
+        category: "",
         specifications: {
             dimensions: "",
             voltage: "",
@@ -54,6 +70,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     wattage: product.wattage || "",
                     price: product.price?.toString() || "",
                     link: product.link || "",
+                    category: product.category || "",
                     specifications: {
                         dimensions: product.specifications?.dimensions || "",
                         voltage: product.specifications?.voltage || "",
@@ -69,6 +86,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     wattage: "",
                     price: "",
                     link: "",
+                    category: "",
                     specifications: {
                         dimensions: "",
                         voltage: "",
@@ -114,7 +132,13 @@ const ProductModal: React.FC<ProductModalProps> = ({
         e.preventDefault();
         setError("");
 
-        if (!formData.name || !formData.summary || !formData.wattage || !formData.price) {
+        if (
+            !formData.name ||
+            !formData.summary ||
+            !formData.wattage ||
+            !formData.price ||
+            !formData.category
+        ) {
             setError("Please fill in all required fields.");
             return;
         }
@@ -127,6 +151,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     wattage: formData.wattage.trim(),
                     price: Number(formData.price),
                     link: formData.link.trim(),
+                    category: formData.category as ProductItem["category"],
                     images: imagePreviews,
                     specifications: formData.specifications,
                 },
@@ -216,6 +241,27 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                 setFormData((prev) => ({ ...prev, link: e.target.value }))
                             }
                         />
+                    </div>
+
+                    {/* Category */}
+                    <div className="space-y-2">
+                        <Label htmlFor="category">Category *</Label>
+                        <select
+                            id="category"
+                            value={formData.category}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, category: e.target.value }))
+                            }
+                            className="w-full border px-3 py-2 rounded-md"
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            {categoryOptions.map((cat) => (
+                                <option key={cat} value={cat}>
+                                    {cat}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Specifications */}

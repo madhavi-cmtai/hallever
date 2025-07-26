@@ -45,7 +45,7 @@ const LeadsPage = () => {
   });
   const [editLeadId, setEditLeadId] = useState<string | null>(null);
   const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchLeads());
@@ -53,7 +53,7 @@ const LeadsPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsEditing(true);
+    setIsLoading(true);
 
     const isValidStatus = (status: string): status is Lead["status"] => {
       return ["new", "contacted", "converted", "rejected"].includes(status);
@@ -72,15 +72,15 @@ const LeadsPage = () => {
     } else {
       await dispatch(
         addLead({
-          id: "",
           ...form,
           status: safeStatus,
         })
       );
     }
 
+    await dispatch(fetchLeads());
     closeModal();
-    setIsEditing(false);
+    setIsLoading(false);
   };
 
   const openAddModal = () => {
@@ -97,7 +97,7 @@ const LeadsPage = () => {
       message: lead.message || "",
       status: lead.status,
     });
-    setEditLeadId(lead.id);
+    setEditLeadId(lead.id || null);
     setModalOpen(true);
   };
 
@@ -110,6 +110,7 @@ const LeadsPage = () => {
   const handleDelete = async () => {
     if (leadToDelete) {
       await dispatch(deleteLead(leadToDelete));
+      await dispatch(fetchLeads());
       setLeadToDelete(null);
       setDeleteModalOpen(false);
     }
@@ -129,7 +130,7 @@ const LeadsPage = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {leads.map((lead) => (
+        {Array.isArray(leads) && leads.map((lead) => (
           <div
             key={lead.id}
             className="border border-gray-200 rounded-xl p-4 space-y-2 shadow-sm bg-white"
@@ -144,7 +145,7 @@ const LeadsPage = () => {
                 <Trash
                   className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:text-[var(--primary-pink)]"
                   onClick={() => {
-                    setLeadToDelete(lead.id);
+                    setLeadToDelete(lead.id || null);
                     setDeleteModalOpen(true);
                   }}
                 />
@@ -220,10 +221,10 @@ const LeadsPage = () => {
             </select>
             <Button
               type="submit"
-              disabled={isEditing}
+              disabled={isLoading}
               className="gap-2 bg-[var(--primary-red)] hover:bg-[var(--primary-pink)] text-white"
             >
-              {isEditing && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {editLeadId ? "Update" : "Add"}
             </Button>
           </form>

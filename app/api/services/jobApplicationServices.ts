@@ -18,7 +18,7 @@ export interface JobApplication {
 
 export class JobApplicationService {
     // Add a new job application
-    static async addApplication(application: Omit<JobApplication, "id" | "createdOn" | "updatedOn" | "status">): Promise<JobApplication> {
+    static async addApplication(application: Omit<JobApplication, "id" | "updatedOn" >): Promise<JobApplication> {
         try {
             const timestamp = admin.firestore.FieldValue.serverTimestamp();
             const newAppRef = await db.collection("jobApplications").add({

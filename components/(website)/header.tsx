@@ -4,15 +4,21 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Search, User, LogIn, UserPlus, Globe } from "lucide-react"
+import { Menu, Search, User, LogIn, UserPlus, Globe, X } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [menuOpen, setMenuOpen] = useState(false)
   const { t, language, setLanguage } = useLanguage()
   const router = useRouter()
 
@@ -39,7 +45,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 -ml-10 -mt-3">
+          <Link href="/" className="flex items-center space-x-2 lg:-mt-3 lg:-ml-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -48,15 +54,27 @@ export default function Header() {
               <Image
                 src="/images/logo.png"
                 alt="Hallever Logo"
-                width={150}
-                height={64}
+                width={140}
+                height={60}
                 className="object-contain"
               />
             </motion.div>
           </Link>
 
-          {/* Search Box */}
-          <div className="flex-1 max-w-lg mx-4">
+          {/* Hamburger Menu */}
+          <div className="lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="w-10 h-10"
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
+
+          {/* Search */}
+          <div className="hidden md:flex flex-1 max-w-lg mx-4">
             <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -69,7 +87,7 @@ export default function Header() {
             </form>
           </div>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             {navigationItems.map((item) => (
               <Link
@@ -83,12 +101,12 @@ export default function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-3 ml-6">
+          <div className="hidden sm:flex items-center space-x-3 ml-4">
             {/* User Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-11 h-11 p-4 hover:bg-accent">
-                  <User className="h-6 w-6" />
+                <Button variant="ghost" size="icon" className="w-10 h-10 p-2 hover:bg-accent">
+                  <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
@@ -106,8 +124,8 @@ export default function Header() {
             {/* Language Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-11 h-11 p-4 hover:bg-accent">
-                  <Globe className="h-6 w-6" />
+                <Button variant="ghost" size="icon" className="w-10 h-10 p-2 hover:bg-accent">
+                  <Globe className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
@@ -118,10 +136,51 @@ export default function Header() {
                   हिन्दी
                 </DropdownMenuItem>
               </DropdownMenuContent>
-
             </DropdownMenu>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div className="lg:hidden mt-2 space-y-2 pb-4">
+            <nav className="flex flex-col space-y-2">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2 text-muted-foreground hover:text-foreground font-medium transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Mobile Search */}
+            <div className="px-4 mt-2 md:hidden">
+              <form onSubmit={handleSearch} className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={t("search.placeholder") || "Search..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 w-full"
+                />
+              </form>
+            </div>
+
+            {/* Mobile Actions */}
+            <div className="flex sm:hidden items-center space-x-3 px-4 mt-4">
+              <Button onClick={handleLogin} className="flex-1 bg-primary text-white">
+                {t("auth.login")}
+              </Button>
+              <Button onClick={handleRegister} className="flex-1 bg-muted text-foreground">
+                {t("auth.register")}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )

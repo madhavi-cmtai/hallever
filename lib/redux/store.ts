@@ -7,6 +7,7 @@ import serviceReducer from "./slice/serviceSlice";
 import leadReducer from "./slice/leadSlice";    
 import authReducer from "./slice/authSlice";
 import countReducer from "./slice/countSlice";
+import jobApplicationReducer from './slice/jobApplicationsSlice';
       
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
         products: productReducer,
         services: serviceReducer,
         leads: leadReducer,
+        jobApplication: jobApplicationReducer,
     },
 });
 

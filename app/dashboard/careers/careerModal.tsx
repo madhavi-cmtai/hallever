@@ -201,6 +201,20 @@ export default function CareerModal({
                         <label className="font-medium">Education</label>
                         <Input name="education" value={form.education} onChange={handleChange} />
                     </div>
+                    <div>
+                        <label className="font-medium">Status <span className="text-red-500">*</span></label>
+                        <select
+                            name="status"
+                            value={form.status}
+                            onChange={handleChange}
+                            className="w-full mt-1 px-3 py-2 border rounded-lg"
+                            required
+                        >
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+
 
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 

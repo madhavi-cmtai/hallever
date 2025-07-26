@@ -6,7 +6,7 @@ import { RootState } from "../store";
 
 // Lead interface
 export interface Lead {
-    id: string;
+    id?: string;
     name: string;
     email: string;
     status?: "new" | "contacted" | "converted" | "rejected";
@@ -73,7 +73,7 @@ export const fetchLeads = () => async (dispatch: Dispatch): Promise<void> => {
     dispatch(setLoading(true));
     try {
         const response = await axios.get("/api/routes/leads");
-        dispatch(setLeads(response.data));
+        dispatch(setLeads(response.data.data));
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to delete lead"));

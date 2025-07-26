@@ -1,50 +1,60 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { MessageCircle, X, Send } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, X, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "@/context/language-context";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { addLead } from "@/lib/redux/slice/leadSlice";
 
 export default function FloatingChat() {
-    const [isOpen, setIsOpen] = useState(false)
-    const [showGreeting, setShowGreeting] = useState(true)
-    const [currentStep, setCurrentStep] = useState(0)
+    const { t } = useLanguage();
+    const dispatch = useDispatch<AppDispatch>();
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [showGreeting, setShowGreeting] = useState(true);
+    const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         phone: "",
         message: "",
-    })
-    const [isSubmitted, setIsSubmitted] = useState(false)
+    });
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const chatMessages = ["Hi 👋", "How can I help you?", "Feel free to reach out!"]
+    const chatMessages = [
+        t("chat.messages.0"),
+        t("chat.messages.1"),
+        t("chat.messages.2"),
+    ];
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowGreeting(false)
-        }, 3000)
-        return () => clearTimeout(timer)
-    }, [])
-
-    const handleSubmit = (e?: React.FormEvent) => {
-        if (e) e.preventDefault()
-        console.log("Chat form submitted:", formData)
-        setIsSubmitted(true)
-
-        setTimeout(() => {
-            setIsSubmitted(false)
-            setIsOpen(false)
-            setCurrentStep(0)
-            setFormData({ name: "", email: "", phone: "", message: "" })
-        }, 3000)
-    }
+        const timer = setTimeout(() => setShowGreeting(false), 3000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-    }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        // Send form data to Redux
+        dispatch(addLead(formData));
+        setIsSubmitted(true);
+
+        setTimeout(() => {
+            setIsSubmitted(false);
+            setIsOpen(false);
+            setCurrentStep(0);
+            setFormData({ name: "", email: "", phone: "", message: "" });
+        }, 3000);
+    };
 
     return (
         <>
@@ -57,7 +67,7 @@ export default function FloatingChat() {
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
                         className="fixed bottom-24 right-6 z-40 bg-white rounded-lg shadow-lg p-3 max-w-xs border border-gray-200"
                     >
-                        <p className="text-gray-800 text-sm">Hi there! 👋 Need help with lighting solutions?</p>
+                        <p className="text-gray-800 text-sm">{t("chat.greeting")}</p>
                         <div className="absolute -bottom-2 right-4 w-4 h-4 bg-white border-r border-b border-gray-200 transform rotate-45"></div>
                     </motion.div>
                 )}
@@ -75,7 +85,7 @@ export default function FloatingChat() {
                         >
                             {/* Header */}
                             <div className="bg-[#E10600] text-white p-4 flex justify-between items-center">
-                                <h3 className="font-semibold">Chat with us</h3>
+                                <h3 className="font-semibold">{t("chat.header")}</h3>
                                 <Button
                                     variant="ghost"
                                     size="sm"
@@ -90,7 +100,7 @@ export default function FloatingChat() {
                             <div className="p-4">
                                 {!isSubmitted ? (
                                     <>
-                                        {/* Chat Messages */}
+                                        {/* Messages */}
                                         <div className="space-y-2 mb-4">
                                             {chatMessages.slice(0, currentStep + 1).map((message, index) => (
                                                 <motion.div
@@ -105,7 +115,7 @@ export default function FloatingChat() {
                                             ))}
                                         </div>
 
-                                        {/* Contact Form */}
+                                        {/* Form */}
                                         <motion.form
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -114,7 +124,7 @@ export default function FloatingChat() {
                                             className="space-y-3"
                                         >
                                             <Input
-                                                placeholder="Your Name"
+                                                placeholder={t("chat.placeholder.name")}
                                                 value={formData.name}
                                                 onChange={(e) => handleInputChange("name", e.target.value)}
                                                 required
@@ -122,7 +132,7 @@ export default function FloatingChat() {
                                             />
                                             <Input
                                                 type="email"
-                                                placeholder="Your Email"
+                                                placeholder={t("chat.placeholder.email")}
                                                 value={formData.email}
                                                 onChange={(e) => handleInputChange("email", e.target.value)}
                                                 required
@@ -130,27 +140,28 @@ export default function FloatingChat() {
                                             />
                                             <Input
                                                 type="tel"
-                                                placeholder="Your Phone"
+                                                placeholder={t("chat.placeholder.phone")}
                                                 value={formData.phone}
                                                 onChange={(e) => handleInputChange("phone", e.target.value)}
                                                 required
                                                 className="text-sm"
                                             />
                                             <Textarea
-                                                placeholder="Your Message"
+                                                placeholder={t("chat.placeholder.message")}
                                                 value={formData.message}
                                                 onChange={(e) => handleInputChange("message", e.target.value)}
                                                 required
                                                 className="text-sm resize-none"
                                                 rows={3}
                                             />
-                                            <Button type="submit" className="w-full bg-[#E10600] hover:bg-[#C10500] text-white text-sm">
+                                            <Button
+                                                type="submit"
+                                                className="w-full bg-[#E10600] hover:bg-[#C10500] text-white text-sm"
+                                            >
                                                 <Send className="w-4 h-4 mr-2" />
-                                                Send Message
+                                                {t("chat.button.send")}
                                             </Button>
                                         </motion.form>
-
-                                       
                                     </>
                                 ) : (
                                     <motion.div
@@ -168,9 +179,11 @@ export default function FloatingChat() {
                                                 ✓
                                             </motion.div>
                                         </div>
-                                        <h4 className="font-semibold text-gray-900 mb-2">Message Sent!</h4>
+                                        <h4 className="font-semibold text-gray-900 mb-2">
+                                            {t("chat.success.title")}
+                                        </h4>
                                         <p className="text-sm text-gray-600">
-                                            Your message has been sent successfully. Our team will contact you soon.
+                                            {t("chat.success.description")}
                                         </p>
                                     </motion.div>
                                 )}
@@ -179,22 +192,22 @@ export default function FloatingChat() {
                     )}
                 </AnimatePresence>
 
-                {/* Chat Button */}
+                {/* Floating Button */}
                 <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
-                        setIsOpen(!isOpen)
+                        setIsOpen(!isOpen);
                         if (!isOpen) {
                             const interval = setInterval(() => {
                                 setCurrentStep((prev) => {
                                     if (prev >= chatMessages.length - 1) {
-                                        clearInterval(interval)
-                                        return prev
+                                        clearInterval(interval);
+                                        return prev;
                                     }
-                                    return prev + 1
-                                })
-                            }, 800)
+                                    return prev + 1;
+                                });
+                            }, 800);
                         }
                     }}
                     className="w-14 h-14 bg-[#E10600] hover:bg-[#C10500] text-white rounded-full shadow-lg flex items-center justify-center transition-colors duration-300"
@@ -203,5 +216,5 @@ export default function FloatingChat() {
                 </motion.button>
             </div>
         </>
-    )
+    );
 }

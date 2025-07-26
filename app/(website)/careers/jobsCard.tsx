@@ -1,48 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
+import { MapPin, Clock, GraduationCap, IndianRupee } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, GraduationCap, IndianRupee } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Job } from '@/lib/redux/slice/careerSlice';
 import ApplyModal from './jobApplyModal';
 
-// Example job data
-const jobs: Job[] = [
-    {
-        id: '1',
-        title: 'Frontend Developer',
-        department: 'Engineering',
-        location: 'Bangalore, India',
-        type: 'Full-time',
-        skills: ['React', 'TypeScript', 'Tailwind CSS'],
-        responsibilities: [
-            'Develop and maintain user-facing features.',
-            'Collaborate with UI/UX designers.',
-        ],
-        salaryRange: '₹8L - ₹12L',
-        experience: '2+ years',
-        education: 'B.Tech / B.E. in Computer Science',
-        status: 'open',
-    },
-    {
-        id: '2',
-        title: 'Content Marketing Intern',
-        department: 'Marketing',
-        location: 'Remote',
-        type: 'Internship',
-        skills: ['SEO', 'Content Writing', 'Social Media'],
-        responsibilities: [
-            'Write blog posts and newsletters.',
-            'Assist in social media campaigns.',
-        ],
-        salaryRange: '10,000/month',
-        experience: '0-1 year',
-        education: 'Any graduate',
-        status: 'open',
-    },
-];
+import { Job, fetchCareers } from '@/lib/redux/slice/careerSlice';
+import { RootState, AppDispatch } from '@/lib/redux/store';
+import { useLanguage } from "@/context/language-context";
+
 
 interface JobCardProps {
     job: Job;
@@ -50,7 +20,7 @@ interface JobCardProps {
     onApply?: (job: Job) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, index = 0, onApply }) => {
+const JobCard: React.FC<JobCardProps> = ({ job, index = 0, onApply }) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -86,7 +56,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, index = 0, onApply }) => 
                     </div>
                 )}
 
-                {/* Skills */}
                 {job.skills?.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3">
                         {job.skills.map((skill, i) => (
@@ -97,7 +66,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, index = 0, onApply }) => 
                     </div>
                 )}
 
-                {/* Apply Button */}
                 {onApply && (
                     <Button
                         onClick={() => onApply(job)}
@@ -111,29 +79,45 @@ export const JobCard: React.FC<JobCardProps> = ({ job, index = 0, onApply }) => 
     );
 };
 
-export const JobListSection = () => {
+
+const JobListSection = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const jobs = useSelector((state: RootState) => state.careers.careers);
+    const isLoading = useSelector((state: RootState) => state.careers.isLoading);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+    const { t } = useLanguage();
+
+    useEffect(() => {
+        dispatch(fetchCareers());
+    }, [dispatch]);
 
     return (
         <section className="my-20">
             <div className="text-center mb-8">
                 <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                    Latest <span className="text-[var(--primary-red)]">Jobs</span>
+                    {t("latest")} <span className="text-[var(--primary-red)]">{t("jobs")}</span>
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Explore exciting opportunities across departments and roles.
+                    {t("jobs.sectionSubtitle")}
                 </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 ml-8">
-                {jobs.map((job, index) => (
-                    <JobCard
-                        key={job.id}
-                        job={job}
-                        index={index}
-                        onApply={() => setSelectedJob(job)}
-                    />
-                ))}
+                {isLoading ? (
+                    <div className="col-span-full text-center text-muted-foreground text-lg">
+                        {t("jobs.loading")}
+                    </div>
+                ) : (
+                    jobs.map((job, index) => (
+                        <JobCard
+                            key={job.id}
+                            job={job}
+                            index={index}
+                            onApply={() => setSelectedJob(job)}
+                        />
+                    ))
+                )}
             </div>
 
             {selectedJob && (
@@ -141,6 +125,7 @@ export const JobListSection = () => {
                     open={!!selectedJob}
                     onClose={() => setSelectedJob(null)}
                     jobTitle={selectedJob.title}
+                    jobId={selectedJob.id ?? ''}
                 />
             )}
         </section>

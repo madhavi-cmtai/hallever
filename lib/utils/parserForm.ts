@@ -1,22 +1,33 @@
 // lib/utils/formParser.ts
-import formidable, { Fields, Files } from "formidable";
+import { Readable } from "stream";
 import { IncomingMessage } from "http";
+import formidable, { Fields, Files } from "formidable";
 import { NextRequest } from "next/server";
 
-// 🔧 Parses multipart/form-data using formidable
+// Parse multipart form-data from NextRequest
 export async function parseFormData(req: NextRequest): Promise<{ fields: Fields; files: Files }> {
     const form = formidable({ multiples: true, keepExtensions: true });
-    const incomingReq = req as unknown as IncomingMessage;
+
+    // Convert request body to stream
+    const buffer = await req.arrayBuffer();
+    const stream = Readable.from(Buffer.from(buffer));
+
+    // 🔧 Fake IncomingMessage by attaching headers/method/url
+    const fakeReq = Object.assign(stream, {
+        headers: Object.fromEntries(req.headers.entries()),
+        method: req.method,
+        url: "", // optional
+    }) as unknown as IncomingMessage;
 
     return new Promise((resolve, reject) => {
-        form.parse(incomingReq, (err, fields, files) => {
+        form.parse(fakeReq, (err, fields, files) => {
             if (err) return reject(err);
             resolve({ fields, files });
         });
     });
 }
 
-// 🔧 Normalize string | string[] to string
+// Normalize form field to string
 export function normalizeField(field?: string | string[]): string {
     return Array.isArray(field) ? field[0] : field || "";
 }

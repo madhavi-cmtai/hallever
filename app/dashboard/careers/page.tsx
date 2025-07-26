@@ -2,21 +2,38 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addCareer, fetchCareers, Job, removeCareer, selectCareer, updateCareer, } from "@/lib/redux/slice/careerSlice";
+import {
+    createCareer,
+    fetchCareers,
+    Job,
+    deleteCareer,
+    selectCareer,
+    updateCareer,
+} from "@/lib/redux/slice/careerSlice";
 import { Input } from "@/components/ui/input";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import CareerModal from "./careerModal";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog";
 
 export default function CareersPage() {
     const dispatch = useDispatch<AppDispatch>();
     const [search, setSearch] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+    const [deleteJobItem, setDeleteJobItem] = useState<Job | null>(null);
+    const [deleting, setDeleting] = useState(false);
+
     const careers = useSelector((state: RootState) => state.careers.careers);
     const loading = useSelector((state: RootState) => state.careers.isLoading);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedJob, setSelectedJob] = useState<Job | null>(null);   
-
 
     useEffect(() => {
         dispatch(fetchCareers());
@@ -32,7 +49,7 @@ export default function CareersPage() {
 
     const handleAdd = () => {
         dispatch(selectCareer(null));
-        setSelectedJob(null); 
+        setSelectedJob(null);
         setIsModalOpen(true);
     };
 
@@ -40,7 +57,7 @@ export default function CareersPage() {
         const career = careers.find((c) => c.id === careerId);
         if (career) {
             dispatch(selectCareer(career));
-            setSelectedJob(career); 
+            setSelectedJob(career);
             setIsModalOpen(true);
         }
     };
@@ -49,17 +66,18 @@ export default function CareersPage() {
         if (selectedJob) {
             dispatch(updateCareer({ ...data, id: selectedJob.id }));
         } else {
-            dispatch(addCareer(data));
+            dispatch(createCareer(data));
         }
         setIsModalOpen(false);
         setSelectedJob(null);
     };
 
-
-    const handleDelete = (careerId: string) => {
-        if (window.confirm("Are you sure you want to delete this career?")) {
-            dispatch(removeCareer(careerId));
-        }
+    const handleDelete = async () => {
+        if (!deleteJobItem) return;
+        setDeleting(true);
+        await dispatch(deleteCareer(deleteJobItem.id));
+        setDeleting(false);
+        setDeleteJobItem(null);
     };
 
     return (
@@ -116,22 +134,18 @@ export default function CareersPage() {
                                     <td className="px-4 py-2">{job.type}</td>
                                     <td className="px-4 py-2 capitalize">{job.status}</td>
                                     <td className="px-4 py-2 space-x-2">
-                                        {job.id && (
-                                            <>
-                                                <button
-                                                    onClick={() => handleEdit(job.id!)}
-                                                    className="text-blue-600 hover:underline"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(job.id!)}
-                                                    className="text-red-600 hover:underline"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </>
-                                        )}
+                                        <button
+                                            onClick={() => handleEdit(job.id!)}
+                                            className="text-blue-600 hover:underline"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteJobItem(job)}
+                                            className="text-red-600 hover:underline"
+                                        >
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -140,7 +154,6 @@ export default function CareersPage() {
                 </div>
             )}
 
-            {/* Career Modal */}
             {isModalOpen && (
                 <CareerModal
                     isOpen={isModalOpen}
@@ -148,9 +161,42 @@ export default function CareersPage() {
                     onSave={handleSave}
                     editItem={selectedJob}
                 />
-
-
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={!!deleteJobItem}
+                onOpenChange={(open) => !open && setDeleteJobItem(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Job</DialogTitle>
+                    </DialogHeader>
+                    <div>
+                        Are you sure you want to delete{" "}
+                        <span className="font-semibold text-[var(--primary-red)]">
+                            {deleteJobItem?.title}
+                        </span>
+                        ?
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className="gap-2"
+                        >
+                            {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Delete
+                        </Button>
+                        <DialogClose asChild>
+                            <Button type="button" variant="ghost" disabled={deleting}>
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

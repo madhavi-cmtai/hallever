@@ -1,39 +1,33 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/language-context";
 
 const categories = [
-    {
-        key: "indoor",
-        image: "/images/indoor.jpeg",
-    },
-    {
-        key: "outdoor",
-        image: "/images/outdoor.jpeg",
-    },
-    {
-        key: "tent",
-        image: "/images/tent.jpeg",
-    },
-    {
-        key: "raw",
-        image: "/images/raw-materials.jpeg",
-    },
-    {
-        key: "machinery",
-        image: "/images/machinery.png",
-    },
+    { key: "indoor", image: "/images/indoor.jpeg" },
+    { key: "outdoor", image: "/images/outdoor.jpeg" },
+    { key: "tent", image: "/images/tent.jpeg" },
+    { key: "raw", image: "/images/raw-materials.jpeg" },
+    { key: "machinery", image: "/images/machinery.png" },
 ];
 
 export default function ProductCategories() {
     const { t } = useLanguage();
+    const router = useRouter();
+
+    const handleCategoryClick = (category: string) => {
+        router.push(`/products?category=${category}`);
+    };
 
     return (
         <section className="w-full h-screen px-4 py-6">
             <div className="flex flex-col lg:flex-row gap-4 h-full">
-                {/* Left side: 1 big category */}
-                <div className="w-full lg:w-1/2 h-[300px] lg:h-full relative rounded-xl overflow-hidden">
+                {/* Left: main category */}
+                <div
+                    className="w-full lg:w-1/2 h-[300px] lg:h-full relative rounded-xl overflow-hidden cursor-pointer"
+                    onClick={() => handleCategoryClick(categories[0].key)}
+                >
                     <Image
                         src={categories[0].image}
                         alt={t(`productCategories.${categories[0].key}.name`)}
@@ -54,12 +48,13 @@ export default function ProductCategories() {
                     </div>
                 </div>
 
-                {/* Right side: 4 categories in 2x2 grid */}
+                {/* Right: other categories */}
                 <div className="w-full lg:w-1/2 grid grid-cols-2 gap-6">
                     {categories.slice(1, 5).map((category) => (
                         <div
                             key={category.key}
-                            className="relative h-40 lg:h-full rounded-xl overflow-hidden"
+                            className="relative h-40 lg:h-full rounded-xl overflow-hidden cursor-pointer"
+                            onClick={() => handleCategoryClick(category.key)}
                         >
                             <Image
                                 src={category.image}

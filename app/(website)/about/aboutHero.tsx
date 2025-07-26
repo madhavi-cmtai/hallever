@@ -1,22 +1,23 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useLanguage } from "@/context/language-context";
 
 export default function HeroAbout() {
+    const { t } = useLanguage();
+
     return (
         <section className="relative h-[620px] flex items-center justify-center overflow-hidden">
-            {/* Background Video */}
-            <div className="absolute inset-0 z-0 ">
+            {/* Background Image */}
+            <div className="absolute inset-0 z-0">
                 <div
                     className="absolute inset-0 z-0 bg-cover bg-center"
                     style={{ backgroundImage: "url('/images/about/hero.jpeg')" }}
                 >
-                    <div className="absolute inset-0  bg-opacity-50"></div>
+                    <div className="absolute inset-0 bg-black/50" />
                 </div>
-
-                <div className="absolute inset-0 bg-opacity-50"></div>
             </div>
 
             {/* Content */}
@@ -27,7 +28,10 @@ export default function HeroAbout() {
                     transition={{ duration: 1, delay: 0.2 }}
                     className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
                 >
-                    Transforming Events, <span className="text-[#E10600]">Lighting Up Moments</span>
+                    {t("about.hero.heading.part1")}
+                    <span className="text-[#E10600] block">
+                        {t("about.hero.heading.part2")}
+                    </span>
                 </motion.h1>
 
                 <motion.p
@@ -36,7 +40,7 @@ export default function HeroAbout() {
                     transition={{ duration: 1, delay: 0.5 }}
                     className="text-xl md:text-2xl mb-8 text-gray-200"
                 >
-                    Premium lighting solutions and event equipment across India
+                    {t("about.hero.subheading")}
                 </motion.p>
 
                 <motion.div
@@ -50,7 +54,7 @@ export default function HeroAbout() {
                             size="lg"
                             className="bg-[#E10600] hover:bg-[#C10500] text-white px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 transform hover:scale-105"
                         >
-                            Explore Products
+                            {t("button.exploreProducts")}
                         </Button>
                     </Link>
                     <Link href="/contact">
@@ -59,7 +63,7 @@ export default function HeroAbout() {
                             size="lg"
                             className="border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 bg-transparent"
                         >
-                            Get Quote
+                            {t("button.getQuote")}
                         </Button>
                     </Link>
                 </motion.div>
@@ -81,5 +85,5 @@ export default function HeroAbout() {
                 </div>
             </motion.div>
         </section>
-    )
+    );
 }

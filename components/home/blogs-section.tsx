@@ -1,32 +1,34 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/language-context';
+import { AppDispatch } from '@/lib/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    fetchBlogs,
+    selectIsLoading,
+    selectBlogs,
+} from '@/lib/redux/slice/blogSlice';
 
 const BlogsPreview = () => {
     const pathname = usePathname();
     const isHome = pathname === '/';
     const { t } = useLanguage();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const blogs = [
-        {
-            id: 1,
-            title: "Latest Trends in Event Lighting Design",
-            image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800",
-            excerpt: "Discover the cutting-edge lighting techniques that are transforming modern events...",
-            link: "/blogs/latest-trends"
-        },
-        {
-            id: 2,
-            title: "Sustainable Solar Solutions for Outdoor Events",
-            image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800",
-            excerpt: "Learn how solar-powered lighting is revolutionizing eco-friendly event planning...",
-            link: "/blogs/solar-solutions"
-        }
-    ];
+    const loading = useSelector(selectIsLoading);
+    const blogs = useSelector(selectBlogs); // ✅ MISSING
+
+    useEffect(() => {
+        dispatch(fetchBlogs());
+    }, [dispatch]);
+
+    if (loading) {
+        return <div className="text-white text-center py-20">Loading blogs...</div>;
+    }
 
     return (
         <section id="blogs" className="py-20 bg-background">
@@ -40,17 +42,19 @@ const BlogsPreview = () => {
                     className="text-center mb-12"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                        {t("blogs.heading1")}{" "}
-                        <span className="text-[var(--primary-red)]">{t("blogs.heading2")}</span>
+                        {t('blogs.heading1')}{' '}
+                        <span className="text-[var(--primary-red)]">
+                            {t('blogs.heading2')}
+                        </span>
                     </h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                        {t("blogs.subheading")}
+                        {t('blogs.subheading')}
                     </p>
                 </motion.div>
 
                 {/* Blog Cards */}
                 <div className="flex flex-col lg:flex-row gap-8 justify-center items-stretch">
-                    {blogs.map((blog, index) => (
+                    {(isHome ? blogs.slice(0, 2) : blogs).map((blog, index) => (
                         <motion.div
                             key={blog.id}
                             initial={{ opacity: 0, y: 30 }}
@@ -71,13 +75,13 @@ const BlogsPreview = () => {
                                     {blog.title}
                                 </h3>
                                 <p className="text-muted-foreground mb-4">
-                                    {blog.excerpt}
+                                    {blog.summary}
                                 </p>
                                 <Button
                                     variant="outline"
                                     className="text-sm font-semibold px-6 py-2 border-border hover:bg-gray-300 hover:text-accent-foreground transition-all"
                                 >
-                                    {t("button.readMore")} →
+                                    {t('button.readMore')} →
                                 </Button>
                             </div>
                         </motion.div>
@@ -97,7 +101,7 @@ const BlogsPreview = () => {
                             size="lg"
                             className="bg-[var(--primary-red)] hover:bg-[var(--primary-red)]/90 text-primary-foreground px-8 py-4 text-lg font-semibold rounded-full shadow-hover transition-all duration-300 hover:scale-105"
                         >
-                            {t("button.allBlogs")}
+                            {t('button.allBlogs')}
                         </Button>
                     </motion.div>
                 )}

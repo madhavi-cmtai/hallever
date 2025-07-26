@@ -3,26 +3,42 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Crown, Heart, Sparkles } from "lucide-react";
 import Image from "next/image";
-
-const themes = [
-    {
-        name: "Royal Red Theme",
-        description: "Traditional Rajasthani elegance with rich red draping and golden accents",
-        features: ["Majestic red fabrics", "Golden lighting accents", "Traditional motifs"]
-    },
-    {
-        name: "Boho Sunset",
-        description: "Modern bohemian style with warm sunset colors and flowing fabrics",
-        features: ["Warm color palette", "Flowing drapes", "Ambient lighting"]
-    },
-    {
-        name: "Garden Romance",
-        description: "Romantic outdoor setup with fairy lights and floral arrangements",
-        features: ["Fairy light canopies", "Fresh florals", "Natural elements"]
-    }
-];
+import { useLanguage } from "@/context/language-context";
 
 const TentSection = () => {
+    const { t } = useLanguage();
+
+    const themes = [
+        {
+            name: t("tent.themes.royal.name"),
+            description: t("tent.themes.royal.description"),
+            features: [
+                t("tent.themes.royal.features.0"),
+                t("tent.themes.royal.features.1"),
+                t("tent.themes.royal.features.2")
+            ]
+        },
+        {
+            name: t("tent.themes.boho.name"),
+            description: t("tent.themes.boho.description"),
+            features: [
+                t("tent.themes.boho.features.0"),
+                t("tent.themes.boho.features.1"),
+                t("tent.themes.boho.features.2")
+            ]
+        },
+        {
+            name: t("tent.themes.garden.name"),
+            description: t("tent.themes.garden.description"),
+            features: [
+                t("tent.themes.garden.features.0"),
+                t("tent.themes.garden.features.1"),
+                t("tent.themes.garden.features.2")
+            ]
+        }
+    ];
+
+
     return (
         <section className="py-20 bg-[#FFE8EE]">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,72 +48,88 @@ const TentSection = () => {
                         {/* Section Header */}
                         <div>
                             <h2 className="font-heading text-4xl sm:text-5xl font-bold text-foreground mb-6">
-                                Transform Your Venue into a{" "}
+                                {t("tent.heading.part1")}{" "}
                                 <span className="text-transparent bg-clip-text bg-[var(--primary-red)]">
-                                    Dreamland
+                                    {t("tent.heading.part2")}
                                 </span>
                             </h2>
                             <p className="text-xl text-muted-foreground leading-relaxed">
-                                From royal Rajwadi tents to modern LED-lit lounges, our tent setups match your celebration style.
-                                We combine lighting, drapery, and florals to create picture-perfect spaces that dazzle your guests and cameras alike.
+                                {t("tent.description")}
                             </p>
                         </div>
 
                         {/* Features */}
                         <div className="space-y-6">
+                            {/* Royal Experience */}
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-[var(--primary-red)] box-shadow rounded-full flex items-center justify-center flex-shrink-0 glow-primary">
                                     <Crown className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-lg text-card-foreground mb-2">Royal Rajwadi Experience</h3>
-                                    <p className="text-muted-foreground">Authentic Rajasthani royal tent setups with intricate details and majestic presence.</p>
+                                    <h3 className="font-semibold text-lg text-card-foreground mb-2">
+                                        {t("tent.features.royal.title")}
+                                    </h3>
+                                    <p className="text-muted-foreground">
+                                        {t("tent.features.royal.description")}
+                                    </p>
                                 </div>
                             </div>
 
+                            {/* LED Integration */}
                             <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-[var(--primary-gold)]  rounded-full flex items-center justify-center flex-shrink-0 glow-accent">
-                                    <Sparkles className="w-6 h-6 text-accent-foreground " />
+                                <div className="w-12 h-12 bg-[var(--primary-gold)] rounded-full flex items-center justify-center flex-shrink-0 glow-accent">
+                                    <Sparkles className="w-6 h-6 text-accent-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-lg text-card-foreground mb-2 ">LED Integration</h3>
-                                    <p className="text-muted-foreground">Seamless blend of traditional fabrics with modern LED lighting technology.</p>
+                                    <h3 className="font-semibold text-lg text-card-foreground mb-2">
+                                        {t("tent.features.led.title")}
+                                    </h3>
+                                    <p className="text-muted-foreground">
+                                        {t("tent.features.led.description")}
+                                    </p>
                                 </div>
                             </div>
 
+                            {/* Custom Themes */}
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-[var(--primary-red)] box-shadow rounded-full flex items-center justify-center flex-shrink-0 glow-primary">
                                     <Heart className="w-6 h-6 text-primary-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-lg text-card-foreground mb-2">Custom Themes</h3>
-                                    <p className="text-muted-foreground">Every setup is tailored to your vision, ensuring a unique and personal touch.</p>
+                                    <h3 className="font-semibold text-lg text-card-foreground mb-2">
+                                        {t("tent.features.custom.title")}
+                                    </h3>
+                                    <p className="text-muted-foreground">
+                                        {t("tent.features.custom.description")}
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* CTA */}
                         <Button className="bg-[var(--primary-red)] hover:bg-[var(--primary-pink)] group mt-4">
-                            Explore Tent Themes
+                            {t("tent.button.explore")}
                             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                         </Button>
                     </div>
 
-                    {/* Image & Themes Side */}
+                    {/* Image & Themes */}
                     <div className="space-y-8">
                         {/* Main Image */}
                         <div className="relative overflow-hidden rounded-2xl shadow-elegant">
                             <Image
                                 src="/images/about/tent.jpeg"
-                                alt="Luxury wedding tent setup"
+                                alt={t("tent.image.alt")}
                                 width={1200}
                                 height={600}
                                 className="w-full h-80 object-cover hover:scale-105 transition-transform duration-700"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                             <div className="absolute bottom-6 left-6 text-white">
-                                <h3 className="font-heading text-2xl font-semibold mb-2">Royal Wedding Setup</h3>
-                                <p className="text-white/80">Complete venue transformation</p>
+                                <h3 className="font-heading text-2xl font-semibold mb-2">
+                                    {t("tent.image.title")}
+                                </h3>
+                                <p className="text-white/80">{t("tent.image.subtitle")}</p>
                             </div>
                         </div>
 
@@ -112,7 +144,6 @@ const TentSection = () => {
                                         <h4 className="font-heading text-lg font-semibold text-card-foreground">
                                             {theme.name}
                                         </h4>
-                                        
                                     </div>
                                     <p className="text-muted-foreground text-sm mb-3">
                                         {theme.description}

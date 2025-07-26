@@ -40,7 +40,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     return (
         <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border-0 shadow-md">
-            <CardContent className="p-0">
+            <CardContent className="p-0 relative">
+
+                {/* 🔴 Category Badge on Top */}
+                {product.category && (
+                    <div className="absolute top-2 left-2 z-10 bg-[var(--primary-red)] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                        {product.category}
+                    </div>
+                )}
+
                 {/* Image Section */}
                 <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-lg overflow-hidden">
                     {product.images.length > 0 ? (
@@ -92,12 +100,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <h3 className="font-semibold text-lg text-[var(--primary-red)] line-clamp-1">
                             {product.name}
                         </h3>
+
                         <p className="text-sm text-gray-600 line-clamp-2 mt-1">
                             {product.summary}
                         </p>
                     </div>
 
-                    {/* Wattage & Price */}
+                    {/* Wattage & Date */}
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-[var(--primary-red)] bg-[var(--primary-pink)] px-2 py-1 rounded">
                             Wattage: {product.wattage}
@@ -109,6 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         </span>
                     </div>
 
+                    {/* Price */}
                     {product.price !== undefined && (
                         <div className="text-base font-semibold text-green-700">
                             ₹{product.price.toLocaleString("en-IN")}
@@ -119,9 +129,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     {product.specifications && (
                         <ul className="text-xs text-gray-500 space-y-1 mt-1">
                             {product.specifications.dimensions && (
-                                <li>
-                                    Dimensions: {product.specifications.dimensions}
-                                </li>
+                                <li>Dimensions: {product.specifications.dimensions}</li>
                             )}
                             {product.specifications.weight && (
                                 <li>Weight: {product.specifications.weight}</li>

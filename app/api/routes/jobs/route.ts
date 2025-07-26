@@ -28,10 +28,15 @@ export async function POST(req: NextRequest) {
 
         const newJob = await JobService.addJob(jobData);
         return NextResponse.json(newJob, { status: 201 });
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error posting job:", error);
-        return NextResponse.json({ message: "Failed to post job", error }, { status: 500 });
+
+        const message =
+            error instanceof Error ? error.message : "Unexpected error occurred";
+
+        return NextResponse.json({ message: "Failed to post job", error: message }, { status: 500 });
     }
+
 }
 
 export async function GET() {

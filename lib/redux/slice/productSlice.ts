@@ -1,4 +1,4 @@
-import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch, ThunkAction } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 import { RootState } from "../store";
 
@@ -11,7 +11,7 @@ export interface ProductItem {
     wattage: string;
     images: string[]; 
     link?:string;
-    category?:string;
+    category?: | "Indoor" | "Outdoor" | "Tent Decoration" | "Raw Materials" | "Machinery" | "Solar Lights" | "Others";
     specifications?: {
         dimensions?: string;
         weight?: string;
@@ -92,9 +92,6 @@ export const {
     clearProducts,
 } = productSlice.actions;
 
-//
-// ✅ Async Thunks using JSON and base64 for image upload
-//
 
 // Fetch all products
 export const fetchProducts = () => async (dispatch: Dispatch) => {
@@ -108,18 +105,25 @@ export const fetchProducts = () => async (dispatch: Dispatch) => {
     }
 };
 
-// Fetch product by ID
-export const fetchProductById = (id: string) => async (dispatch: Dispatch) => {
-    dispatch(setIsLoading(true));
-    try {
-        const res = await axios.get(`/api/routes/products/${id}`);
-        console.log("Fetching product ID:", id);
-        dispatch(setSelectedProduct(res.data.data));
-    } catch (error) {
-        const axiosError = error as AxiosError;
-        dispatch(setError(axiosError.message || "Failed to product"));
-    }
-};
+export const fetchProductById = (
+    id: string
+): ThunkAction<Promise<ProductItem | null>, RootState, unknown, AnyAction> =>
+    async (dispatch) => {
+        dispatch(setIsLoading(true));
+        try {
+            const res = await axios.get(`/api/routes/products/${id}`);
+            const product = res.data.data;
+            dispatch(setSelectedProduct(product));
+            return product;
+        } catch (error) {
+            const axiosError = error as AxiosError;
+            dispatch(setError(axiosError.message || "Failed to fetch product"));
+            return null;
+        } finally {
+            dispatch(setIsLoading(false));
+        }
+    };
+
 
 // Add product (JSON + base64)
 export const addProduct = (formData: FormData) => async (dispatch: Dispatch) => {

@@ -41,10 +41,10 @@ const TestimonialsSection = () => {
         <section className="py-20 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-16">
-                    <h2 className="font-heading text-4xl sm:text-5xl font-bold text-foreground mb-6">
+                <div className="text-center mb-16 mt-5 pt-4">
+                    <h2 className="font-heading text-4xl sm:text-5xl font-bold text-foreground mb-6 pt-3">
                         {t("testimonials.heading.part1")}{" "}
-                        <span className="text-transparent bg-clip-text bg-[var(--primary-red)]">
+                        <span className="text-transparent bg-clip-text bg-[var(--primary-red)] pt-3">
                             {t("testimonials.heading.part2")}
                         </span>
                     </h2>

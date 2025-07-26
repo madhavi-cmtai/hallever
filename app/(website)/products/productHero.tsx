@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useLanguage } from "@/context/language-context"; // or your translation hook
 
 export default function HeroProduct() {
+    const { t } = useLanguage(); // or useTranslation()
+
     return (
         <section className="relative h-[620px] flex items-center justify-center overflow-hidden">
-            {/* Background Video */}
+            {/* Background Image */}
             <div className="absolute inset-0 z-0 ">
                 <div
                     className="absolute inset-0 z-0 bg-cover bg-center"
@@ -15,7 +18,6 @@ export default function HeroProduct() {
                 >
                     <div className="absolute inset-0  bg-opacity-50"></div>
                 </div>
-
                 <div className="absolute inset-0 bg-opacity-50"></div>
             </div>
 
@@ -27,7 +29,8 @@ export default function HeroProduct() {
                     transition={{ duration: 1, delay: 0.2 }}
                     className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
                 >
-                    Illuminate Your  <span className="text-[#E10600]">Events with Style</span>
+                    {t("product.hero.heading.part1")}{" "}
+                    <span className="text-[#E10600]">{t("product.hero.heading.part2")}</span>
                 </motion.h1>
 
                 <motion.p
@@ -36,7 +39,7 @@ export default function HeroProduct() {
                     transition={{ duration: 1, delay: 0.5 }}
                     className="text-xl md:text-2xl mb-8 text-gray-400"
                 >
-                    Premium lighting solutions and event equipment across India
+                    {t("product.hero.subheading")}
                 </motion.p>
 
                 <motion.div
@@ -50,7 +53,7 @@ export default function HeroProduct() {
                             size="lg"
                             className="bg-[#E10600] hover:bg-[#C10500] text-white px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 transform hover:scale-105"
                         >
-                            Explore Products
+                            {t("product.hero.buttons.explore")}
                         </Button>
                     </Link>
                     <Link href="/contact">
@@ -59,7 +62,7 @@ export default function HeroProduct() {
                             size="lg"
                             className="border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 bg-transparent"
                         >
-                            Get Quote
+                            {t("product.hero.buttons.quote")}
                         </Button>
                     </Link>
                 </motion.div>
@@ -81,5 +84,5 @@ export default function HeroProduct() {
                 </div>
             </motion.div>
         </section>
-    )
+    );
 }

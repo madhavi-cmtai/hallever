@@ -135,6 +135,7 @@ export const {
 } = careerSlice.actions;
 
 // Selectors
+export const selectCareerList = (state) => state.careers.careers;
 export const selectAllCareers = (state: { careers: CareerState }) => state.careers.careers;
 export const selectSelectedCareer = (state: { careers: CareerState }) => state.careers.selectedCareer;
 export const selectCareerLoading = (state: { careers: CareerState }) => state.careers.isLoading;

@@ -1,49 +1,99 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseFormData, normalizeField } from "@/lib/utils/parserForm"; 
+import { parseFormData, normalizeField } from "@/lib/utils/parserForm";
 import { UploadMultipleImages } from "@/lib/utils/imageController";
 import ProductService from "@/app/api/services/productServices";
 import consoleManager from "@/app/api/utils/consoleManager";
+import { ProductItem } from "@/lib/redux/slice/productSlice";
 
+
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
+// Define category options and type
+const VALID_CATEGORIES = [
+    "Indoor",
+    "Outdoor",
+    "Tent Decoration",
+    "Raw Materials",
+    "Machinery",
+    "Solar Lights",
+    "Others",
+] as const;
+
+type Category = typeof VALID_CATEGORIES[number];
+
+// Type guard for category
+function isValidCategory(value: string): value is Category {
+    return VALID_CATEGORIES.includes(value as Category);
+}
 
 export async function POST(req: NextRequest) {
     try {
         const { fields, files } = await parseFormData(req);
+        console.log("Parsed fields:", fields);
+        console.log("Parsed files:", files);
 
         const name = normalizeField(fields.name);
         const summary = normalizeField(fields.summary);
         const wattage = normalizeField(fields.wattage);
         const price = normalizeField(fields.price);
-        if (!name || !summary || !wattage || !price) {
+        const categoryInput = normalizeField(fields.category);
+
+        // Validate required fields
+        if (!name || !summary || !wattage || !price || !categoryInput) {
             return NextResponse.json(
                 {
                     statusCode: 400,
                     errorCode: "MISSING_FIELDS",
-                    errorMessage: "name, summary, wattage, and price are required",
+                    errorMessage: "name, summary, wattage, price, and category are required",
                 },
                 { status: 400 }
             );
         }
 
+        // Validate category with type guard
+        if (!isValidCategory(categoryInput)) {
+            return NextResponse.json(
+                {
+                    statusCode: 400,
+                    errorCode: "INVALID_CATEGORY",
+                    errorMessage: `Invalid category: ${categoryInput}`,
+                },
+                { status: 400 }
+            );
+        }
 
-        const imageFiles = Array.isArray(files.images) ? files.images : files.images ? [files.images] : [];
-        const uploadedImageUrls = imageFiles.length > 0 ? await UploadMultipleImages(imageFiles) : [];
-        
+        // Handle images
+        const imageFiles = Array.isArray(files.images)
+            ? files.images
+            : files.images
+                ? [files.images]
+                : [];
 
-        const product = {
+        const uploadedImageUrls =
+            imageFiles.length > 0 ? await UploadMultipleImages(imageFiles) : [];
+
+        // Construct product object (do NOT include createdOn/updatedOn)
+        const product: Omit<ProductItem, "id" | "createdOn" | "updatedOn"> = {
             name,
             summary,
             wattage,
             price: parseFloat(price),
-            images: uploadedImageUrls,
             link: normalizeField(fields.link),
-            dimensions: normalizeField(fields.dimensions),
-            voltage: normalizeField(fields.voltage),
-            efficiency: normalizeField(fields.efficiency),
-            warranty: normalizeField(fields.warranty),
-            createdOn: new Date().toISOString(),
-            updatedOn: new Date().toISOString(),
+            images: uploadedImageUrls,
+            category: categoryInput, // type-safe via guard
+            specifications: {
+                dimensions: normalizeField(fields.dimensions),
+                voltage: normalizeField(fields.voltage),
+                efficiency: normalizeField(fields.efficiency),
+                warranty: normalizeField(fields.warranty),
+            },
         };
 
+        // Save and return
         await ProductService.addProduct(product);
         const allProducts = await ProductService.getAllProducts();
 
@@ -57,11 +107,16 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         consoleManager.error("PRODUCT_POST_ERROR", error);
         return NextResponse.json(
-            { statusCode: 500, errorCode: "INTERNAL_ERROR", errorMessage: error.message || "Internal Server Error" },
+            {
+                statusCode: 500,
+                errorCode: "INTERNAL_ERROR",
+                errorMessage: error instanceof Error ? error.message : "Internal Server Error",
+            },
             { status: 500 }
         );
     }
 }
+
 
 // ✅ GET: Get all products
 export async function GET() {

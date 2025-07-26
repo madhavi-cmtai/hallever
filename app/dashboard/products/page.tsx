@@ -5,34 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchProducts,
-  selectProducts,
-  selectIsLoading,
-  addProduct,
-  updateProduct,
-  deleteProduct,
-  ProductItem,
-} from "@/lib/redux/slice/productSlice";
+import { fetchProducts, selectProducts, selectIsLoading, addProduct, updateProduct, deleteProduct, ProductItem} from "@/lib/redux/slice/productSlice";
 import { AppDispatch } from "@/lib/redux/store";
 import { toast } from "sonner";
 import ProductCard from "./productCard";
 import ProductModal from "./productModal";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
+
+const CATEGORY_OPTIONS = [ "Indoor", "Outdoor", "Tent Decoration", "Raw Materials", "Machinery", "Solar Lights", "Others"];
 
 export default function ProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector(selectProducts);
   const isLoading = useSelector(selectIsLoading);
-
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string>("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [deleteProductData, setDeleteProductData] = useState<ProductItem | null>(null);
@@ -44,10 +32,12 @@ export default function ProductsPage() {
 
   const filteredProducts = useMemo(() => {
     const list = Array.isArray(products) ? products : [];
-    return list.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [products, search]);
+    return list.filter((p) => {
+      const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === "all" ? true : p.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, search, category]);
 
   const openAddModal = () => {
     setSelectedProduct(null);
@@ -69,10 +59,21 @@ export default function ProductsPage() {
       formPayload.append("name", formData.name);
       formPayload.append("summary", formData.summary);
       formPayload.append("wattage", formData.wattage);
-      newImages.forEach((file) => {
-        formPayload.append("images", file);
-      });
+      formPayload.append("price", formData.price.toString());
+      formPayload.append("category", formData.category);
+      formPayload.append("link", formData.link || "");
+      formPayload.append("dimensions", formData.specifications?.dimensions || "");
+      formPayload.append("voltage", formData.specifications?.voltage || "");
+      formPayload.append("efficiency", formData.specifications?.efficiency || "");
+      formPayload.append("warranty", formData.specifications?.warranty || "");
+
+      newImages.forEach((file) => formPayload.append("images", file));
       formPayload.append("deletedImages", JSON.stringify(deletedImages));
+
+      if (selectedProduct?.images?.length) {
+        const retained = selectedProduct.images.filter((img) => !deletedImages.includes(img));
+        retained.forEach((url) => formPayload.append("existingImages", url));
+      }
 
       if (selectedProduct) {
         await dispatch(updateProduct(formPayload, selectedProduct.id as string));
@@ -102,11 +103,13 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto p-0 flex flex-col gap-8">
-      {/* Header and Search */}
+      {/* Header and Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2 mb-1 flex-wrap">
         <h2 className="text-xl font-bold text-[var(--primary-red)]">Products</h2>
+
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-stretch sm:items-center justify-end">
-          <div className="relative w-full sm:w-72">
+          {/* Search Input */}
+          <div className="relative w-full sm:w-64">
             <Input
               placeholder="Search products..."
               value={search}
@@ -115,6 +118,23 @@ export default function ProductsPage() {
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
+
+          {/* Category Filter */}
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="w-full sm:w-52">
+              <SelectValue placeholder="Filter by Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {CATEGORY_OPTIONS.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Add Button */}
           <Button
             onClick={openAddModal}
             className="gap-2 w-full sm:w-auto bg-[var(--primary-red)] hover:bg-[var(--primary-pink)]"
