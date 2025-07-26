@@ -376,7 +376,7 @@ const hiTranslations: Record<string, string> = {
     "contact.methods.phone.action": "अभी कॉल करें",
     "contact.methods.whatsapp.title": "व्हाट्सएप",
     "contact.methods.whatsapp.description": "त्वरित कोट और तत्काल सहायता |",
-    "contact.methods.whatsapp.value": "+91 98765 43210",
+    "contact.methods.whatsapp.value": "+91 94689 09306",
     "contact.methods.whatsapp.action": "संदेश भेजें",
     "contact.methods.email.title": "ईमेल",
     "contact.methods.email.description": "विस्तृत परामर्श अनुरोध भेजें |",
