@@ -121,7 +121,7 @@ const enTranslations: Record<string, string> = {
     "contact.methods.phone.action": "Call Now",
     "contact.methods.whatsapp.title": "WhatsApp",
     "contact.methods.whatsapp.description": "Quick quotes and instant support",
-    "contact.methods.whatsapp.value": "+91 98765 43210",
+    "contact.methods.whatsapp.value": "+91 94689 09306",
     "contact.methods.whatsapp.action": "Message Now",
     "contact.methods.email.title": "Email",
     "contact.methods.email.description": "Detailed consultation requests",
