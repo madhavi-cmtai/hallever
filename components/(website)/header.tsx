@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Menu, Search, User, LogIn, UserPlus, Globe, X } from "lucide-react"
-import { useLanguage } from "@/context/language-context"
+import { Language, useLanguage } from "@/context/language-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,14 +129,25 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem onClick={() => setLanguage("en")} className={language === "en" ? "font-semibold" : ""}>
-                  English
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLanguage("hi")} className={language === "hi" ? "font-semibold" : ""}>
-                  हिन्दी
-                </DropdownMenuItem>
+                {[
+                  { code: "en", label: "English" },
+                  { code: "hi", label: "हिन्दी" },
+                  { code: "mr", label: "मराठी" },
+                  { code: "ta", label: "தமிழ்" },
+                  { code: "bn", label: "বাংলা" },
+                  { code: "te", label: "తెలుగు" }
+                ].map(({ code, label }) => (
+                  <DropdownMenuItem
+                    key={code}
+                    onClick={() => setLanguage(code as Language)}
+                    className={language === code ? "font-semibold text-grey-600" : ""}
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
           </div>
         </div>
 

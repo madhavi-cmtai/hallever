@@ -29,7 +29,6 @@ const Footer = () => {
     const services = [
         t('footer.services.tents'),
         t('footer.services.light'),
-        t('footer.services.curtains'),
         t('footer.services.fabrics'),
     ];
 

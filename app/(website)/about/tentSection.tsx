@@ -47,12 +47,15 @@ const TentSection = () => {
                     <div className="space-y-8">
                         {/* Section Header */}
                         <div>
-                            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-foreground mb-6">
-                                {t("tent.heading.part1")}{" "}
-                                <span className="text-transparent bg-clip-text bg-[var(--primary-red)]">
+                            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-foreground mb-6 mt-3 pt-4">
+                                <span className="block">
+                                    {t("tent.heading.part1")}
+                                </span>
+                                <span className="block text-transparent bg-clip-text bg-[var(--primary-red)] mt-3 pt-3 pb-1.5">
                                     {t("tent.heading.part2")}
                                 </span>
                             </h2>
+
                             <p className="text-xl text-muted-foreground leading-relaxed">
                                 {t("tent.description")}
                             </p>

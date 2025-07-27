@@ -47,7 +47,7 @@ const AboutSection = () => {
                             <span className="text-[var(--primary-red)]">
                                 {t("about.since")}
                                 <br />
-                                <span className="block mt-2 text-3xl sm:text-4xl font-bold">2010</span>
+                                <span className="block mt-2 text-3xl sm:text-4xl font-bold">2022</span>
                             </span>
                         </h2>
                         <div className="w-24 h-1 bg-[var(--primary-gold)] mx-auto mb-6 rounded-full"></div>
