@@ -7,11 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/language-context';
 import { AppDispatch } from '@/lib/redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    fetchBlogs,
-    selectIsLoading,
-    selectBlogs,
-} from '@/lib/redux/slice/blogSlice';
+import { fetchBlogs, selectIsLoading, selectBlogs, } from '@/lib/redux/slice/blogSlice';
+import Link from 'next/link';
 
 const BlogsPreview = () => {
     const pathname = usePathname();
@@ -20,7 +17,7 @@ const BlogsPreview = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const loading = useSelector(selectIsLoading);
-    const blogs = useSelector(selectBlogs); // ✅ MISSING
+    const blogs = useSelector(selectBlogs);
 
     useEffect(() => {
         dispatch(fetchBlogs());
@@ -70,19 +67,23 @@ const BlogsPreview = () => {
                                 />
                             </div>
 
-                            <div className="bg-black p-6">
-                                <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
-                                    {blog.title}
-                                </h3>
-                                <p className="text-muted-foreground mb-4">
-                                    {blog.summary}
-                                </p>
-                                <Button
-                                    variant="outline"
-                                    className="text-sm font-semibold px-6 py-2 border-border hover:bg-gray-300 hover:text-accent-foreground transition-all"
-                                >
-                                    {t('button.readMore')} →
-                                </Button>
+                            <div className="bg-black p-6 flex flex-col justify-between h-full">
+                                <div>
+                                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
+                                        {blog.title}
+                                    </h3>
+                                    <p className="text-muted-foreground mb-4 line-clamp-2">
+                                        {blog.summary}
+                                    </p>
+                                    <Link href={`/blogs/${encodeURIComponent(blog.title.trim())}`}>
+                                        <Button
+                                            variant="outline"
+                                            className="text-sm font-semibold px-6 py-2 border-border hover:bg-gray-300 hover:text-accent-foreground transition-all"
+                                        >
+                                            {t('button.readMore')} →
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
                         </motion.div>
                     ))}

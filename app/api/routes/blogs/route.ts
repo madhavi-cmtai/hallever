@@ -25,7 +25,10 @@ export async function POST(req: Request) {
         }
 
         // Generate slug
+        // Generate slug and normalized title
         const slug = title.toLowerCase().replace(/[^\w\s]/gi, "").replace(/\s+/g, "-");
+        const titleLower = title.toLowerCase().replace(/\s+/g, " ").trim();
+
 
         // Add blog using the required fields
         const newBlog = await BlogService.addBlog({
@@ -33,6 +36,7 @@ export async function POST(req: Request) {
             summary,
             image: imageUrl,
             slug,
+            titleLower,
         });
 
         return NextResponse.json({

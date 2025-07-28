@@ -49,7 +49,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
-        const blog = await BlogService.getBlogById(id);
+        const decodedTitle = decodeURIComponent(id).toLowerCase().replace(/\s+/g, " ").trim();
+        const blog = await BlogService.getBlogByTitle(decodedTitle);
 
         if (!blog) {
             return NextResponse.json(
@@ -70,6 +71,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         );
     }
 }
+
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {

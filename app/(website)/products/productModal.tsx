@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { ProductItem } from "@/lib/redux/slice/productSlice"
+import { useLanguage } from "@/context/language-context";
 
 interface ProductModalProps {
     product: ProductItem
@@ -14,6 +15,7 @@ interface ProductModalProps {
 
 export default function ProductModal({ product, onClose }: ProductModalProps) {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+    const { t } = useLanguage();
 
     return (
         <AnimatePresence>
@@ -122,7 +124,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                         className="w-full bg-[#E10600] hover:bg-[#C10500] text-white py-3 text-lg"
                                         size="lg"
                                     >
-                                        Buy Now
+                                        {t("button.shopNow")}
                                     </Button>
                                 </a>
 

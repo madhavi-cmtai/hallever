@@ -165,6 +165,7 @@ export default function ProductSection() {
                                             >
                                                 {t("button.shopNow")}
                                             </a>
+                                            
                                             <button
                                                 onClick={() => openModal(product)}
                                                 className="w-[50%] border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"

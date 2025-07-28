@@ -9,6 +9,7 @@ export interface Blog {
     id?: string;
     title: string;
     slug: string;
+    titleLower?:string;
     summary: string;
     category?: string;
     image?: string;
@@ -91,8 +92,9 @@ export const fetchBlogById = (id: string) => async (dispatch: Dispatch) => {
 };
 
 
-export const titleToSlug = (title: string) =>
-    encodeURIComponent(title.toLowerCase().replace(/\s+/g, "-"));
+export const titleToQueryString = (title: string) =>
+    encodeURIComponent(title.trim());
+
 
 // Fetch blog by slug
 export const fetchBlogByTitle = (id: string) => async (dispatch: Dispatch) => {

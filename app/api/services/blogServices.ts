@@ -4,14 +4,16 @@ import { Blog } from "@/lib/redux/slice/blogSlice";
 
 export class BlogService {
     // Add a new blog post
-    static async addBlog(blogData: Omit<Blog, "id" | "createdOn" | "updatedOn" | "titleLower">): Promise<Blog> {
+    static async addBlog(blogData: Omit<Blog, "id" | "createdOn" | "updatedOn">): Promise<Blog> {
         try {
             const timestamp = admin.firestore.FieldValue.serverTimestamp();
             const normalizedTitle = blogData.title.toLowerCase().replace(/\s+/g, " ").trim();
+            const slug = blogData.title.toLowerCase().replace(/\s+/g, "-").trim();
 
             const newBlogRef = await db.collection("blogs").add({
                 ...blogData,
                 titleLower: normalizedTitle,
+                slug,
                 createdOn: timestamp,
                 updatedOn: timestamp,
             });
@@ -33,7 +35,6 @@ export class BlogService {
     static async getAllBlogs(): Promise<Blog[]> {
         try {
             const snapshot = await db.collection("blogs").orderBy("createdOn", "desc").get();
-
             return snapshot.docs.map((doc) => ({
                 ...(doc.data() as Blog),
                 id: doc.id,
@@ -59,7 +60,8 @@ export class BlogService {
             };
 
             if (blogData.title) {
-                updatedData.slug = blogData.title.toLowerCase().replace(/\s+/g, " ").trim();
+                updatedData.titleLower = blogData.title.toLowerCase().replace(/\s+/g, " ").trim();
+                updatedData.slug = blogData.title.toLowerCase().replace(/\s+/g, "-").trim();
             }
 
             await blogRef.update(updatedData);
@@ -75,7 +77,7 @@ export class BlogService {
         }
     }
 
-    // Get a single blog by its lowercase title (used for slug URLs)
+    // Get a single blog by its lowercase title (legacy fallback)
     static async getBlogByTitle(title: string): Promise<Blog | null> {
         try {
             const normalizedTitle = title.toLowerCase().replace(/\s+/g, " ").trim();
@@ -94,7 +96,26 @@ export class BlogService {
         }
     }
 
-    // Get a blog by its document ID
+    // ✅ New: Get blog by slug (used for public URLs)
+    static async getBlogBySlug(slug: string): Promise<Blog | null> {
+        try {
+            const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-").trim();
+            const snapshot = await db.collection("blogs").where("slug", "==", normalizedSlug).limit(1).get();
+
+            if (snapshot.empty) return null;
+
+            const doc = snapshot.docs[0];
+            return {
+                ...(doc.data() as Blog),
+                id: doc.id,
+            };
+        } catch (error) {
+            console.error("Error fetching blog by slug:", error);
+            throw new Error("Failed to fetch blog by slug");
+        }
+    }
+
+    // Get blog by document ID
     static async getBlogById(id: string): Promise<Blog | null> {
         try {
             const doc = await db.collection("blogs").doc(id).get();
