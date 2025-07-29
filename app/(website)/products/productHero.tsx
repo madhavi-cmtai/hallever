@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useLanguage } from "@/context/language-context"; // or your translation hook
+import { useLanguage } from "@/context/language-context";
 
 export default function HeroProduct() {
-    const { t } = useLanguage(); // or useTranslation()
+    const { t } = useLanguage(); 
 
     return (
         <section className="relative h-[620px] flex items-center justify-center overflow-hidden">
