@@ -11,8 +11,52 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { ProductItem } from "@/lib/redux/slice/productSlice";
 import { Trash2 } from "lucide-react";
+import { ProductItem } from "@/lib/redux/slice/productSlice";
+
+// Category and SubCategory options
+const categoryOptions = [
+    "Indoor",
+    "Outdoor",
+    "Tent Decoration",
+    "Raw Materials",
+    "Machinery",
+    "Solar Lights",
+    "Others",
+];
+
+const subCategoryMap: Record<string, string[]> = {
+    Indoor: ["LED Bulb", "Tube Light", "Concal Light", "Panel Light"],
+    Outdoor: ["Flood Light", "Street Light", "Gate Light"],
+    "Tent Decoration": [
+        "Hight Lights Choka",
+        "Side Flood Light",
+        "Street Lights",
+        "Cob Lights",
+        "Pixel Light",
+        "DOM Light",
+        "Chakri Board",
+        "Suraj",
+        "Ladi",
+        "Rope Light",
+        "Gallery Iron Stand",
+    ],
+    "Raw Materials": [
+        "Driver",
+        "LED MPCB",
+        "SMPS",
+        "Pixel Controller",
+        "Repairing Iron",
+        "Iron Shoulder",
+    ],
+    Machinery: ["Machinery Iron"],
+    "Solar Lights": [
+        "Garden Light",
+        "Solar Flood Light",
+        "Solar Street Light",
+        "Solar Roof Panel",
+    ],
+};
 
 interface ProductModalProps {
     isOpen: boolean;
@@ -24,16 +68,6 @@ interface ProductModalProps {
     ) => Promise<void>;
     product?: ProductItem;
 }
-
-const categoryOptions = [
-    "Indoor",
-    "Outdoor",
-    "Tent Decoration",
-    "Raw Materials",
-    "Machinery",
-    "Solar Lights",
-    "Others",
-];
 
 const ProductModal: React.FC<ProductModalProps> = ({
     isOpen,
@@ -48,6 +82,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         price: "",
         link: "",
         category: "",
+        subCategory: "",
         specifications: {
             dimensions: "",
             voltage: "",
@@ -61,6 +96,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const [deletedImages, setDeletedImages] = useState<string[]>([]);
     const [error, setError] = useState("");
 
+    const currentSubCategories = subCategoryMap[formData.category] || [];
+
     useEffect(() => {
         if (isOpen) {
             if (product) {
@@ -71,6 +108,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     price: product.price?.toString() || "",
                     link: product.link || "",
                     category: product.category || "",
+                    subCategory: product.subCategory || "",
                     specifications: {
                         dimensions: product.specifications?.dimensions || "",
                         voltage: product.specifications?.voltage || "",
@@ -87,6 +125,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     price: "",
                     link: "",
                     category: "",
+                    subCategory: "",
                     specifications: {
                         dimensions: "",
                         voltage: "",
@@ -105,20 +144,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         setSelectedImages((prev) => [...prev, ...files]);
-
         const previews = files.map((file) => URL.createObjectURL(file));
         setImagePreviews((prev) => [...prev, ...previews]);
     };
 
     const handleRemoveImage = (index: number) => {
         const imgToRemove = imagePreviews[index];
-
         if (product && product.images.includes(imgToRemove)) {
             setDeletedImages((prev) => [...prev, imgToRemove]);
         }
-
         setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-
         const isNewImage = !product || !product.images.includes(imgToRemove);
         if (isNewImage) {
             const updatedSelected = selectedImages.filter(
@@ -132,14 +167,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
         e.preventDefault();
         setError("");
 
-        if (
-            !formData.name ||
-            !formData.summary ||
-            !formData.wattage ||
-            !formData.price ||
-            !formData.category
-        ) {
+        const { name, summary, wattage, price, category, subCategory } = formData;
+        if (!name || !summary || !wattage || !price || !category) {
             setError("Please fill in all required fields.");
+            return;
+        }
+
+        if (currentSubCategories.length && !subCategory) {
+            setError("Please select a sub-category.");
             return;
         }
 
@@ -151,7 +186,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     wattage: formData.wattage.trim(),
                     price: Number(formData.price),
                     link: formData.link.trim(),
-                    category: formData.category as ProductItem["category"],
+                    category: formData.category as ProductItem["category"], 
+                    subCategory: formData.subCategory,
                     images: imagePreviews,
                     specifications: formData.specifications,
                 },
@@ -209,7 +245,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             onChange={(e) =>
                                 setFormData((prev) => ({ ...prev, wattage: e.target.value }))
                             }
-                            placeholder="e.g., 100W, Medium"
+                            placeholder="e.g., 100W"
                             required
                         />
                     </div>
@@ -224,7 +260,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             onChange={(e) =>
                                 setFormData((prev) => ({ ...prev, price: e.target.value }))
                             }
-                            placeholder="e.g., 199.99"
                             required
                         />
                     </div>
@@ -235,7 +270,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <Input
                             id="link"
                             type="url"
-                            placeholder="https://example.com/product"
                             value={formData.link}
                             onChange={(e) =>
                                 setFormData((prev) => ({ ...prev, link: e.target.value }))
@@ -250,7 +284,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             id="category"
                             value={formData.category}
                             onChange={(e) =>
-                                setFormData((prev) => ({ ...prev, category: e.target.value }))
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    category: e.target.value,
+                                    subCategory: "", // Reset subCategory
+                                }))
                             }
                             className="w-full border px-3 py-2 rounded-md"
                             required
@@ -263,6 +301,32 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             ))}
                         </select>
                     </div>
+
+                    {/* Sub Category */}
+                    {currentSubCategories.length > 0 && (
+                        <div className="space-y-2">
+                            <Label htmlFor="subCategory">Sub Category *</Label>
+                            <select
+                                id="subCategory"
+                                value={formData.subCategory}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        subCategory: e.target.value,
+                                    }))
+                                }
+                                className="w-full border px-3 py-2 rounded-md"
+                                required
+                            >
+                                <option value="">Select Sub Category</option>
+                                {currentSubCategories.map((sub) => (
+                                    <option key={sub} value={sub}>
+                                        {sub}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {/* Specifications */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -283,7 +347,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                             },
                                         }))
                                     }
-                                    placeholder={`Enter ${key}`}
                                 />
                             </div>
                         ))}
@@ -323,10 +386,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         )}
                     </div>
 
-                    {/* Error Message */}
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                    {/* Save Button */}
                     <div className="flex justify-end">
                         <Button type="submit" className="w-full sm:w-auto">
                             {product ? "Update Product" : "Add Product"}

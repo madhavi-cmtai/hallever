@@ -2,16 +2,17 @@ import { AnyAction, createSlice, Dispatch, ThunkAction } from "@reduxjs/toolkit"
 import axios, { AxiosError } from "axios";
 import { RootState } from "../store";
 
-// Product interface
+// ✅ Product interface
 export interface ProductItem {
     id?: string | number;
     name: string;
-    price:number;
+    price: number;
     summary: string;
     wattage: string;
-    images: string[]; 
-    link?:string;
-    category?: | "Indoor" | "Outdoor" | "Tent Decoration" | "Raw Materials" | "Machinery" | "Solar Lights" | "Others";
+    images: string[];
+    link?: string;
+    category?: | "Indoor" | "Outdoor" | "Tent Decoration" | "Raw Materials"| "Machinery" | "Solar Lights"| "Others";
+    subCategory?: string; 
     specifications?: {
         dimensions?: string;
         weight?: string;
@@ -29,7 +30,7 @@ export interface ProductItem {
     updatedOn?: number;
 }
 
-// Redux state type
+// ✅ Redux state type
 interface ProductState {
     products: ProductItem[];
     isLoading: boolean;
@@ -37,15 +38,16 @@ interface ProductState {
     selectedProduct: ProductItem | null;
 }
 
-// Initial state
+// ✅ Initial state
 const initialState: ProductState = {
     products: [],
     isLoading: false,
     error: null,
     selectedProduct: null,
 };
-export { fileToBase64 };
-function fileToBase64(file: File): Promise<string> {
+
+// ✅ Utility function for file conversion (optional)
+export function fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as string);
@@ -54,8 +56,7 @@ function fileToBase64(file: File): Promise<string> {
     });
 }
 
-
-// Slice
+// ✅ Slice
 const productSlice = createSlice({
     name: "product",
     initialState,
@@ -92,8 +93,7 @@ export const {
     clearProducts,
 } = productSlice.actions;
 
-
-// Fetch all products
+// ✅ Fetch all products
 export const fetchProducts = () => async (dispatch: Dispatch) => {
     dispatch(setIsLoading(true));
     try {
@@ -105,6 +105,7 @@ export const fetchProducts = () => async (dispatch: Dispatch) => {
     }
 };
 
+// ✅ Fetch by ID
 export const fetchProductById = (
     id: string
 ): ThunkAction<Promise<ProductItem | null>, RootState, unknown, AnyAction> =>
@@ -124,8 +125,7 @@ export const fetchProductById = (
         }
     };
 
-
-// Add product (JSON + base64)
+// ✅ Add product
 export const addProduct = (formData: FormData) => async (dispatch: Dispatch) => {
     try {
         const res = await axios.post("/api/routes/products", formData, {
@@ -140,7 +140,7 @@ export const addProduct = (formData: FormData) => async (dispatch: Dispatch) => 
     }
 };
 
-// Update product (JSON + optional base64 images)
+// ✅ Update product
 export const updateProduct = (formData: FormData, id: string) => async (dispatch: Dispatch) => {
     try {
         const res = await axios.put(`/api/routes/products/${id}`, formData, {
@@ -149,14 +149,13 @@ export const updateProduct = (formData: FormData, id: string) => async (dispatch
             },
         });
         dispatch(setProducts(res.data.data));
-
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to update product"));
     }
 };
 
-// Delete product
+// ✅ Delete product
 export const deleteProduct = (id: string) => async (dispatch: Dispatch) => {
     try {
         const res = await axios.delete(`/api/routes/products/${id}`);
@@ -167,11 +166,21 @@ export const deleteProduct = (id: string) => async (dispatch: Dispatch) => {
     }
 };
 
-
+// ✅ Selectors
 export const selectProducts = (state: RootState) => state.products.products;
-export const selectSelectedProduct = (state: RootState) =>
-    state.products.selectedProduct;
+export const selectSelectedProduct = (state: RootState) => state.products.selectedProduct;
 export const selectIsLoading = (state: RootState) => state.products.isLoading;
 export const selectError = (state: RootState) => state.products.error;
+
+// ✅ Selector to get sub-categories for a selected category
+export const selectSubCategories = (state: RootState, category: string) => {
+    const filtered = state.products.products.filter(
+        (p) => p.category?.toLowerCase() === category.toLowerCase()
+    );
+    const unique = Array.from(
+        new Set(filtered.map((p) => p.subCategory).filter(Boolean))
+    );
+    return unique;
+};
 
 export default productSlice.reducer;

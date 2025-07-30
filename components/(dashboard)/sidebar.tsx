@@ -2,16 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import {
-  FileText,
-  Briefcase,
-  Package,
-  Users,
-  LogOut,
-  Menu,
-  Settings,
-  Home,
-} from "lucide-react";
+import { FileText, Briefcase, Package, Users, LogOut, Menu, Settings, Home, Gift } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/dashboard/", icon: <Home /> },
@@ -20,6 +11,7 @@ const links = [
   { name: "Applications", href: "/dashboard/applications", icon: <Users /> },
   { name: "Products", href: "/dashboard/products", icon: <Package /> },
   { name: "Services", href: "/dashboard/services", icon: <Settings /> },
+  { name: "Offers", href: "/dashboard/offers", icon: <Gift /> },
   { name: "Leads", href: "/dashboard/leads", icon: <Users /> },
 ];
 

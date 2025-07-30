@@ -3,13 +3,27 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import ProductModal from "@/app/(website)/products/productModal";
-import { fetchProducts, selectProducts, selectIsLoading, ProductItem } from "@/lib/redux/slice/productSlice";
+import {
+    fetchProducts,
+    selectProducts,
+    selectIsLoading,
+    ProductItem,
+} from "@/lib/redux/slice/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { useLanguage } from "@/context/language-context";
 import { Loader2 } from "lucide-react";
 
-const categories = ["indoor", "outdoor", "tent", "raw", "machinery", "solar"];
+const categories = ["Indoor", "Outdoor", "Tent Decoration", "Raw Materials", "Machinery", "Solar Lights"];
+
+const categoryKeys = {
+    "Indoor": "indoor",
+    "Outdoor": "outdoor",
+    "Tent Decoration": "tent",
+    "Raw Materials": "raw",
+    "Machinery": "machinery",
+    "Solar Lights": "solar",
+};
 
 const categoryImages: Record<string, string> = {
     indoor: "/images/indoor.jpeg",
@@ -18,6 +32,27 @@ const categoryImages: Record<string, string> = {
     raw: "/images/raw-materials.jpeg",
     machinery: "/images/machinery.png",
     solar: "/images/solar.jpeg",
+};
+
+const subCategories: Record<string, string[]> = {
+    indoor: ["LED Bulb", "Tube Light", "Concal Light", "Panel Light"],
+    outdoor: ["Flood Light", "Street Light", "Gate Light"],
+    tent: [
+        "Hight Lights Choka",
+        "Side Flood Light",
+        "Street Lights",
+        "Cob Lights",
+        "Pixel Light",
+        "DOM Light",
+        "Chakri Board",
+        "Suraj",
+        "Ladi",
+        "Rope Light",
+        "Gallery Iron Stand",
+    ],
+    raw: ["Driver", "LED MPCB", "SMPS", "Pixel Controller", "Repairing Iron", "Iron Shoulder"],
+    machinery: ["Machinery Iron"],
+    solar: ["Garden Light", "Solar Flood Light", "Solar Street Light", "Solar Roof Panel"],
 };
 
 export default function ProductSection() {
@@ -30,6 +65,7 @@ export default function ProductSection() {
     const [selectedImageIndices, setSelectedImageIndices] = useState<Record<string, number>>({});
     const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
 
     useEffect(() => {
         dispatch(fetchProducts());
@@ -46,57 +82,88 @@ export default function ProductSection() {
         }));
     };
 
-    const filteredProducts = selectedCategory
-        ? products.filter((product) =>
-            product.category?.toLowerCase().includes(selectedCategory.toLowerCase())
-        )
-        : products;
+    const filteredProducts = products.filter((product) => {
+        const matchCategory = selectedCategory
+            ? product.category === selectedCategory
+            : true;
+
+        const matchSubCategory = selectedSubCategory
+            ? product.subCategory?.toLowerCase() === selectedSubCategory.toLowerCase()
+            : true;
+
+        return matchCategory && matchSubCategory;
+    });
 
     return (
         <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
-                {/* Section Heading */}
                 <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">
-                    {t("products.titleFirst")}{" "}
-                    <span className="text-[var(--primary-red)]">{t("products.titleSecond")}</span>
+                    {t("products.titleFirst")} <span className="text-[var(--primary-red)]">{t("products.titleSecond")}</span>
                 </h2>
 
                 {/* Category List */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 mb-20">
-                    {categories.map((key) => (
-                        <div
-                            key={key}
-                            onClick={() => setSelectedCategory((prev) => (prev === key ? null : key))}
-                            className={`text-center group cursor-pointer transform hover:scale-105 transition-all duration-300 ${selectedCategory === key ? "scale-105" : ""
-                                }`}
-                        >
-                            <div className="relative w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 bg-[#a8e6ff]/10 group-hover:bg-[#a8e6ff]/20 transition-colors">
-                                <Image
-                                    src={categoryImages[key]}
-                                    alt={t(`products.categories.${key}.name`)}
-                                    fill
-                                    className="object-contain"
-                                />
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+                    {categories.map((cat) => {
+                        const key = categoryKeys[cat];
+                        return (
+                            <div
+                                key={cat}
+                                onClick={() => {
+                                    setSelectedCategory((prev) => (prev === cat ? null : cat));
+                                    setSelectedSubCategory(null);
+                                }}
+                                className={`text-center group cursor-pointer transform hover:scale-105 transition-all duration-300 ${selectedCategory === cat ? "scale-105" : ""}`}
+                            >
+                                <div className="relative w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 bg-[#a8e6ff]/10 group-hover:bg-[#a8e6ff]/20 transition-colors">
+                                    <Image
+                                        src={categoryImages[key]}
+                                        alt={t(`products.categories.${key}.name`)}
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                    {t(`products.categories.${key}.name`)}
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {t(`products.categories.${key}.summary`)}
+                                </p>
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800">
-                                {t(`products.categories.${key}.name`)}
-                            </h3>
-                            <p className="text-xs text-gray-500 mt-1">
-                                {t(`products.categories.${key}.summary`)}
-                            </p>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
-                {/* Product Listing Title */}
+                {/* Subcategories */}
+                {selectedCategory && subCategories[categoryKeys[selectedCategory]] && (
+                    <div className="flex flex-wrap gap-2 justify-center mb-10">
+                        {subCategories[categoryKeys[selectedCategory]].map((sub, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() =>
+                                    setSelectedSubCategory((prev) => (prev === sub ? null : sub))
+                                }
+                                className={`px-3 py-1 text-xs rounded-full border transition ${selectedSubCategory === sub
+                                    ? "bg-[var(--primary-red)] text-white border-[var(--primary-red)]"
+                                    : "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200"}`}
+                            >
+                                {sub}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Filtered Heading */}
                 <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
-                    {selectedCategory ? t("products.titleFirst") : t("products.titleFirst")}{" "}
-                    <span className="text-[var(--primary-red)]">
-                        {selectedCategory ? `${t("products.categories." + selectedCategory + ".name")} ${t("products.titleSecond")}` : t("products.titleSecond")}
+                    {t("products.titleFirst")} <span className="text-[var(--primary-red)]">
+                        {selectedSubCategory
+                            ? selectedSubCategory
+                            : selectedCategory
+                                ? t(`products.categories.${categoryKeys[selectedCategory]}.name`)
+                                : ""} {t("products.titleSecond")}
                     </span>
                 </h2>
 
-                {/* Products */}
+                {/* Products Grid */}
                 {isLoading ? (
                     <div className="text-center text-gray-500 py-12">
                         <Loader2 className="w-10 h-10 animate-spin mx-auto" />
@@ -104,7 +171,7 @@ export default function ProductSection() {
                 ) : (
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredProducts.map((product) => {
-                            const currentImageIndex = selectedImageIndices[product.id] || 0;
+                            const currentImageIndex = selectedImageIndices[product.id!] || 0;
                             return (
                                 <div
                                     key={product.id}
@@ -124,12 +191,11 @@ export default function ProductSection() {
                                                         key={imgIndex}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleImageSelect(product.id, imgIndex);
+                                                            handleImageSelect(product.id!, imgIndex);
                                                         }}
                                                         className={`w-2 h-2 rounded-full border border-white ${currentImageIndex === imgIndex
-                                                                ? "bg-[var(--primary-red)]"
-                                                                : "bg-gray-300"
-                                                            }`}
+                                                            ? "bg-[var(--primary-red)]"
+                                                            : "bg-gray-300"}`}
                                                     />
                                                 ))}
                                             </div>
@@ -143,29 +209,24 @@ export default function ProductSection() {
                                         <p className="text-sm text-gray-600 mb-2">₹{product.price}</p>
 
                                         <ul className="text-xs text-gray-500 space-y-1 mb-4">
-                                            <li>
-                                                <strong>Wattage:</strong> {product.wattage}
-                                            </li>
-                                            <li>
-                                                <strong>Dimension:</strong>{" "}
-                                                {product.specifications?.dimensions}
-                                            </li>
-                                            <li>
-                                                <strong>Efficiency:</strong>{" "}
-                                                {product.specifications?.efficiency}
-                                            </li>
+                                            <li><strong>Wattage:</strong> {product.wattage}</li>
+                                            <li><strong>Dimension:</strong> {product.specifications?.dimensions}</li>
+                                            <li><strong>Efficiency:</strong> {product.specifications?.efficiency}</li>
+                                            {product.subCategory && (
+                                                <li><strong>Subcategory:</strong> {product.subCategory}</li>
+                                            )}
                                         </ul>
 
                                         <div className="flex justify-between gap-2">
                                             <a
-                                                href={`https://wa.me/919468909306?text=I'm interested in "${product.name}"`}
+                                                href={`https://wa.me/919468909306?text=I'm interested in \"${product.name}\"`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="w-[50%] text-center bg-[var(--primary-red)] text-white px-4 py-2 text-sm rounded hover:bg-red-700 transition"
                                             >
                                                 {t("button.shopNow")}
                                             </a>
-                                            
+
                                             <button
                                                 onClick={() => openModal(product)}
                                                 className="w-[50%] border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"

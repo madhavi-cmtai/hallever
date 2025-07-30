@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
 
-import { Target, Sparkles, Users, Clock, MessageCircle } from "lucide-react";
+import { Sparkles, Users, Clock, MapPinned, ShieldCheck, Shapes } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 
 const WhyChooseSection = () => {
@@ -9,7 +9,7 @@ const WhyChooseSection = () => {
 
     const features = [
         {
-            icon: Target,
+            icon: MapPinned,
             title: t("why.features.custom.title"),
             description: t("why.features.custom.description"),
         },
@@ -24,15 +24,20 @@ const WhyChooseSection = () => {
             description: t("why.features.team.description"),
         },
         {
-            icon: Clock,
+            icon: ShieldCheck,
             title: t("why.features.delivery.title"),
             description: t("why.features.delivery.description"),
         },
         {
-            icon: MessageCircle,
+            icon: Shapes,
             title: t("why.features.consultation.title"),
             description: t("why.features.consultation.description"),
         },
+        {
+            icon: Clock,
+            title: t("why.features.verstaile.title"),
+            description: t("why.features.verstaile.description"),
+        }
     ];
 
     return (
@@ -52,7 +57,7 @@ const WhyChooseSection = () => {
                 </div>
 
                 {/* Features Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     {features.map((feature, index) => (
                         <div
                             key={index}

@@ -25,9 +25,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     try {
         const { id } = await params;
         const product = await ProductService.getProductById(id);
+
         if (!product) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
+
         return NextResponse.json(product, { status: 200 });
     } catch (error) {
         console.error("GET product error:", error);
@@ -51,6 +53,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         const efficiency = normalizeField(fields.efficiency);
         const warranty = normalizeField(fields.warranty);
         const categoryInput = normalizeField(fields.category);
+        const subCategory = normalizeField(fields.subCategory); // ✅ New field
 
         // ✅ Validate category
         if (!isValidCategory(categoryInput)) {
@@ -64,6 +67,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             wattage,
             link,
             category: categoryInput,
+            subCategory, // ✅ Include subCategory in update
             specifications: {
                 dimensions,
                 voltage,

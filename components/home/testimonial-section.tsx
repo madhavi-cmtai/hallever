@@ -1,36 +1,35 @@
 "use client";
 
-import Image from "next/image";
 import { Star, Quote } from "lucide-react";
 import { useLanguage } from "@/context/language-context"; // ✅ Import i18n context
 
 const testimonials = [
     {
         id: 1,
-        name: "Priya & Arjun",
+        name: "Jaipur Event",
         event: "Wedding Ceremony",
         location: "Jaipur, Rajasthan",
         rating: 5,
         text: "Our wedding looked like a fairytale! The lighting was absolutely magical and created the perfect ambiance for our special day. Thank you Hallever team for making our dreams come true.",
-        image: "/images/testimonials/priya-arjun.jpg",
+      
     },
     {
         id: 2,
-        name: "Rajesh Kumar",
-        event: "Anniversary Celebration",
+        name: "Balaji Event",
+        event: "Celebration Event",
         location: "Delhi",
         rating: 5,
         text: "Punctual, beautiful lights, great coordination. The team was professional and the setup exceeded our expectations. Highly recommended for any celebration!",
-        image: "/images/testimonials/rajesh-kumar.jpg",
+      
     },
     {
         id: 3,
-        name: "Meera Sharma",
+        name: "Mumbai Event",
         event: "Corporate Event",
         location: "Mumbai",
         rating: 5,
         text: "The tent decor and lighting was beyond our imagination! They transformed our venue into something truly spectacular. Amazing attention to detail and creativity.",
-        image: "/images/testimonials/meera-sharma.jpg",
+    
     },
 ];
 
@@ -85,13 +84,7 @@ const TestimonialsSection = () => {
 
                             {/* Client Info */}
                             <div className="flex items-center gap-4">
-                                <Image
-                                    src={testimonial.image}
-                                    alt={testimonial.name}
-                                    width={56}
-                                    height={56}
-                                    className="rounded-full object-cover w-14 h-14"
-                                />
+                                
                                 <div>
                                     <h4 className="font-semibold text-card-foreground text-lg">
                                         {testimonial.name}

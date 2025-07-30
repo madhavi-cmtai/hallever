@@ -42,10 +42,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border-0 shadow-md">
             <CardContent className="p-0 relative">
 
-                {/* 🔴 Category Badge on Top */}
+                {/* 🔴 Category and Subcategory Badges */}
                 {product.category && (
-                    <div className="absolute top-2 left-2 z-10 bg-[var(--primary-red)] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                        {product.category}
+                    <div className="absolute top-2 left-2 z-10 flex flex-col space-y-1">
+                        <div className="bg-[var(--primary-red)] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                            {product.category}
+                        </div>
+                        {product.subCategory && (
+                            <div className="bg-[var(--primary-pink)] text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
+                                {product.subCategory}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -78,8 +85,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                             <div
                                                 key={index}
                                                 className={`w-2 h-2 rounded-full transition-colors duration-200 ${index === currentImageIndex
-                                                        ? "bg-white"
-                                                        : "bg-white/50"
+                                                    ? "bg-white"
+                                                    : "bg-white/50"
                                                     }`}
                                             />
                                         ))}

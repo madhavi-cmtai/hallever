@@ -5,22 +5,86 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, selectProducts, selectIsLoading, addProduct, updateProduct, deleteProduct, ProductItem} from "@/lib/redux/slice/productSlice";
+import {
+  fetchProducts,
+  selectProducts,
+  selectIsLoading,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  ProductItem,
+} from "@/lib/redux/slice/productSlice";
 import { AppDispatch } from "@/lib/redux/store";
 import { toast } from "sonner";
 import ProductCard from "./productCard";
 import ProductModal from "./productModal";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
-const CATEGORY_OPTIONS = [ "Indoor", "Outdoor", "Tent Decoration", "Raw Materials", "Machinery", "Solar Lights", "Others"];
+const CATEGORY_OPTIONS = [
+  "Indoor",
+  "Outdoor",
+  "Tent Decoration",
+  "Raw Materials",
+  "Machinery",
+  "Solar Lights",
+  "Others",
+];
+
+const SUB_CATEGORY_OPTIONS: Record<string, string[]> = {
+  Indoor: ["LED Bulb", "Tube Light", "Concal Light", "Panel Light"],
+  Outdoor: ["Flood Light", "Street Light", "Gate Light"],
+  "Tent Decoration": [
+    "Hight Lights Choka",
+    "Side Flood Light",
+    "Street Lights",
+    "Cob Lights",
+    "Pixel Light",
+    "DOM Light",
+    "Chakri Board",
+    "Suraj",
+    "Ladi",
+    "Rope Light",
+    "Gallery Iron Stand",
+  ],
+  "Raw Materials": [
+    "Driver",
+    "LED MPCB",
+    "SMPS",
+    "Pixel Controller",
+    "Repairing Iron",
+    "Iron Shoulder",
+  ],
+  Machinery: ["Machinery Iron"],
+  "Solar Lights": [
+    "Garden Light",
+    "Solar Flood Light",
+    "Solar Street Light",
+    "Solar Roof Panel",
+  ],
+};
 
 export default function ProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector(selectProducts);
   const isLoading = useSelector(selectIsLoading);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
+  const [subCategory, setSubCategory] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [deleteProductData, setDeleteProductData] = useState<ProductItem | null>(null);
@@ -35,17 +99,20 @@ export default function ProductsPage() {
     return list.filter((p) => {
       const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = category === "all" ? true : p.category === category;
-      return matchesSearch && matchesCategory;
+      const matchesSubCategory = subCategory ? p.subCategory === subCategory : true;
+      return matchesSearch && matchesCategory && matchesSubCategory;
     });
-  }, [products, search, category]);
+  }, [products, search, category, subCategory]);
 
   const openAddModal = () => {
     setSelectedProduct(null);
+    setSubCategory(null);
     setModalOpen(true);
   };
 
   const openEditModal = (product: ProductItem) => {
     setSelectedProduct(product);
+    setSubCategory(product.subCategory || null);
     setModalOpen(true);
   };
 
@@ -61,6 +128,7 @@ export default function ProductsPage() {
       formPayload.append("wattage", formData.wattage);
       formPayload.append("price", formData.price.toString());
       formPayload.append("category", formData.category);
+      formPayload.append("subCategory", formData.subCategory || "");
       formPayload.append("link", formData.link || "");
       formPayload.append("dimensions", formData.specifications?.dimensions || "");
       formPayload.append("voltage", formData.specifications?.voltage || "");
@@ -87,7 +155,7 @@ export default function ProductsPage() {
       setModalOpen(false);
     } catch (error) {
       console.error("Save error:", error);
-      toast.error(`Failed to save product: ${error?.message || "Unknown error"}`);
+      toast.error(`Failed to save product`);
     }
   };
 
@@ -103,12 +171,10 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto p-0 flex flex-col gap-8">
-      {/* Header and Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2 mb-1 flex-wrap">
         <h2 className="text-xl font-bold text-[var(--primary-red)]">Products</h2>
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-stretch sm:items-center justify-end">
-          {/* Search Input */}
           <div className="relative w-full sm:w-64">
             <Input
               placeholder="Search products..."
@@ -119,8 +185,13 @@ export default function ProductsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
 
-          {/* Category Filter */}
-          <Select value={category} onValueChange={setCategory}>
+          <Select
+            value={category}
+            onValueChange={(val) => {
+              setCategory(val);
+              setSubCategory(null);
+            }}
+          >
             <SelectTrigger className="w-full sm:w-52">
               <SelectValue placeholder="Filter by Category" />
             </SelectTrigger>
@@ -134,7 +205,21 @@ export default function ProductsPage() {
             </SelectContent>
           </Select>
 
-          {/* Add Button */}
+          {category !== "all" && SUB_CATEGORY_OPTIONS[category] && (
+            <Select value={subCategory ?? ""} onValueChange={setSubCategory}>
+              <SelectTrigger className="w-full sm:w-52">
+                <SelectValue placeholder="Select Sub Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUB_CATEGORY_OPTIONS[category]?.map((sub) => (
+                  <SelectItem key={sub} value={sub}>
+                    {sub}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           <Button
             onClick={openAddModal}
             className="gap-2 w-full sm:w-auto bg-[var(--primary-red)] hover:bg-[var(--primary-pink)]"
@@ -144,7 +229,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Product Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {isLoading ? (
           <div className="col-span-full text-center text-gray-400 py-12">
@@ -166,7 +250,6 @@ export default function ProductsPage() {
         )}
       </div>
 
-      {/* Product Modal */}
       <ProductModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -174,7 +257,6 @@ export default function ProductsPage() {
         product={selectedProduct ?? undefined}
       />
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={!!deleteProductData}
         onOpenChange={(open) => !open && setDeleteProductData(null)}

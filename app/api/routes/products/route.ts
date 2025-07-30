@@ -5,14 +5,13 @@ import ProductService from "@/app/api/services/productServices";
 import consoleManager from "@/app/api/utils/consoleManager";
 import { ProductItem } from "@/lib/redux/slice/productSlice";
 
-
 export const config = {
     api: {
         bodyParser: false,
     },
 };
 
-// Define category options and type
+// Define valid category options
 const VALID_CATEGORIES = [
     "Indoor",
     "Outdoor",
@@ -25,11 +24,12 @@ const VALID_CATEGORIES = [
 
 type Category = typeof VALID_CATEGORIES[number];
 
-// Type guard for category
+// Type guard
 function isValidCategory(value: string): value is Category {
     return VALID_CATEGORIES.includes(value as Category);
 }
 
+// ✅ POST: Add a new product
 export async function POST(req: NextRequest) {
     try {
         const { fields, files } = await parseFormData(req);
@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
         const wattage = normalizeField(fields.wattage);
         const price = normalizeField(fields.price);
         const categoryInput = normalizeField(fields.category);
+        const subCategory = normalizeField(fields.subCategory); // ✅ New sub-category field
+        const link = normalizeField(fields.link);
 
         // Validate required fields
         if (!name || !summary || !wattage || !price || !categoryInput) {
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate category with type guard
+        // Validate category
         if (!isValidCategory(categoryInput)) {
             return NextResponse.json(
                 {
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Handle images
+        // Handle image uploads
         const imageFiles = Array.isArray(files.images)
             ? files.images
             : files.images
@@ -76,15 +78,16 @@ export async function POST(req: NextRequest) {
         const uploadedImageUrls =
             imageFiles.length > 0 ? await UploadMultipleImages(imageFiles) : [];
 
-        // Construct product object (do NOT include createdOn/updatedOn)
+        // ✅ Build product object
         const product: Omit<ProductItem, "id" | "createdOn" | "updatedOn"> = {
             name,
             summary,
             wattage,
             price: parseFloat(price),
-            link: normalizeField(fields.link),
+            link,
             images: uploadedImageUrls,
-            category: categoryInput, // type-safe via guard
+            category: categoryInput,
+            subCategory, // ✅ Store sub-category
             specifications: {
                 dimensions: normalizeField(fields.dimensions),
                 voltage: normalizeField(fields.voltage),
@@ -117,7 +120,6 @@ export async function POST(req: NextRequest) {
     }
 }
 
-
 // ✅ GET: Get all products
 export async function GET() {
     try {
@@ -132,7 +134,11 @@ export async function GET() {
     } catch (error) {
         consoleManager.error("PRODUCT_GET_ERROR", error);
         return NextResponse.json(
-            { statusCode: 500, errorCode: "INTERNAL_ERROR", errorMessage: error.message || "Internal Server Error" },
+            {
+                statusCode: 500,
+                errorCode: "INTERNAL_ERROR",
+                errorMessage: error instanceof Error ? error.message : "Internal Server Error",
+            },
             { status: 500 }
         );
     }

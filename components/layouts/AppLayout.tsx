@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "../(website)/header";
 import Footer from "../(website)/footer";
+import PopUpOffer from "../(website)/popupOffer"
 import FloatingChat from "../(website)/floatingButton";
 import React from "react";
 import { LanguageProvider } from "@/context/language-context"; // ✅ Import the provider
@@ -18,12 +19,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <Provider store={store}>
-        <LanguageProvider> {/* ✅ Wrap everything in the provider */}
-            {!shouldHideHeaderFooter && <Header />}
-            <FloatingChat />
-            <main className="flex-1">{children}</main>
-            {!shouldHideHeaderFooter && <Footer />}
-        </LanguageProvider>
+            <LanguageProvider> {/* ✅ Wrap everything in the provider */}
+                {!shouldHideHeaderFooter && <Header />}
+                {!isDashboard && <FloatingChat />}
+                {!isDashboard && <PopUpOffer />}
+                <main className="flex-1">{children}</main>
+                {!shouldHideHeaderFooter && <Footer />}
+            </LanguageProvider>
         </Provider>
     );
 }

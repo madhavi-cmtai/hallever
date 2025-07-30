@@ -6,9 +6,11 @@ import ProductCategories from "../components/home/product-categories";
 import ContactUs from "../components/home/contactUs-section";
 import TestimonialsSection from "@/components/home/testimonial-section";
 
+
 export default function Home() {
   return (
     <div>
+     
       <HeroSection />
       <AboutSection />
       <ProductSection />
