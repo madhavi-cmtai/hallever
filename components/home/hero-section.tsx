@@ -20,16 +20,16 @@ export const Hero = () => {
                     className="w-full h-full object-cover"
                 >
                     <source
-                        src="https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c0fd273d2c6d9a064f3ae35579b2bbdf&profile_id=139&oauth2_token_id=57447761"
+                        src="/videos/hallever1.mp4"
                         type="video/mp4"
                     />
                     Your browser does not support the video tag.
                 </video>
-                <div className="absolute inset-0 bg-black/50" />
+                {/* <div className="absolute inset-0 " /> */}
             </div>
 
             {/* Main Content */}
-            <div className="relative z-10 text-center text-white max-w-4xl px-4">
+            {/* <div className="relative z-10 text-center text-white max-w-4xl px-4">
                 <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
                     {t("home.hero.h1")}
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 animate-pulse">
@@ -55,7 +55,7 @@ export const Hero = () => {
                         {t("button.knowMore")}
                     </Button>
                 </div>
-            </div>
+            </div> */}
 
             {/* Floating Shapes */}
             <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce opacity-70" />
