@@ -8,6 +8,7 @@ const links = [
   { name: "Dashboard", href: "/dashboard/", icon: <Home /> },
   { name: "Teams", href: "/dashboard/teams", icon: <UsersRound /> },
   { name: "Blogs", href: "/dashboard/blogs", icon: <FileText /> },
+  { name: "OffersBanner", href: "/dashboard/offersBanner", icon: <FileText /> },
   { name: "Careers", href: "/dashboard/careers", icon: <Briefcase /> },
   { name: "Applications", href: "/dashboard/applications", icon: <Users /> },
   { name: "Products", href: "/dashboard/products", icon: <Package /> },

@@ -10,6 +10,7 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const name = formData.get("name") as string | null;
         const position = formData.get("position") as string | null;
+        const bio = formData.get("bio") as string | null;
 
         if (!name || !position) {
             return NextResponse.json({
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
         const newTeamMember: Omit<TeamMember, "id" | "createdOn" | "updatedOn"> = {
             name,
             position,
+            bio,
             image: imageUrl,
         };
 

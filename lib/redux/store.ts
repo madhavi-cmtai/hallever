@@ -11,6 +11,7 @@ import offerReducer from "./slice/offerSlice";
 import jobApplicationReducer from './slice/jobApplicationsSlice';
 import testimonialsReducer from "./slice/testimonialsSlice"
 import teamReducer from "./slice/teamSlice"
+import offerBannerReducer from "./slice/offerBannerSlice"
       
 
 export const store = configureStore({
@@ -26,7 +27,7 @@ export const store = configureStore({
         offer: offerReducer,
         testimonials:testimonialsReducer,
         team:teamReducer,
-        
+        offersBanner:offerBannerReducer,
 
     },
 });

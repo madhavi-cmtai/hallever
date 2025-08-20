@@ -11,6 +11,7 @@ interface TeamMember {
     id: string
     name: string
     position: string
+    bio?:string
     image?: string
 }
 
@@ -123,6 +124,11 @@ export default function TeamMembers() {
                                     <p className="text-red-400 text-sm font-medium">
                                         {member.position}
                                     </p>
+                                    {typeof window !== "undefined" && window.location.pathname === "/about" && (
+                                        <p className="text-red-400 text-sm font-medium">
+                                            {member.bio}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

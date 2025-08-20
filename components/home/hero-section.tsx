@@ -11,13 +11,13 @@ export const Hero = () => {
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
             {/* Background Video */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 bg-black">
                 <video
                     autoPlay
                     muted
                     loop
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fit"
                 >
                     <source
                         src="/videos/hallever1.mp4"

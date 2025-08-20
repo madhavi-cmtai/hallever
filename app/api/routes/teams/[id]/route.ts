@@ -1,113 +1,80 @@
-// app/api/routes/team/[id].ts
 import { NextRequest, NextResponse } from "next/server";
-import TeamService from "@/app/api/services/teamServices";
-import consoleManager from "../../../utils/consoleManager";
+import TeamService, { TeamItem } from "@/app/api/services/teamServices";
+import { DeleteImage, ReplaceImage } from "@/app/api/controller/imageController";
 
-// Get team member by ID
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const formData = await req.formData();
+
+    const name = formData.get("name") as string | null;
+    const position = formData.get("position") as string | null;
+    const bio = formData.get("bio") as string | null;
+    const newImage = formData.get("image") as File | null;
+
+    // Fetch existing team member
+    const existingMember = await TeamService.getTeamMemberById(id);
+    if (!existingMember) {
+      return NextResponse.json({ message: "Team member not found." }, { status: 404 });
+    }
+
+    let imageUrl = existingMember.image;
+
+    // Replace image if new one is uploaded
+    if (newImage && newImage instanceof File) {
+      const replacedUrl = await ReplaceImage(newImage, existingMember.image);
+      if (replacedUrl) imageUrl = replacedUrl;
+    }
+
+    const updatedData: Partial<TeamItem> = {
+      name: name ?? existingMember.name,
+      position: position ?? existingMember.position,
+      bio: bio ?? existingMember.bio,
+      image: imageUrl,
+    };
+
+    const updatedMember = await TeamService.updateTeamMember(id, updatedData);
+
+    return NextResponse.json({
+      message: "Team member updated successfully",
+      data: updatedMember,
+    });
+  } catch (error) {
+    console.error("PUT /api/team/[id]:", error);
+    return NextResponse.json({ message: "Failed to update team member" }, { status: 500 });
+  }
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
     const { id } = await params;
-    try {
-        const member = await TeamService.getTeamMemberById(id);
+    const member = await TeamService.getTeamMemberById(id);
 
-        if (!member) {
-            return NextResponse.json({
-                statusCode: 404,
-                errorCode: "NOT_FOUND",
-                errorMessage: "Team member not found",
-            }, { status: 404 });
-        }
-
-        consoleManager.log("Team member fetched:", member);
-        return NextResponse.json({
-            statusCode: 200,
-            message: "Team member fetched successfully",
-            data: member,
-            errorCode: "NO",
-            errorMessage: "",
-        }, { status: 200 });
-
-    } catch (error: unknown) {
-        const message = typeof error === "object" && error && "message" in error
-            ? (error as { message?: string }).message
-            : String(error);
-        consoleManager.error("Error in GET /api/team/[id]:", error);
-        return NextResponse.json({
-            statusCode: 500,
-            errorCode: "INTERNAL_ERROR",
-            errorMessage: message || "Internal Server Error",
-        }, { status: 500 });
+    if (!member) {
+      return NextResponse.json({ data: null, message: "Team member not found" }, { status: 404 });
     }
+
+    return NextResponse.json({ data: member, message: "Fetched team member successfully" });
+  } catch (error) {
+    console.error("GET /api/team/[id]:", error);
+    return NextResponse.json({ data: null, message: "Failed to fetch team member" }, { status: 500 });
+  }
 }
 
-// Update team member
-export async function PUT(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
     const { id } = await params;
-    try {
-        const body = await _req.json();
-        const updatedMember = await TeamService.updateTeamMember(id, body);
+    const member = await TeamService.getTeamMemberById(id);
 
-        if (!updatedMember) {
-            return NextResponse.json({
-                statusCode: 404,
-                errorCode: "NOT_FOUND",
-                errorMessage: "Team member not found",
-            }, { status: 404 });
-        }
-
-        consoleManager.log("Team member updated:", updatedMember);
-        return NextResponse.json({
-            statusCode: 200,
-            message: "Team member updated successfully",
-            data: updatedMember,
-            errorCode: "NO",
-            errorMessage: "",
-        }, { status: 200 });
-
-    } catch (error: unknown) {
-        const message = typeof error === "object" && error && "message" in error
-            ? (error as { message?: string }).message
-            : String(error);
-        consoleManager.error("Error in PUT /api/team/[id]:", error);
-        return NextResponse.json({
-            statusCode: 500,
-            errorCode: "INTERNAL_ERROR",
-            errorMessage: message || "Internal Server Error",
-        }, { status: 500 });
+    if (member?.image) {
+      await DeleteImage(member.image);
     }
-}
 
-// Delete team member
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    try {
-        const isDeleted = await TeamService.deleteTeamMember(id);
+    await TeamService.deleteTeamMember(id);
 
-        if (!isDeleted.success) {
-            return NextResponse.json({
-                statusCode: 404,
-                errorCode: "NOT_FOUND",
-                errorMessage: "Team member not found",
-            }, { status: 404 });
-        }
-
-        consoleManager.log("Team member deleted:", id);
-        return NextResponse.json({
-            statusCode: 200,
-            message: "Team member deleted successfully",
-            data: null,
-            errorCode: "NO",
-            errorMessage: "",
-        }, { status: 200 });
-
-    } catch (error: unknown) {
-        const message = typeof error === "object" && error && "message" in error
-            ? (error as { message?: string }).message
-            : String(error);
-        consoleManager.error("Error in DELETE /api/team/[id]:", error);
-        return NextResponse.json({
-            statusCode: 500,
-            errorCode: "INTERNAL_ERROR",
-            errorMessage: message || "Internal Server Error",
-        }, { status: 500 });
-    }
+    return NextResponse.json({ data: null, message: "Team member deleted successfully" });
+  } catch (error) {
+    console.error("DELETE /api/team/[id]:", error);
+    return NextResponse.json({ data: null, message: "Failed to delete team member" }, { status: 500 });
+  }
 }

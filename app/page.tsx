@@ -6,7 +6,7 @@ import ProductCategories from "../components/home/product-categories";
 import ContactUs from "../components/home/contactUs-section";
 import TestimonialsSection from "@/components/home/testimonial-section";
 import TeamMembers from "@/components/home/team-section";
-import OffersPage from "@/components/home/offer-section";
+import OffersPage from "@/components/home/offersBanner-section";
 
 
 export default function Home() {
