@@ -51,11 +51,11 @@ const OfferBanner = () => {
         </div>
 
         {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-28 md:-ml-20">
           {offers.map((offer) => (
             <Card
               key={offer.id}
-              className="group overflow-hidden p-0 m-0 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#e63d3d]/20 h-96 md:h-[28rem] w-full md:w-[24rem]"
+              className="group overflow-hidden p-0 m-0 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#e63d3d]/20 h-[28rem] md:h-[28rem] w-full md:w-[28rem]"
             >
 
               <div className="relative w-full h-full">
@@ -63,8 +63,9 @@ const OfferBanner = () => {
                   src={offer.image}
                   alt={offer.title}
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="object-contain group-hover:scale-105 transition-transform duration-300"
                 />
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h3 className="text-2xl font-bold">{offer.title}</h3>

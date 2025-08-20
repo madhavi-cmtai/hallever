@@ -1,18 +1,22 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion, Variants } from "framer-motion"
-import Image from "next/image"
-import { AppDispatch } from "@/lib/redux/store"
-import { fetchTeam, selectTeam, selectTeamLoading } from "@/lib/redux/slice/teamSlice"
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, Variants } from "framer-motion";
+import Image from "next/image";
+import { AppDispatch } from "@/lib/redux/store";
+import { fetchTeam, selectTeam, selectTeamLoading } from "@/lib/redux/slice/teamSlice";
 
 interface TeamMember {
-    id: string
-    name: string
-    position: string
-    bio?:string
-    image?: string
+    id: string;
+    name: string;
+    position: string;
+    bio?: string;
+    image?: string;
+}
+
+interface TeamMembersProps {
+    showBio?: boolean; // control whether bio is displayed
 }
 
 // Container animation variants
@@ -20,12 +24,9 @@ const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.2,
-        },
+        transition: { staggerChildren: 0.1, delayChildren: 0.2 },
     },
-}
+};
 
 // Card animation variants
 const cardVariants: Variants = {
@@ -33,21 +34,18 @@ const cardVariants: Variants = {
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            duration: 0.6,
-            ease: [0.42, 0, 0.58, 1] as unknown as "easeInOut", // TS-safe
-        },
+        transition: { duration: 0.6, ease: [0.42, 0, 0.58, 1] as unknown as "easeInOut" },
     },
-}
+};
 
-export default function TeamMembers() {
-    const dispatch = useDispatch<AppDispatch>()
-    const team = useSelector(selectTeam)
-    const loading = useSelector(selectTeamLoading)
+export default function TeamMembers({ showBio = false }: TeamMembersProps) {
+    const dispatch = useDispatch<AppDispatch>();
+    const team = useSelector(selectTeam) || [];
+    const loading = useSelector(selectTeamLoading);
 
     useEffect(() => {
-        dispatch(fetchTeam())
-    }, [dispatch])
+        dispatch(fetchTeam());
+    }, [dispatch]);
 
     return (
         <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
@@ -76,65 +74,60 @@ export default function TeamMembers() {
                 </div>
 
                 {/* Loader */}
-                {loading && (
-                    <p className="text-center text-gray-500">Loading team members...</p>
-                )}
+                {loading && <p className="text-center text-gray-500">Loading team members...</p>}
 
                 {/* Empty State */}
-                {!loading && (!team || team.length === 0) && (
+                {!loading && team.length === 0 && (
                     <p className="text-center text-gray-400">No team members found.</p>
                 )}
 
                 {/* Team Grid */}
-                <motion.div
-                    className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-100px" }}
-                >
-                    {team?.map((member: TeamMember) => (
-                        <motion.div
-                            key={member.id}
-                            className="group cursor-pointer"
-                            variants={cardVariants}
-                            whileHover={{
-                                scale: 1.05,
-                                transition: { duration: 0.2 },
-                            }}
-                        >
-                            <div className="bg-white rounded-lg overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
-                                {/* Image Container */}
-                                <div className="aspect-square relative overflow-hidden">
-                                    <Image
-                                        src={member.image || "/placeholder.svg"}
-                                        alt={member.name}
-                                        fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                    />
-                                    <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
-                                </div>
+                {!loading && team.length > 0 && (
+                    <motion.div
+                        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                    >
+                        {team.map((member: TeamMember) => (
+                            <motion.div
+                                key={member.id}
+                                className="group cursor-pointer"
+                                variants={cardVariants}
+                                whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+                            >
+                                <div className="bg-white rounded-lg overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
+                                    {/* Image Container */}
+                                    <div className="aspect-square relative overflow-hidden">
+                                        <Image
+                                            src={member.image ? member.image : "/placeholder.svg"}
+                                            alt={member.name}
+                                            fill
+                                            className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                            sizes="(max-width: 768px) 50vw, 25vw"
+                                        />
+                                        <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                                    </div>
 
-                                {/* Content */}
-                                <div className="p-4 text-center">
-                                    <h3 className="font-bold text-red-700 text-lg mb-1 leading-tight">
-                                        {member.name}
-                                    </h3>
-                                    <p className="text-red-400 text-sm font-medium">
-                                        {member.position}
-                                    </p>
-                                    {typeof window !== "undefined" && window.location.pathname === "/about" && (
-                                        <p className="text-red-400 text-sm font-medium">
-                                            {member.bio}
-                                        </p>
-                                    )}
+                                    {/* Content */}
+                                    <div className="p-4 text-center">
+                                        <h3 className="font-bold text-red-700 text-lg mb-1 leading-tight">
+                                            {member.name}
+                                        </h3>
+                                        <p className="text-red-400 text-sm font-medium">{member.position}</p>
+                                        {typeof window !== "undefined" && window.location.pathname === "/about" && (
+                                            <p className="text-gray-700 text-sm font-medium">
+                                                {member.bio}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
             </div>
         </section>
-    )
+    );
 }
