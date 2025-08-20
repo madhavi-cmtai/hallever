@@ -51,22 +51,21 @@ const OfferBanner = () => {
         </div>
 
         {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:-ml-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:-ml-8">
           {offers.map((offer) => (
             <Card
               key={offer.id}
-              className="group overflow-hidden p-0 m-0 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-100 hover:shadow-2xl border-2 border-[#e63d3d]/20 h-[28rem] md:h-[28rem] w-full md:w-[28rem]"
+              className="group overflow-hidden p-4 m-2 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-100 hover:shadow-sm border-2 border-[#e63d3d]/20 h-[28rem] md:h-[28rem] w-full md:w-[28rem]"
             >
-
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full rounded-lg">
                 <Image
                   src={offer.image}
                   alt={offer.title}
                   fill
-                  className="object-contain group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain group-hover:scale-105 transition-transform duration-300 rounded-lg"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h3 className="text-2xl font-bold">{offer.title}</h3>
                   <p className="text-sm opacity-90">{offer.subtitle}</p>
