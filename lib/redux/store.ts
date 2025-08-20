@@ -26,6 +26,7 @@ export const store = configureStore({
         offer: offerReducer,
         testimonials:testimonialsReducer,
         team:teamReducer,
+        
 
     },
 });

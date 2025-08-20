@@ -10,6 +10,7 @@ import {
     selectIsLoading,
 } from "@/lib/redux/slice/testimonialsSlice";
 import { motion } from "framer-motion";
+import type { AppDispatch } from "@/lib/redux/store"; // import typed dispatch
 
 // Local fallback testimonials
 const fallbackTestimonials = [
@@ -21,12 +22,11 @@ const fallbackTestimonials = [
         rating: 5,
         text: "Our wedding looked like a fairytale! The lighting was absolutely magical and created the perfect ambiance for our special day. Thank you Hallever team for making our dreams come true.",
     },
-   
 ];
 
 const TestimonialsSection = () => {
     const { t } = useLanguage();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>(); // ✅ typed dispatch
 
     // Redux state
     const testimonials = useSelector(selectTestimonials);
@@ -34,14 +34,14 @@ const TestimonialsSection = () => {
 
     // Fetch from backend on mount
     useEffect(() => {
-        dispatch(fetchTestimonials() as any);
+        dispatch(fetchTestimonials()); // no `as any` needed
     }, [dispatch]);
 
-    // ✅ Use fallback if no API data
+    // Use fallback if no API data
     const testimonialsToRender =
         !isLoading && testimonials.length > 0 ? testimonials : fallbackTestimonials;
 
-    // ✅ Duplicate list to create infinite loop effect
+    // Duplicate list to create infinite loop effect
     const loopTestimonials = [...testimonialsToRender, ...testimonialsToRender];
 
     return (
@@ -66,7 +66,7 @@ const TestimonialsSection = () => {
                     animate={{ x: ["0%", "-50%"] }}
                     transition={{
                         repeat: Infinity,
-                        duration: 25, // speed of scroll
+                        duration: 25,
                         ease: "linear",
                     }}
                 >
@@ -75,14 +75,12 @@ const TestimonialsSection = () => {
                             key={index}
                             className="bg-card min-w-[350px] max-w-[350px] p-8 rounded-2xl shadow-lg relative"
                         >
-                            {/* Quote Icon */}
                             <div className="absolute -top-4 left-8">
                                 <div className="w-8 h-8 bg-[var(--primary-red)] rounded-full flex items-center justify-center glow-primary">
                                     <Quote className="w-4 h-4 text-primary-foreground" />
                                 </div>
                             </div>
 
-                            {/* Rating */}
                             <div className="flex items-center mb-6 pt-4">
                                 {[...Array(testimonial.rating)].map((_, i) => (
                                     <Star
@@ -93,12 +91,10 @@ const TestimonialsSection = () => {
                                 ))}
                             </div>
 
-                            {/* Testimonial Text */}
                             <p className="text-card-foreground text-lg leading-relaxed mb-8 italic">
                                 {testimonial.text}
                             </p>
 
-                            {/* Client Info */}
                             <div>
                                 <h4 className="font-semibold text-card-foreground text-lg">
                                     {testimonial.name}
@@ -111,7 +107,6 @@ const TestimonialsSection = () => {
                                 </p>
                             </div>
 
-                            {/* Decorative Border */}
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--primary-gold)] rounded-b-2xl opacity-60"></div>
                         </div>
                     ))}

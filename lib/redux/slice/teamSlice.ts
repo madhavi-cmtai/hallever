@@ -79,7 +79,7 @@ export const fetchTeam = () => async (dispatch: AppDispatch) => {
     try {
         const res = await axios.get("/api/routes/teams");
         dispatch(setTeamData(res.data.data));
-    } catch (error: any) {
+    } catch (error) {
         dispatch(setTeamError(error.message || "Failed to fetch team"));
     }
 };
@@ -88,7 +88,7 @@ export const createTeamMember = (formData: FormData) => async (dispatch: AppDisp
     try {
         const res = await axios.post("/api/routes/teams", formData);
         dispatch(addTeamMember(res.data.data));
-    } catch (error: any) {
+    } catch (error) {
         dispatch(setTeamError(error.message || "Failed to create team member"));
     }
 };
@@ -97,7 +97,7 @@ export const editTeamMember = (id: string, formData: FormData) => async (dispatc
     try {
         const res = await axios.put(`/api/routes/teams/${id}`, formData);
         dispatch(updateTeamMember(res.data.data));
-    } catch (error: any) {
+    } catch (error) {
         dispatch(setTeamError(error.message || "Failed to update team member"));
     }
 };
@@ -106,7 +106,7 @@ export const removeTeamMember = (id: string) => async (dispatch: AppDispatch) =>
     try {
         await axios.delete(`/api/routes/teams/${id}`);
         dispatch(deleteTeamMember(id));
-    } catch (error: any) {
+    } catch (error) {
         dispatch(setTeamError(error.message || "Failed to delete team member"));
     }
 };
