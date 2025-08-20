@@ -62,8 +62,9 @@ export async function DELETE(
     req: Request,
     { params }: { params: { id: string } }
 ) {
+    const { id } = await params;
     try {
-        const result = await TestimonialService.deleteTestimonial(params.id);
+        const result = await TestimonialService.deleteTestimonial(id);
 
         return NextResponse.json(
             { status: "success", data: result },

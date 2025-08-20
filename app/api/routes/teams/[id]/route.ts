@@ -4,14 +4,14 @@ import { TeamMember } from "@/lib/redux/slice/teamSlice";
 import TeamService from "@/app/api/services/teamServices";
 import consoleManager from "@/app/api/utils/consoleManager";
 
-// ----------------- PUT: Update Team Member -----------------
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params;
+    const { id } = await params;
+    try {        
         const formData = await req.formData();
 
         const name = formData.get("name") as string | null;
-        const role = formData.get("position") as string | null; // 👈 using "role" since your model has role
+        const role = formData.get("position") as string | null; 
         const bio = formData.get("bio") as string | null;
 
         // ✅ Handle image (optional update)
@@ -45,11 +45,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 }
 
-// ----------------- DELETE: Remove Team Member -----------------
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params;
 
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    try {
+        
         await TeamService.deleteTeamMember(id);
 
         return NextResponse.json({
