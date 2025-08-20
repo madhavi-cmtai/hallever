@@ -5,6 +5,8 @@ import BlogsSection from "../components/home/blogs-section";
 import ProductCategories from "../components/home/product-categories";
 import ContactUs from "../components/home/contactUs-section";
 import TestimonialsSection from "@/components/home/testimonial-section";
+import TeamMembers from "@/components/home/team-section";
+import OffersPage from "@/components/home/offer-section";
 
 
 export default function Home() {
@@ -12,10 +14,12 @@ export default function Home() {
     <div>
      
       <HeroSection />
+      <OffersPage/>
       <AboutSection />
       <ProductSection />
       <ProductCategories />
       <BlogsSection />
+      <TeamMembers/>
       <TestimonialsSection />
       <ContactUs />
     </div>

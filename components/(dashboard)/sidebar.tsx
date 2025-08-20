@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { FileText, Briefcase, Package, Users, LogOut, Menu, Settings, Home, Gift } from "lucide-react";
+import { FileText, Briefcase, Package, Users, LogOut, Menu, Settings, Home, Gift, ShieldUser, UsersRound } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/dashboard/", icon: <Home /> },
+  { name: "Teams", href: "/dashboard/teams", icon: <UsersRound /> },
   { name: "Blogs", href: "/dashboard/blogs", icon: <FileText /> },
   { name: "Careers", href: "/dashboard/careers", icon: <Briefcase /> },
   { name: "Applications", href: "/dashboard/applications", icon: <Users /> },
   { name: "Products", href: "/dashboard/products", icon: <Package /> },
+  { name: "Testimonials", href: "/dashboard/testimonials", icon: <ShieldUser /> },
   { name: "Services", href: "/dashboard/services", icon: <Settings /> },
   { name: "Offers", href: "/dashboard/offers", icon: <Gift /> },
   { name: "Leads", href: "/dashboard/leads", icon: <Users /> },

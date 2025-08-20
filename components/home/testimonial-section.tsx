@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { Star, Quote } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    fetchTestimonials,
+    selectTestimonials,
+    selectIsLoading,
+} from "@/lib/redux/slice/testimonialsSlice";
+import { motion } from "framer-motion";
 
-const testimonials = [
+// Local fallback testimonials
+const fallbackTestimonials = [
     {
         id: 1,
         name: "Jaipur Event",
@@ -11,33 +20,32 @@ const testimonials = [
         location: "Jaipur, Rajasthan",
         rating: 5,
         text: "Our wedding looked like a fairytale! The lighting was absolutely magical and created the perfect ambiance for our special day. Thank you Hallever team for making our dreams come true.",
-      
     },
-    {
-        id: 2,
-        name: "Balaji Event",
-        event: "Celebration Event",
-        location: "Delhi",
-        rating: 5,
-        text: "Punctual, beautiful lights, great coordination. The team was professional and the setup exceeded our expectations. Highly recommended for any celebration!",
-      
-    },
-    {
-        id: 3,
-        name: "Mumbai Event",
-        event: "Corporate Event",
-        location: "Mumbai",
-        rating: 5,
-        text: "The tent decor and lighting was beyond our imagination! They transformed our venue into something truly spectacular. Amazing attention to detail and creativity.",
-    
-    },
+   
 ];
 
 const TestimonialsSection = () => {
     const { t } = useLanguage();
+    const dispatch = useDispatch();
+
+    // Redux state
+    const testimonials = useSelector(selectTestimonials);
+    const isLoading = useSelector(selectIsLoading);
+
+    // Fetch from backend on mount
+    useEffect(() => {
+        dispatch(fetchTestimonials() as any);
+    }, [dispatch]);
+
+    // ✅ Use fallback if no API data
+    const testimonialsToRender =
+        !isLoading && testimonials.length > 0 ? testimonials : fallbackTestimonials;
+
+    // ✅ Duplicate list to create infinite loop effect
+    const loopTestimonials = [...testimonialsToRender, ...testimonialsToRender];
 
     return (
-        <section className="py-20 bg-background">
+        <section className="py-20 bg-background overflow-hidden">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16 mt-5 pt-4">
@@ -52,12 +60,20 @@ const TestimonialsSection = () => {
                     </p>
                 </div>
 
-                {/* Testimonials Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {testimonials.map((testimonial, index) => (
+                {/* Auto Scrolling Testimonials */}
+                <motion.div
+                    className="flex gap-8"
+                    animate={{ x: ["0%", "-50%"] }}
+                    transition={{
+                        repeat: Infinity,
+                        duration: 25, // speed of scroll
+                        ease: "linear",
+                    }}
+                >
+                    {loopTestimonials.map((testimonial, index) => (
                         <div
-                            key={testimonial.id}
-                            className={`bg-card p-8 rounded-2xl shadow-lg hover-glow transition-all duration-500 fade-in-up delay-${index + 1} relative`}
+                            key={index}
+                            className="bg-card min-w-[350px] max-w-[350px] p-8 rounded-2xl shadow-lg relative"
                         >
                             {/* Quote Icon */}
                             <div className="absolute -top-4 left-8">
@@ -83,26 +99,23 @@ const TestimonialsSection = () => {
                             </p>
 
                             {/* Client Info */}
-                            <div className="flex items-center gap-4">
-                                
-                                <div>
-                                    <h4 className="font-semibold text-card-foreground text-lg">
-                                        {testimonial.name}
-                                    </h4>
-                                    <p className="text-muted-foreground text-sm">
-                                        {testimonial.event}
-                                    </p>
-                                    <p className="text-[var(--primary-red)] text-sm font-medium">
-                                        {testimonial.location}
-                                    </p>
-                                </div>
+                            <div>
+                                <h4 className="font-semibold text-card-foreground text-lg">
+                                    {testimonial.name}
+                                </h4>
+                                <p className="text-muted-foreground text-sm">
+                                    {testimonial.event}
+                                </p>
+                                <p className="text-[var(--primary-red)] text-sm font-medium">
+                                    {testimonial.location}
+                                </p>
                             </div>
 
                             {/* Decorative Border */}
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--primary-gold)] rounded-b-2xl opacity-60"></div>
                         </div>
                     ))}
-                </div>
+                </motion.div>
 
                 {/* Trust Badges */}
                 <div className="text-center mt-16">

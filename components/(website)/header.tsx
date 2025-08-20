@@ -61,6 +61,35 @@ export default function Header() {
             </motion.div>
           </Link>
 
+          {/* Language Switcher for small screens */}
+          <div className="flex sm:hidden items-center ml-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="w-10 h-10 p-2 hover:bg-accent">
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                {[
+                  { code: "en", label: "English" },
+                  { code: "hi", label: "हिन्दी" },
+                  { code: "mr", label: "मराठी" },
+                  { code: "ta", label: "தமிழ்" },
+                  { code: "bn", label: "বাংলা" },
+                  { code: "te", label: "తెలుగు" }
+                ].map(({ code, label }) => (
+                  <DropdownMenuItem
+                    key={code}
+                    onClick={() => setLanguage(code as Language)}
+                    className={language === code ? "font-semibold text-grey-600" : ""}
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           {/* Hamburger Menu */}
           <div className="lg:hidden">
             <Button
@@ -149,7 +178,9 @@ export default function Header() {
             </DropdownMenu>
 
           </div>
+         
         </div>
+        
 
         {/* Mobile Menu */}
         {menuOpen && (
@@ -180,6 +211,7 @@ export default function Header() {
                 />
               </form>
             </div>
+            
 
             {/* Mobile Actions */}
             <div className="flex sm:hidden items-center space-x-3 px-4 mt-4">

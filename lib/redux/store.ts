@@ -9,6 +9,8 @@ import authReducer from "./slice/authSlice";
 import countReducer from "./slice/countSlice";
 import offerReducer from "./slice/offerSlice";
 import jobApplicationReducer from './slice/jobApplicationsSlice';
+import testimonialsReducer from "./slice/testimonialsSlice"
+import teamReducer from "./slice/teamSlice"
       
 
 export const store = configureStore({
@@ -22,6 +24,9 @@ export const store = configureStore({
         leads: leadReducer,
         jobApplication: jobApplicationReducer,
         offer: offerReducer,
+        testimonials:testimonialsReducer,
+        team:teamReducer,
+
     },
 });
 
