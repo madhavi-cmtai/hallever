@@ -51,7 +51,7 @@ const OfferBanner = () => {
         </div>
 
         {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-20 md:-ml-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:-ml-20">
           {offers.map((offer) => (
             <Card
               key={offer.id}
