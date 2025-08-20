@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
+import { motion, Variants } from "framer-motion"
 import Image from "next/image"
 import { AppDispatch } from "@/lib/redux/store"
 import { fetchTeam, selectTeam, selectTeamLoading } from "@/lib/redux/slice/teamSlice"
@@ -14,7 +14,8 @@ interface TeamMember {
     image?: string
 }
 
-const containerVariants = {
+// Container animation variants
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -25,17 +26,15 @@ const containerVariants = {
     },
 }
 
-const cardVariants = {
-    hidden: {
-        opacity: 0,
-        y: 50,
-    },
+// Card animation variants
+const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 50 },
     visible: {
         opacity: 1,
         y: 0,
         transition: {
             duration: 0.6,
-            ease: [0.42, 0, 0.58, 1],
+            ease: [0.42, 0, 0.58, 1] as unknown as "easeInOut", // TS-safe
         },
     },
 }
@@ -61,7 +60,10 @@ export default function TeamMembers() {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
-                        Meet  <span className="text-transparent bg-clip-text bg-[var(--primary-red)] pt-3">Our Team</span>
+                        Meet{" "}
+                        <span className="text-transparent bg-clip-text bg-[var(--primary-red)] pt-3">
+                            Our Team
+                        </span>
                     </motion.h2>
                     <motion.div
                         className="w-24 h-1 bg-red-500 mx-auto"
@@ -114,7 +116,7 @@ export default function TeamMembers() {
                                 </div>
 
                                 {/* Content */}
-                                <div className=" p-4 text-center">
+                                <div className="p-4 text-center">
                                     <h3 className="font-bold text-red-700 text-lg mb-1 leading-tight">
                                         {member.name}
                                     </h3>
