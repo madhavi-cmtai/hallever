@@ -5,10 +5,11 @@ import TestimonialService from "@/app/api/services/testimonialServices";
 // ✅ GET → Fetch testimonial by ID
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }>  }
 ) {
+    const { id } = await params;
     try {
-        const testimonial = await TestimonialService.getTestimonialById(params.id);
+        const testimonial = await TestimonialService.getTestimonialById(id);
 
         if (!testimonial) {
             return NextResponse.json(
@@ -33,12 +34,13 @@ export async function GET(
 // ✅ PUT → Update testimonial by ID
 export async function PUT(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     try {
         const body = await req.json();
         const updatedTestimonial = await TestimonialService.updateTestimonial(
-            params.id,
+            id,
             body
         );
 

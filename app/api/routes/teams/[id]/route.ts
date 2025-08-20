@@ -5,9 +5,9 @@ import TeamService from "@/app/api/services/teamServices";
 import consoleManager from "@/app/api/utils/consoleManager";
 
 // ----------------- PUT: Update Team Member -----------------
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const formData = await req.formData();
 
         const name = formData.get("name") as string | null;
@@ -46,9 +46,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // ----------------- DELETE: Remove Team Member -----------------
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = params;
+        const { id } = await params;
 
         await TeamService.deleteTeamMember(id);
 
