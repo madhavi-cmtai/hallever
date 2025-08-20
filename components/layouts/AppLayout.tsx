@@ -12,7 +12,7 @@ import { store } from "@/lib/redux/store";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isNotFound = pathname === "/404" || pathname === "/not-found";
+    // const isNotFound = pathname === "/404" || pathname === "/not-found";
 
     // Check if route is dashboard/admin
     const isDashboard =

@@ -1,13 +1,15 @@
 // /app/api/routes/testimonials/[id]/route.ts
 import { NextResponse } from "next/server";
 import TestimonialService from "@/app/api/services/testimonialServices";
+import consoleManager from "@/app/api/utils/consoleManager";
 
 // ✅ GET → Fetch testimonial by ID
 export async function GET(
     req: Request,
-    { params }: { params: Promise<{ id: string }>  }
+    { params }: { params: Promise<{ id: string }> } 
 ) {
-    const { id } = await params;
+    const { id } = await params; 
+
     try {
         const testimonial = await TestimonialService.getTestimonialById(id);
 
@@ -23,9 +25,9 @@ export async function GET(
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error fetching testimonial:", error);
+        consoleManager.error("GET /api/routes/testimonials/[id]:", error);
         return NextResponse.json(
-            { status: "error", message: error.message },
+            { status: "error", message: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
@@ -37,21 +39,23 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id } = await params;
+
     try {
         const body = await req.json();
-        const updatedTestimonial = await TestimonialService.updateTestimonial(
-            id,
-            body
-        );
+        const updatedTestimonial = await TestimonialService.updateTestimonial(id, body);
 
         return NextResponse.json(
-            { status: "success", data: updatedTestimonial },
+            {
+                status: "success",
+                message: "Testimonial updated successfully",
+                data: updatedTestimonial,
+            },
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error updating testimonial:", error);
+        consoleManager.error("PUT /api/routes/testimonials/[id]:", error);
         return NextResponse.json(
-            { status: "error", message: error.message },
+            { status: "error", message: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
@@ -60,20 +64,21 @@ export async function PUT(
 // ✅ DELETE → Delete testimonial by ID
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const { id } = await params;
+
     try {
-        const result = await TestimonialService.deleteTestimonial(id);
+        await TestimonialService.deleteTestimonial(id);
 
         return NextResponse.json(
-            { status: "success", data: result },
+            { status: "success", message: "Testimonial deleted successfully" },
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error deleting testimonial:", error);
+        consoleManager.error("DELETE /api/routes/testimonials/[id]:", error);
         return NextResponse.json(
-            { status: "error", message: error.message },
+            { status: "error", message: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
