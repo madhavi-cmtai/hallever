@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { ProductItem } from "@/lib/redux/slice/productSlice"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -16,8 +17,8 @@ export function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }
 
-// Find product by slug (you'll need to pass the products array)
-export function findProductBySlug(products: Array<{ name: string; [key: string]: unknown }>, slug: string) {
+// Find product by slug
+export function findProductBySlug(products: ProductItem[], slug: string): ProductItem | undefined {
   return products.find(product => {
     const productSlug = generateSlug(product.name);
     return productSlug === slug;
