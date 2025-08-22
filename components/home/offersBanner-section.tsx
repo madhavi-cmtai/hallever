@@ -37,6 +37,9 @@ const OfferBanner = () => {
     );
   }
 
+  // Only show the first three offers
+  const topThreeOffers = offers.slice(0, 3);
+
   return (
     <section className="w-full py-16 px-6 bg-gradient-to-r from-[#e63d3d] to-[#f07c54] text-white">
       <div className="max-w-7xl mx-auto">
@@ -52,7 +55,7 @@ const OfferBanner = () => {
 
         {/* Offers Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:-ml-8">
-          {offers.map((offer) => (
+          {topThreeOffers.map((offer) => (
             <Card
               key={offer.id}
               className="group overflow-hidden p-4 m-2 transition-all duration-300 hover:scale-100 hover:shadow-sm border-2 border-[#e63d3d]/20 h-[28rem] md:h-[28rem] w-full md:w-[28rem]"

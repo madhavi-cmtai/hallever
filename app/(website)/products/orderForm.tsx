@@ -190,8 +190,30 @@ export function OrderForm() {
                                         <span>{p.name} - ₹{p.price}</span>
                                         <Button type="button" onClick={() => removeSelectedProduct(p.id)}>Remove</Button>
                                     </div>
-                                    <Input type="number" min={1} value={p.quantity} onChange={(e) => updateSelectedProduct(p.id, "quantity", Number(e.target.value))} />
-                                    <Input placeholder="Wattage" value={p.wattage} onChange={(e) => updateSelectedProduct(p.id, "wattage", e.target.value)} />
+                                    <div className="flex gap-3 items-center">
+                                        <div className="flex flex-col w-28">
+                                            <label className="text-xs text-muted-foreground mb-1" htmlFor={`quantity-${p.id}`}>Quantity</label>
+                                            <Input
+                                                id={`quantity-${p.id}`}
+                                                type="number"
+                                                min={1}
+                                                value={p.quantity}
+                                                onChange={(e) => updateSelectedProduct(p.id, "quantity", Number(e.target.value))}
+                                                className="w-full"
+                                                placeholder="Qty"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col w-36">
+                                            <label className="text-xs text-muted-foreground mb-1" htmlFor={`wattage-${p.id}`}>Wattage</label>
+                                            <Input
+                                                id={`wattage-${p.id}`}
+                                                placeholder="Wattage"
+                                                value={p.wattage}
+                                                onChange={(e) => updateSelectedProduct(p.id, "wattage", e.target.value)}
+                                                className="w-full"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                             <p className="text-right font-semibold">Total: ₹{totalAmount}</p>

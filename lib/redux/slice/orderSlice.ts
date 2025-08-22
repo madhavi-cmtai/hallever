@@ -162,7 +162,7 @@ export const addOrder = (order: { formData: OrderFormData; selectedProducts: Sel
 export const updateOrder = (order: Order) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await axios.put<{ success: boolean; data: Order }>(`/api/routes/orders/${order.id}`, order);
+        const res = await axios.put<{ statusCode: number; data: Order }>(`/api/routes/orders/${order.id}`, order);
         dispatch(updateOrderSuccess(res.data.data));
     } catch (error) {
         const err = error as { message?: string };
@@ -174,10 +174,11 @@ export const updateOrder = (order: Order) => async (dispatch: AppDispatch) => {
 export const deleteOrder = (id: string) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
-        await axios.delete(`/api/routes/orders/${id}`);
+        const res = await axios.delete<{ statusCode: number; data: Order }>(`/api/routes/orders/${id}`);
         dispatch(deleteOrderSuccess(id));
     } catch (error) {
-        dispatch(setError(error.message || "Failed to delete order"));
+        const err = error as { message?: string };
+        dispatch(setError(err.message || "Failed to delete order"));
     }
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import {
@@ -36,14 +36,11 @@ const OrdersPage = () => {
     message: "",
   } as OrderFormData);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [manualTotalOverride, setManualTotalOverride] = useState<boolean>(false);
-
-  // Ref to track last calculated total to avoid unnecessary override
-  const lastCalculatedTotalRef = useRef<number>(0);
+  const [manualTotalAmount, setManualTotalAmount] = useState<number>(0);
+  const [useManualTotal, setUseManualTotal] = useState<boolean>(false);
 
   // Fetch all orders on mount using the slice thunk
   useEffect(() => {
@@ -59,8 +56,8 @@ const OrdersPage = () => {
       message: order.formData.message || "",
     });
     setSelectedProducts(order.selectedProducts || []);
-    setTotalAmount(order.totalAmount || 0);
-    setManualTotalOverride(false);
+    setManualTotalAmount(order.totalAmount || 0);
+    setUseManualTotal(false);
     setEditOrderId(order.id || null);
     setModalOpen(true);
   };
@@ -74,8 +71,8 @@ const OrdersPage = () => {
       message: "",
     });
     setSelectedProducts([]);
-    setTotalAmount(0);
-    setManualTotalOverride(false);
+    setManualTotalAmount(0);
+    setUseManualTotal(false);
     setEditOrderId(null);
     setModalOpen(true);
   };
@@ -90,8 +87,8 @@ const OrdersPage = () => {
       message: "",
     });
     setSelectedProducts([]);
-    setTotalAmount(0);
-    setManualTotalOverride(false);
+    setManualTotalAmount(0);
+    setUseManualTotal(false);
   };
 
   // Add or update order using the slice thunks
@@ -99,14 +96,14 @@ const OrdersPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Calculate totalAmount from selectedProducts
+    // Calculate total from selected products
     const calculatedTotal = selectedProducts.reduce(
       (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
       0
     );
 
-    // Use manual override if set, otherwise use calculated
-    const finalTotalAmount = manualTotalOverride ? totalAmount : calculatedTotal;
+    // Use manual total if enabled, otherwise use calculated total
+    const finalTotalAmount = useManualTotal ? manualTotalAmount : calculatedTotal;
 
     const orderPayload = {
       formData: { ...form },
@@ -146,7 +143,7 @@ const OrdersPage = () => {
       {products.length > 0 && (
         <div className="space-y-2">
           <div className="font-semibold text-xs text-gray-500">Selected Products:</div>
-          {products.map((prod, idx) => (
+          {products.map((prod) => (
             <div key={prod.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
               <img src={prod.image} alt={prod.name} className="w-10 h-10 object-cover rounded" />
               <div className="flex-1">
@@ -178,7 +175,6 @@ const OrdersPage = () => {
     };
     if (!selectedProducts.some((p) => p.id === demoProduct.id)) {
       setSelectedProducts((prev) => [...prev, demoProduct]);
-      setTotalAmount((prev) => prev + demoProduct.price * demoProduct.quantity);
     }
   };
 
@@ -197,17 +193,20 @@ const OrdersPage = () => {
     );
   };
 
-  // New: handle total amount change (if you want to allow manual override)
-  const handleTotalAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    setTotalAmount(isNaN(value) ? 0 : value);
-  };
-
   // Calculate total from selectedProducts
   const calculatedTotalAmount = selectedProducts.reduce(
     (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
     0
   );
+
+  // Handle manual total amount change
+  const handleManualTotalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value) || 0;
+    setManualTotalAmount(value);
+  };
+
+  // Get the final total amount to display
+  const finalTotalAmount = useManualTotal ? manualTotalAmount : calculatedTotalAmount;
 
   return (
     <div className="p-4 space-y-6">
@@ -369,21 +368,55 @@ const OrdersPage = () => {
                 </div>
               ))}
             </div>
-            {/* Show total amount with editable input */}
-            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--primary-red)]">
-              <span>Total Amount: ₹</span>
-              <Input
-                type="number"
-                min={0}
-                value={totalAmount !== calculatedTotalAmount ? totalAmount : calculatedTotalAmount}
-                onChange={handleTotalAmountChange}
-                className="w-24 h-7 px-2 py-0 text-xs"
-                style={{ fontSize: "12px" }}
-              />
-              {totalAmount !== calculatedTotalAmount && (
-                <span className="text-[var(--primary-pink)]">(Manual override)</span>
+
+            {/* Total Amount Section with Manual Override */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--primary-red)]">Total Amount</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="manualTotal"
+                    checked={useManualTotal}
+                    onChange={(e) => setUseManualTotal(e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="manualTotal" className="text-xs text-gray-600">
+                    Manual Override
+                  </label>
+                </div>
+              </div>
+              
+              {useManualTotal ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">₹</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={manualTotalAmount}
+                    onChange={handleManualTotalChange}
+                    className="flex-1"
+                    placeholder="Enter total amount"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">₹</span>
+                  <span className="text-lg font-semibold text-[var(--primary-red)]">
+                    {calculatedTotalAmount}
+                  </span>
+                  <span className="text-xs text-gray-500">(Calculated)</span>
+                </div>
+              )}
+              
+              {useManualTotal && calculatedTotalAmount !== manualTotalAmount && (
+                <div className="text-xs text-gray-500">
+                  Calculated total: ₹{calculatedTotalAmount} | Difference: ₹{manualTotalAmount - calculatedTotalAmount}
+                </div>
               )}
             </div>
+
             <Button
               type="submit"
               disabled={isLoading}

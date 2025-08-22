@@ -4,34 +4,46 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { ProductItem } from "@/lib/redux/slice/productSlice";
-import { useLanguage } from "@/context/language-context";
 import { OrderForm } from "../orderForm";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { fetchProducts, selectProducts } from "@/lib/redux/slice/productSlice";
+import { findProductBySlug } from "@/lib/utils";
 
 export default function ProductDetailsPage() {
-    const { id } = useParams();
+    const { slug } = useParams();
+    const dispatch = useDispatch<AppDispatch>();
+    const products = useSelector(selectProducts);
     const [product, setProduct] = useState<ProductItem | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
 
-    // Fetch product by ID
+    // Fetch products and find the one by slug
     useEffect(() => {
-        const fetchProduct = async () => {
+        const loadProduct = async () => {
             try {
-                const res = await fetch(`/api/routes/products/${id}`);
-                if (!res.ok) throw new Error("Failed to fetch product");
-                const data = await res.json();
-                setProduct(data);
+                // Fetch products if not already loaded
+                if (products.length === 0) {
+                    await dispatch(fetchProducts());
+                }
+                
+                // Find product by slug
+                const foundProduct = findProductBySlug(products, slug as string);
+                if (foundProduct) {
+                    setProduct(foundProduct);
+                } else {
+                    console.error("Product not found for slug:", slug);
+                }
             } catch (error) {
-                console.error(error);
+                console.error("Error loading product:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchProduct();
-    }, [id]);
+
+        loadProduct();
+    }, [slug, dispatch, products]);
 
     if (loading) return <p className="text-center py-20">Loading...</p>;
     if (!product) return <p className="text-center py-20">Product not found</p>;
@@ -112,19 +124,19 @@ export default function ProductDetailsPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-sm text-gray-500">Dimensions</span>
-                                        <p className="font-semibold">{product.specifications.dimensions}</p>
+                                        <p className="font-semibold">{product.specifications?.dimensions}</p>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-sm text-gray-500">Voltage</span>
-                                        <p className="font-semibold">{product.specifications.voltage}</p>
+                                        <p className="font-semibold">{product.specifications?.voltage}</p>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-sm text-gray-500">Efficiency</span>
-                                        <p className="font-semibold">{product.specifications.efficiency}</p>
+                                        <p className="font-semibold">{product.specifications?.efficiency}</p>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-sm text-gray-500">Warranty</span>
-                                        <p className="font-semibold">{product.specifications.warranty}</p>
+                                        <p className="font-semibold">{product.specifications?.warranty}</p>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-sm text-gray-500">Link</span>
@@ -133,6 +145,7 @@ export default function ProductDetailsPage() {
                                 </div>
                             </div>
 
+                           
                         </div>
                     </div>
 

@@ -84,13 +84,19 @@ class OrderService {
         const doc = await newOrderRef.get();
         const orderData = doc.data();
 
-        return {
+        const newOrder = {
             id: doc.id,
             formData: orderData?.formData,
             selectedProducts: orderData?.selectedProducts,
             totalAmount: orderData?.totalAmount,
             createdOn: orderData?.createdOn,
         } as Order;
+
+        // Update cache
+        this.orders.unshift(newOrder);
+        consoleManager.log("✅ Order added to cache:", newOrder.id);
+
+        return newOrder;
     }
 
 
@@ -109,7 +115,7 @@ class OrderService {
         const doc = await orderRef.get();
         const orderData = doc.data();
 
-        return {
+        const updatedOrder = {
             id: doc.id,
             formData: orderData?.formData,
             selectedProducts: orderData?.selectedProducts,
@@ -117,6 +123,15 @@ class OrderService {
             createdOn: orderData?.createdOn,
             updatedOn: orderData?.updatedOn,
         } as Order;
+
+        // Update cache
+        const index = this.orders.findIndex(o => o.id === orderId);
+        if (index !== -1) {
+            this.orders[index] = updatedOrder;
+        }
+        consoleManager.log("✅ Order updated in cache:", orderId);
+
+        return updatedOrder;
     }
 
 

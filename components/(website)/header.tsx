@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { Menu, Search, User, LogIn, UserPlus, Globe, X } from "lucide-react"
 import { Language, useLanguage } from "@/context/language-context"
@@ -21,6 +21,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { t, language, setLanguage } = useLanguage()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,6 +40,13 @@ export default function Header() {
     { name: t("header.careers"), href: "/careers" },
     { name: t("header.contact"), href: "/contact" },
   ]
+
+  // Helper to check if a nav item is active
+  const isActive = (href: string) => {
+    // Exact match for home, otherwise startsWith for subpages
+    if (href === "/") return pathname === "/"
+    return pathname.startsWith(href)
+  }
 
   return (
     <header className="w-full bg-background border-b border-border shadow-sm sticky top-0 z-50">
@@ -122,7 +130,12 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-muted-foreground hover:text-foreground font-medium text-sm transition-colors"
+                className={
+                  isActive(item.href)
+                    ? "text-black font-semibold text-sm transition-colors"
+                    : "text-muted-foreground hover:text-foreground font-medium text-sm transition-colors"
+                }
+                aria-current={isActive(item.href) ? "page" : undefined}
               >
                 {item.name}
               </Link>
@@ -191,7 +204,12 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block px-4 py-2 text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  className={
+                    isActive(item.href)
+                      ? "block px-4 py-2 text-black font-semibold transition-colors"
+                      : "block px-4 py-2 text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  }
+                  aria-current={isActive(item.href) ? "page" : undefined}
                 >
                   {item.name}
                 </Link>

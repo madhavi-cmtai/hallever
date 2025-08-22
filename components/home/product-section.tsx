@@ -13,6 +13,7 @@ import { AppDispatch } from "@/lib/redux/store";
 import { useLanguage } from "@/context/language-context";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { generateSlug } from "@/lib/utils";
 
 const categories = ["Indoor", "Outdoor", "Tent Decoration", "Raw Materials", "Machinery", "Solar Lights"];
 
@@ -169,6 +170,7 @@ export default function ProductSection() {
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredProducts.map((product) => {
                             const currentImageIndex = selectedImageIndices[product.id!] || 0;
+                            const productSlug = generateSlug(product.name);
                             return (
                                 <div
                                     key={product.id}
@@ -215,7 +217,7 @@ export default function ProductSection() {
                                         </ul>
 
                                         <div className="flex justify-between gap-2">
-                                            <Link href={`/products/${product.id}`}>
+                                            <Link href={`/products/${productSlug}`}>
                                                 <button
                                                     className="text-center bg-[var(--primary-red)] text-white px-4 py-2 text-sm rounded hover:bg-red-700 transition"
                                                     style={{ minHeight: "38px" }}
@@ -225,7 +227,7 @@ export default function ProductSection() {
                                             </Link>
 
 
-                                            <Link href={`/products/${product.id}`}>
+                                            <Link href={`/products/${productSlug}`}>
                                                 <button
                                                     className="text-center border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"
                                                     style={{ minHeight: "38px" }}
@@ -242,7 +244,7 @@ export default function ProductSection() {
                 )}
             </div>
 
-
+        
         </section>
     );
 }
