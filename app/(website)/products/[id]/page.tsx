@@ -133,24 +133,6 @@ export default function ProductDetailsPage() {
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="space-y-3">
-                                <a
-                                    href={`https://wa.me/9468909306?text=${encodeURIComponent(
-                                        `Hello, I'm interested in this product:\n\n*${product.name}*\n${product.summary}\nPrice: ${product.price}\nWattage: ${product.wattage}`
-                                    )}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="block"
-                                >
-                                    <Button
-                                        className="w-full bg-[#E10600] hover:bg-[#C10500] text-white py-3 text-lg"
-                                        size="lg"
-                                    >
-                                        {t("button.shopNow")}
-                                    </Button>
-                                </a>
-                            </div>
                         </div>
                     </div>
 
