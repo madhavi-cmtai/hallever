@@ -12,6 +12,7 @@ import jobApplicationReducer from './slice/jobApplicationsSlice';
 import testimonialsReducer from "./slice/testimonialsSlice"
 import teamReducer from "./slice/teamSlice"
 import offerBannerReducer from "./slice/offerBannerSlice"
+import orderReducer from "./slice/orderSlice"
       
 
 export const store = configureStore({
@@ -28,6 +29,7 @@ export const store = configureStore({
         testimonials:testimonialsReducer,
         team:teamReducer,
         offersBanner:offerBannerReducer,
+        order: orderReducer,
 
     },
 });

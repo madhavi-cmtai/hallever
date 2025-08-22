@@ -1,5 +1,6 @@
 
 import ProductHero from "./productHero";
+import { OrderForm } from "./orderForm";
 import TestimonialsSection from "@/components/home/testimonial-section";
 import ContactSection from "@/components/home/contactUs-section";
 import ProductCategories from "@/components/home/product-categories";
@@ -11,7 +12,8 @@ const AboutPage = () => {
 
             <ProductHero />
             <ProductSection/>
-            <ProductCategories/>          
+            <ProductCategories/>
+            <OrderForm />
             <TestimonialsSection />
             <ContactSection />
         </main>

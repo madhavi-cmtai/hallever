@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import ProductModal from "@/app/(website)/products/productModal";
 import {
     fetchProducts,
     selectProducts,
@@ -13,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { useLanguage } from "@/context/language-context";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 const categories = ["Indoor", "Outdoor", "Tent Decoration", "Raw Materials", "Machinery", "Solar Lights"];
 
@@ -71,9 +71,6 @@ export default function ProductSection() {
         dispatch(fetchProducts());
     }, [dispatch]);
 
-    const openModal = (product: ProductItem) => {
-        setSelectedProduct(product);
-    };
 
     const handleImageSelect = (productId: string | number, index: number) => {
         setSelectedImageIndices((prev) => ({
@@ -227,12 +224,13 @@ export default function ProductSection() {
                                                 {t("button.shopNow")}
                                             </a>
 
-                                            <button
-                                                onClick={() => openModal(product)}
-                                                className="w-[50%] border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"
-                                            >
-                                                {t("button.knowMore")}
-                                            </button>
+                                            <Link href={`/products/${product.id}`}>
+                                                <button
+                                                    className="w-[50%] text-center border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"
+                                                >
+                                                    {t("button.knowMore")}
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -242,10 +240,7 @@ export default function ProductSection() {
                 )}
             </div>
 
-            {/* Product Modal */}
-            {selectedProduct && (
-                <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-            )}
+        
         </section>
     );
 }

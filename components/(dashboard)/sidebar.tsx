@@ -6,6 +6,7 @@ import { FileText, Briefcase, Package, Users, LogOut, Menu, Settings, Home, Gift
 
 const links = [
   { name: "Dashboard", href: "/dashboard/", icon: <Home /> },
+  { name: "Orders", href: "/dashboard/order", icon: <Package /> },
   { name: "Teams", href: "/dashboard/teams", icon: <UsersRound /> },
   { name: "Blogs", href: "/dashboard/blogs", icon: <FileText /> },
   { name: "OffersBanner", href: "/dashboard/offersBanner", icon: <FileText /> },

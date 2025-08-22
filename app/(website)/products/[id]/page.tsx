@@ -1,46 +1,65 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
-import { ProductItem } from "@/lib/redux/slice/productSlice"
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ProductItem } from "@/lib/redux/slice/productSlice";
 import { useLanguage } from "@/context/language-context";
+import { OrderForm } from "../orderForm";
 
-interface ProductModalProps {
-    product: ProductItem
-    onClose: () => void
-}
-
-export default function ProductModal({ product, onClose }: ProductModalProps) {
-    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+export default function ProductDetailsPage() {
+    const { id } = useParams();
+    const [product, setProduct] = useState<ProductItem | null>(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const { t } = useLanguage();
+    const [loading, setLoading] = useState(true);
+
+    // Fetch product by ID
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch(`/api/routes/products/${id}`);
+                if (!res.ok) throw new Error("Failed to fetch product");
+                const data = await res.json();
+                setProduct(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProduct();
+    }, [id]);
+
+    if (loading) return <p className="text-center py-20">Loading...</p>;
+    if (!product) return <p className="text-center py-20">Product not found</p>;
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="flex justify-between items-center p-6 border-b">
-                        <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
-                        <Button variant="ghost" size="sm" onClick={onClose}>
-                            <X className="w-6 h-6" />
-                        </Button>
-                    </div>
+        <>
+            {/* Hero Section */}
+            <div className="relative w-full h-[50vh] lg:h-[60vh] flex items-center justify-center">
+                <Image
+                    src={"/images/about/hero.jpeg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover brightness-75"
+                />
+                <h1 className="absolute text-4xl lg:text-6xl font-bold text-white text-center px-4">
+                    {product.name}
+                </h1>
+            </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+            <AnimatePresence>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-4 max-w-7xl mx-auto"
+                >
+                    {/* Product Info */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                         {/* Images Section */}
                         <div className="space-y-4">
                             <div className="aspect-square rounded-lg overflow-hidden">
@@ -57,7 +76,9 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImageIndex(index)}
-                                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${selectedImageIndex === index ? "border-[#E10600]" : "border-gray-200 hover:border-gray-300"
+                                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${selectedImageIndex === index
+                                                ? "border-[#E10600]"
+                                                : "border-gray-200 hover:border-gray-300"
                                             }`}
                                     >
                                         <Image
@@ -79,7 +100,9 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                 <p className="text-gray-600 text-lg mb-4">{product.summary}</p>
                                 <div className="flex items-center gap-4 mb-4">
                                     <span className="text-3xl font-bold text-[#E10600]">{product.price}</span>
-                                    <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{product.wattage}</span>
+                                    <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                                        {product.wattage}
+                                    </span>
                                 </div>
                             </div>
 
@@ -127,13 +150,16 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                         {t("button.shopNow")}
                                     </Button>
                                 </a>
-
-                                
                             </div>
                         </div>
                     </div>
+
+                    {/* Order Form Section */}
+                    <div className="p-6 border-t mt-8">
+                        <OrderForm />
+                    </div>
                 </motion.div>
-            </motion.div>
-        </AnimatePresence>
-    )
+            </AnimatePresence>
+        </>
+    );
 }
