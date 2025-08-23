@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/redux/store';
 import { fetchProducts } from '@/lib/redux/slice/productSlice';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 // import CartHero from './cartHero';
 
 interface CartItem {
@@ -27,10 +28,12 @@ interface CartItem {
 const CartPage = () => {
   const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const { products } = useSelector((state: RootState) => state.products);
   
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [suggestedItems, setSuggestedItems] = useState<any[]>([]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -84,6 +87,72 @@ const CartPage = () => {
 
   const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleCheckout = async () => {
+    // Check if user is logged in
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      // User not logged in, redirect to login
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.uid) {
+        // User is logged in, create order
+        const orderData = {
+          formData: {
+            fullName: user.fullName || "User",
+            email: user.email,
+            phone: user.phoneNumber || "",
+            message: `Order placed from cart by ${user.fullName || user.email}`
+          },
+          selectedProducts: cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            wattage: item.wattage || "",
+            image: item.image
+          })),
+          totalAmount: totalAmount
+        };
+
+        // Create order in database
+        const response = await fetch("/api/routes/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        });
+
+        if (response.ok) {
+          // Order created successfully
+          setShowSuccessMessage(true);
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+            // Clear cart after successful order
+            setCartItems([]);
+            saveCartToStorage([]);
+            // Redirect to products page
+            router.push("/products");
+          }, 3000);
+        } else {
+          // Order creation failed
+          const errorData = await response.json();
+          alert("Failed to place order: " + (errorData.message || "Unknown error"));
+        }
+      } else {
+        // Invalid user data, redirect to login
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Failed to place order. Please try again.");
+    }
+  };
 
   const addToCart = (product: any) => {
     const existingItem = cartItems.find(item => item.id === product.id);
@@ -275,10 +344,18 @@ const CartPage = () => {
                   <Button 
                     className="w-full bg-[#E10600] hover:bg-[#C10500] text-white py-3 text-lg font-semibold"
                     size="lg"
+                    onClick={handleCheckout}
                   >
                     {t("cart.proceedToCheckout") || "Proceed to Checkout"}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
+
+                  {showSuccessMessage && (
+                    <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md text-center">
+                      <p className="font-semibold">🎉 Your order has been placed successfully!</p>
+                      <p className="text-sm mt-1">Redirecting to products page...</p>
+                    </div>
+                  )}
 
                   <div className="mt-4 text-center">
                     <Link href="/products">

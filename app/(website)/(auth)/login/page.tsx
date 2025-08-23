@@ -49,13 +49,13 @@ const LoginForm = () => {
             localStorage.setItem("user", JSON.stringify(user));
             document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/`;
 
-            // 5. Check admin role and redirect
+            // 5. Redirect based on role
             if (user.role === "admin") {
-                setAlert({ type: "success", message: "Logged in successfully!" });
+                setAlert({ type: "success", message: "Logged in successfully! Redirecting to admin dashboard..." });
                 setTimeout(() => router.replace("/dashboard"), 1000);
             } else {
-                setAlert({ type: "error", message: "Access denied. Only admins can login." });
-                localStorage.removeItem("user");
+                setAlert({ type: "success", message: "Logged in successfully! Redirecting to your profile..." });
+                setTimeout(() => router.replace("/users"), 1000);
             }
         } catch (error) {
             console.error(error);

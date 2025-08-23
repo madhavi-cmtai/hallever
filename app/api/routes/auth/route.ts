@@ -22,11 +22,13 @@ export async function POST(req: Request) {
         
 
         // Authenticate user
-        await AuthService.loginUser(email, password);
+        const user = await AuthService.loginUser(email, password);
+        console.log("this is user", user);
         consoleManager.log("User logged in");
 
         // Create response
         const response = NextResponse.json({
+            userID:user.uid,
             statusCode: 201,
             message: "User logged in successfully",
             errorCode: "NO",

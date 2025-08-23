@@ -1,32 +1,76 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Menu, User, LogIn, UserPlus, Globe, X, ShoppingCart } from "lucide-react"
+import { Menu, Search, User, LogIn, UserPlus, Globe, X, ShoppingCart, LogOut, Settings } from "lucide-react"
 import { Language, useLanguage } from "@/context/language-context"
 import { useCart } from "@/context/cart-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import SearchBanner from "./searchBanner"
+
+interface UserData {
+  uid: string;
+  email: string;
+  fullName: string;
+  role: string;
+  tlcId: string;
+}
 
 export default function Header() {
+  const [searchQuery, setSearchQuery] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
+  const [user, setUser] = useState<UserData | null>(null)
   const { t, language, setLanguage } = useLanguage()
   const { totalItems } = useCart()
   const router = useRouter()
   const pathname = usePathname()
 
+  useEffect(() => {
+    // Check for user in localStorage
+    const userStr = localStorage.getItem("user")
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr)
+        setUser(userData)
+      } catch (error) {
+        console.error("Error parsing user data:", error)
+        localStorage.removeItem("user")
+      }
+    }
+  }, [])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Search:", searchQuery)
+  }
+
   const handleLogin = () => router.push("/login")
   const handleRegister = () => router.push("/signup")
+
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"
+    setUser(null)
+    router.push("/")
+  }
+
+  const handleProfile = () => {
+    if (user?.role === "admin") {
+      router.push("/dashboard")
+    } else {
+      router.push("/users")
+    }
+  }
 
   const navigationItems = [
     { name: t("header.home"), href: "/" },
@@ -109,7 +153,16 @@ export default function Header() {
 
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-lg mx-4">
-            <SearchBanner />
+            <form onSubmit={handleSearch} className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t("search.placeholder") || "Search..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-full"
+              />
+            </form>
           </div>
 
           {/* Desktop Navigation */}
@@ -155,15 +208,35 @@ export default function Header() {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={handleLogin}>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  {t("auth.login")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleRegister}>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  {t("auth.register")}
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-56">
+                {user ? (
+                  <>
+                    <div className="px-3 py-2 border-b">
+                      <p className="text-sm font-medium">{user.fullName || user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.role === "admin" ? "Administrator" : "User"}</p>
+                    </div>
+                    <DropdownMenuItem onClick={handleProfile}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      {user.role === "admin" ? "Admin Dashboard" : "My Profile"}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem onClick={handleLogin}>
+                      <LogIn className="mr-2 h-4 w-4" />
+                      {t("auth.login")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleRegister}>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      {t("auth.register")}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -222,7 +295,16 @@ export default function Header() {
 
             {/* Mobile Search */}
             <div className="px-4 mt-2 md:hidden">
-              <SearchBanner />
+              <form onSubmit={handleSearch} className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={t("search.placeholder") || "Search..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 w-full"
+                />
+              </form>
             </div>
             
             {/* Mobile Cart */}
@@ -240,14 +322,27 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Mobile Actions */}
+            {/* Mobile User Actions */}
             <div className="flex sm:hidden items-center space-x-3 px-4 mt-4">
-              <Button onClick={handleLogin} className="flex-1 bg-primary text-white">
-                {t("auth.login")}
-              </Button>
-              <Button onClick={handleRegister} className="flex-1 bg-muted text-foreground">
-                {t("auth.register")}
-              </Button>
+              {user ? (
+                <>
+                  <Button onClick={handleProfile} className="flex-1 bg-primary text-white">
+                    {user.role === "admin" ? "Dashboard" : "Profile"}
+                  </Button>
+                  <Button onClick={handleLogout} className="flex-1 bg-muted text-foreground">
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={handleLogin} className="flex-1 bg-primary text-white">
+                    {t("auth.login")}
+                  </Button>
+                  <Button onClick={handleRegister} className="flex-1 bg-muted text-foreground">
+                    {t("auth.register")}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
