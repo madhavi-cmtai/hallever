@@ -57,7 +57,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         if (fullName !== undefined) updateData.fullName = fullName;
         if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
 
-        const updatedUser = await AuthService.updateUser(id, updateData);
+        // updateUser may return void, so we can't check for falsy value
+        await AuthService.updateUser(id, updateData);
+
+        // After update, fetch the user to check if it exists and return updated data
+        const updatedUser = await AuthService.getUserById(id);
 
         if (!updatedUser) {
             return NextResponse.json({
@@ -93,9 +97,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     try {
-        const result = await AuthService.deleteUserByUid(id);
-        
-        if (!result.success) {
+        // deleteUserByUid may return void, so we can't check for result.success
+        await AuthService.deleteUserByUid(id);
+
+        // After deletion, try to fetch the user to confirm deletion
+        const user = await AuthService.getUserById(id);
+        if (user) {
+            // User still exists, so deletion failed
             return NextResponse.json({
                 statusCode: 404,
                 errorCode: "USER_NOT_FOUND",
@@ -107,7 +115,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({
             statusCode: 200,
             message: "User deleted successfully",
-            data: result,
+            data: { id },
             errorCode: "NO",
             errorMessage: "",
         }, { status: 200 });
