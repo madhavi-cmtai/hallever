@@ -126,12 +126,8 @@ const UsersPage = () => {
         updatedOn: new Date().toISOString().split('T')[0]
       };
       
-      // Here you would typically make an API call to create user
-      // For now, we'll simulate it
       console.log('Creating user:', newUser);
       
-      // Add to local state (replace with actual API call)
-      // dispatch(createUser(newUser));
       
       setIsCreateModalOpen(false);
       resetForm();
@@ -151,13 +147,9 @@ const UsersPage = () => {
     }
     
     try {
-      // Here you would typically make an API call to update user
-      // For now, we'll simulate it
+
       console.log('Updating user:', selectedUser.uid, formData);
-      
-      // Update user in Redux store (replace with actual API call)
-      // dispatch(updateUser({ uid: selectedUser.uid, ...formData }));
-      
+   
       setIsEditModalOpen(false);
       setSelectedUser(null);
       resetForm();
@@ -172,13 +164,7 @@ const UsersPage = () => {
     if (!selectedUser) return;
     
     try {
-      // Here you would typically make an API call to delete user
-      // For now, we'll simulate it
-      console.log('Deleting user:', selectedUser.uid);
-      
-      // Delete user from Redux store (replace with actual API call)
-      // dispatch(deleteUser(selectedUser.uid));
-      
+      console.log('Deleting user:', selectedUser.uid);   
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
       alert('User deleted successfully!');
