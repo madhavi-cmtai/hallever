@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Edit, 
-  ShoppingBag, 
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Edit,
+  ShoppingBag,
   Camera,
   Package,
   Truck,
@@ -29,8 +29,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 interface UserData {
   uid: string;
   email: string;
-  fullName: string;
-  phoneNumber: string;
+  fullName?: string;
+  name?: string;
+  phoneNumber?: string;
+  phone?: string;
   tlcId: string;
   role: string;
   createdOn: string;
@@ -64,6 +66,7 @@ const UsersPage = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const [editForm, setEditForm] = useState({
     fullName: "",
     phoneNumber: "",
@@ -82,8 +85,8 @@ const UsersPage = () => {
         const userData = JSON.parse(userStr);
         setUser(userData);
         setEditForm({
-          fullName: userData.fullName || "",
-          phoneNumber: userData.phoneNumber || "",
+          fullName: userData.fullName || userData.name || "",
+          phoneNumber: userData.phoneNumber || userData.phone || "",
         });
 
         // Fetch user's orders
@@ -105,7 +108,7 @@ const UsersPage = () => {
       if (response.ok) {
         const data = await response.json();
         // Filter orders for the current user
-        const userOrders = data.data.filter((order: OrderData) => 
+        const userOrders = data.data.filter((order: OrderData) =>
           order.formData.email === userEmail
         );
         setOrders(userOrders);
@@ -124,26 +127,50 @@ const UsersPage = () => {
   const handleEditSubmit = async () => {
     if (!user) return;
 
+    setUpdating(true);
     try {
-      const response = await fetch(`/api/routes/auth/${user.uid}`, {
-        method: "PUT",
+      // Use PATCH method to match your Redux slice
+      const response = await fetch(`/api/routes/auth`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({
+          uid: user.uid, // Include the uid in the request body
+          name: editForm.fullName, // Use 'name' field to match your User interface
+          phone: editForm.phoneNumber, // Use 'phone' field to match your User interface
+        }),
       });
 
       if (response.ok) {
-        const updatedUser = { ...user, ...editForm };
+        const responseData = await response.json();
+
+        // Update the user object with the correct field names
+        const updatedUser = {
+          ...user,
+          name: editForm.fullName, // Update 'name' field
+          phone: editForm.phoneNumber, // Update 'phone' field
+          // Keep both field names for backward compatibility
+          fullName: editForm.fullName,
+          phoneNumber: editForm.phoneNumber,
+        };
+
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setIsEditModalOpen(false);
+
+        // Show success message
+        alert("Profile updated successfully!");
       } else {
-        alert("Failed to update profile");
+        const errorData = await response.json();
+        console.error("Update error:", errorData);
+        alert(`Failed to update profile: ${errorData.errorMessage || errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile");
+      alert("Failed to update profile. Please try again.");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -157,7 +184,7 @@ const UsersPage = () => {
     const orderDate = new Date(order.createdAt);
     const now = new Date();
     const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (daysDiff > 7) {
       return <CheckCircle className="w-4 h-4 text-green-500" />;
     } else if (daysDiff > 3) {
@@ -171,7 +198,7 @@ const UsersPage = () => {
     const orderDate = new Date(order.createdAt);
     const now = new Date();
     const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (daysDiff > 7) {
       return 'Delivered';
     } else if (daysDiff > 3) {
@@ -192,6 +219,16 @@ const UsersPage = () => {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  // Helper function to get user display name
+  const getUserDisplayName = () => {
+    return user?.fullName || user?.name || 'User';
+  };
+
+  // Helper function to get user phone number
+  const getUserPhone = () => {
+    return user?.phoneNumber || user?.phone || 'Not provided';
   };
 
   if (loading) {
@@ -215,7 +252,7 @@ const UsersPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Side - Profile Section */}
           <div className="lg:col-span-1">
             <motion.div
@@ -229,9 +266,9 @@ const UsersPage = () => {
                   <div className="text-center mb-6">
                     <div className="relative inline-block mb-4">
                       <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                        <AvatarImage src="/images/logo.png" alt={user.fullName} />
+                        <AvatarImage src="/images/logo.png" alt={getUserDisplayName()} />
                         <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-red-400 to-red-600 text-white">
-                          {user.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
+                          {getUserDisplayName().split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <Button
@@ -242,10 +279,10 @@ const UsersPage = () => {
                         <Camera className="w-4 h-4" />
                       </Button>
                     </div>
-                    
-                    <h2 className="text-xl font-bold text-gray-900 mb-1">{user.fullName || 'User'}</h2>
+
+                    <h2 className="text-xl font-bold text-gray-900 mb-1">{getUserDisplayName()}</h2>
                     <p className="text-gray-600 text-sm mb-3">Member since {new Date(user.createdOn).toLocaleDateString()}</p>
-                    
+
                     <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
                       {user.role === 'admin' ? 'Administrator' : 'Premium Member'}
                     </Badge>
@@ -270,31 +307,42 @@ const UsersPage = () => {
                             <Input
                               id="fullName"
                               value={editForm.fullName}
-                              onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
+                              onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                              placeholder="Enter your full name"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="phoneNumber">Phone</Label>
+                            <Label htmlFor="phoneNumber">Phone Number</Label>
                             <Input
                               id="phoneNumber"
                               value={editForm.phoneNumber}
-                              onChange={(e) => setEditForm({...editForm, phoneNumber: e.target.value})}
+                              onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+                              placeholder="Enter your phone number"
                             />
                           </div>
                           <div className="flex gap-3 pt-4">
-                            <Button onClick={handleEditSubmit} className="flex-1 bg-[#E10600] hover:bg-[#C10500]">
-                              Save Changes
+                            <Button
+                              onClick={handleEditSubmit}
+                              className="flex-1 bg-[#E10600] hover:bg-[#C10500]"
+                              disabled={updating}
+                            >
+                              {updating ? "Updating..." : "Save Changes"}
                             </Button>
-                            <Button variant="outline" onClick={() => setIsEditModalOpen(false)} className="flex-1">
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsEditModalOpen(false)}
+                              className="flex-1"
+                              disabled={updating}
+                            >
                               Cancel
                             </Button>
                           </div>
                         </div>
                       </DialogContent>
                     </Dialog>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                       onClick={handleLogout}
                     >
@@ -309,17 +357,12 @@ const UsersPage = () => {
                       <Mail className="w-4 h-4 text-gray-500" />
                       <span className="text-gray-700">{user.email}</span>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3 text-sm">
                       <Phone className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-700">{user.phoneNumber || 'Not provided'}</span>
+                      <span className="text-gray-700">{getUserPhone()}</span>
                     </div>
-                    
-                    <div className="flex items-center space-x-3 text-sm">
-                      <MapPin className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-700">TLC ID: {user.tlcId}</span>
-                    </div>
-                    
+
                     <div className="flex items-center space-x-3 text-sm">
                       <Calendar className="w-4 h-4 text-gray-500" />
                       <span className="text-gray-700">Joined {new Date(user.createdOn).toLocaleDateString()}</span>
@@ -396,7 +439,7 @@ const UsersPage = () => {
                                     <span className="font-medium">Date:</span> {new Date(order.createdAt).toLocaleDateString()}
                                   </div>
                                   <div>
-                                    <span className="font-medium">Amount:</span> 
+                                    <span className="font-medium">Amount:</span>
                                     <span className="font-semibold text-gray-900 ml-1">₹{order.totalAmount}</span>
                                   </div>
                                 </div>
@@ -408,8 +451,8 @@ const UsersPage = () => {
                                 <Badge className={getStatusColor(status)}>
                                   {status}
                                 </Badge>
-                                <Button 
-                                  variant="outline" 
+                                <Button
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleViewOrderDetails(order)}
                                 >
@@ -494,8 +537,8 @@ const UsersPage = () => {
                 <div className="space-y-3">
                   {selectedOrder.selectedProducts.map((product, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <img 
-                        src={product.image || "/images/logo.png"} 
+                      <img
+                        src={product.image || "/images/logo.png"}
                         alt={product.name}
                         className="w-12 h-12 object-cover rounded"
                       />
@@ -518,8 +561,8 @@ const UsersPage = () => {
 
               {/* Close Button */}
               <div className="flex justify-end pt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsOrderDetailsModalOpen(false)}
                 >
                   Close

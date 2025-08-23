@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/config/firebase"; 
+import { auth } from "@/lib/config/firebase";
 
 
 const LoginForm = () => {
@@ -75,8 +75,8 @@ const LoginForm = () => {
                 {alert && (
                     <div
                         className={`text-sm px-4 py-3 rounded-md ${alert.type === "success"
-                                ? "bg-green-100 text-green-700 border border-green-300"
-                                : "bg-red-100 text-red-700 border border-red-300"
+                            ? "bg-green-100 text-green-700 border border-green-300"
+                            : "bg-red-100 text-red-700 border border-red-300"
                             }`}
                     >
                         {alert.message}

@@ -69,6 +69,7 @@ class AuthService {
             consoleManager.error("registerUser error:", errorMessage);
             throw new Error(errorMessage);
         }
+
     }
 
     //  Login
@@ -95,63 +96,56 @@ class AuthService {
             consoleManager.error("registerUser error:", errorMessage);
             throw new Error(errorMessage);
         }
-    }
 
-    // Get user by ID
-    static async getUserById(uid: string) {
-        try {
-            const userDoc = await db.collection("users").doc(uid).get();
-            if (!userDoc.exists) return null;
-
-            return {
-                uid: userDoc.id,
-                ...userDoc.data(),
-            };
-        } catch (error: unknown) {
-            consoleManager.error("getUserById error:", error);
-            throw new Error("Failed to fetch user");
-        }
-    }
-
-    // Update user
-    static async updateUser(uid: string, updateData: { fullName?: string; phoneNumber?: string }) {
-        try {
-            const userRef = db.collection("users").doc(uid);
-            const userDoc = await userRef.get();
-            
-            if (!userDoc.exists) return null;
-
-            await userRef.update({
-                ...updateData,
-                updatedOn: new Date().toISOString(),
-            });
-
-            const updatedDoc = await userRef.get();
-            return {
-                uid: updatedDoc.id,
-                ...updatedDoc.data(),
-            };
-        } catch (error: unknown) {
-            consoleManager.error("updateUser error:", error);
-            throw new Error("Failed to update user");
-        }
     }
 
     //  Delete user
     static async deleteUserByUid(uid: string) {
         try {
-            // Delete from Firestore
-            await db.collection("users").doc(uid).delete();
-            
-            // Delete from Firebase Auth
             await auth.deleteUser(uid);
-            
-            consoleManager.log("✅ User deleted:", uid);
-            return { success: true, message: "User deleted successfully" };
+            await db.collection("users").doc(uid).delete();
+            consoleManager.log("User deleted:", uid);
         } catch (error: unknown) {
-            consoleManager.error("deleteUserByUid error:", error);
-            return { success: false, message: "Failed to delete user" };
+            let errorMessage = "Registration failed.";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            consoleManager.error("registerUser error:", errorMessage);
+            throw new Error(errorMessage);
         }
+
+    }
+
+    //  Update Firebase Auth fields
+    static async updateUser(uid: string, updates: ExtraUserData & { email?: string; password?: string; disabled?: boolean; }) {
+        try {
+            const fields: Record<string, unknown> = {};
+
+
+            if (updates.email) fields.email = updates.email;
+            if (updates.password) fields.password = updates.password;
+            if (updates.fullName) fields.displayName = updates.fullName;
+            if (updates.phoneNumber) fields.phoneNumber = updates.phoneNumber;
+            if (updates.disabled !== undefined) fields.disabled = updates.disabled;
+            if (updates.role) fields.customClaims = { role: updates.role };
+
+            if (Object.keys(fields).length > 0) {
+                await auth.updateUser(uid, fields);
+                consoleManager.log("Firebase Auth user updated:", uid);
+            }
+        } catch (error: unknown) {
+            let errorMessage = "Registration failed.";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            consoleManager.error("registerUser error:", errorMessage);
+            throw new Error(errorMessage);
+        }
+
     }
 
     //  Update Firestore profile fields
@@ -162,6 +156,25 @@ class AuthService {
                 updatedOn: new Date().toISOString(),
             });
             consoleManager.log("Firestore user updated:", uid);
+        } catch (error: unknown) {
+            let errorMessage = "Registration failed.";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            consoleManager.error("registerUser error:", errorMessage);
+            throw new Error(errorMessage);
+        }
+
+    }
+
+    //  Get user by UID
+    static async getUserById(uid: string) {
+        try {
+            const doc = await db.collection("users").doc(uid).get();
+            if (!doc.exists) return null;
+            return { uid: doc.id, ...doc.data() };
         } catch (error: unknown) {
             let errorMessage = "Registration failed.";
 

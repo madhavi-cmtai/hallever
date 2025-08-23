@@ -137,7 +137,30 @@ const OrdersPage = () => {
     }
   };
 
-
+  // For demo: show selected products in the order card and in the modal
+  const renderSelectedProducts = (products: SelectedProduct[]) => (
+    <div className="mt-2">
+      {products.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-semibold text-xs text-gray-500">Selected Products:</div>
+          {products.map((prod) => (
+            <div key={prod.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
+              <img src={prod.image} alt={prod.name} className="w-10 h-10 object-cover rounded" />
+              <div className="flex-1">
+                <div className="font-medium text-sm">{prod.name}</div>
+                <div className="text-xs text-gray-500">
+                  Price: ₹{prod.price} &nbsp;|&nbsp; Qty: {prod.quantity}
+                </div>
+              </div>
+              {prod.wattage && (
+                <span className="text-xs text-gray-400">Wattage: {prod.wattage}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   // For demo: allow adding a hardcoded product to the order in the modal
   const handleAddDemoProduct = () => {
@@ -203,17 +226,12 @@ const OrdersPage = () => {
           orders.map((order) => (
             <div
               key={order.id}
-              className="border border-gray-200 rounded-xl p-4 space-y-3 shadow-sm bg-white hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-xl p-4 space-y-2 shadow-sm bg-white"
             >
-              {/* Order Header */}
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-[var(--primary-red)]">
-                    {order.formData.fullName}
-                  </h3>
-                  <p className="text-sm text-gray-600">{order.formData.email}</p>
-                  <p className="text-sm text-gray-600">{order.formData.phone}</p>
-                </div>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-[var(--primary-red)]">
+                  {order.formData.fullName}
+                </h3>
                 <div className="flex gap-2">
                   <Pencil
                     className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:opacity-70"
@@ -228,47 +246,25 @@ const OrdersPage = () => {
                   />
                 </div>
               </div>
-
-              {/* Order Message */}
+              <p className="text-sm">{order.formData.email}</p>
+              <p className="text-sm">{order.formData.phone}</p>
               {order.formData.message && (
-                <div className="bg-gray-50 p-2 rounded text-sm text-gray-700">
-                  <span className="font-medium">Message:</span> {order.formData.message}
-                </div>
+                <p className="text-sm text-gray-600">{order.formData.message}</p>
               )}
-
-              {/* Products Summary */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-gray-700">Products:</h4>
-                <div className="space-y-1">
-                  {order.selectedProducts && order.selectedProducts.map((product, index) => (
-                    <div key={index} className="flex justify-between items-center text-xs">
-                      <span className="flex-1">
-                        {product.name} (Qty: {product.quantity})
-                      </span>
-                      <span className="font-medium">₹{product.price * product.quantity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Order Details */}
-              <div className="border-t pt-2 space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-[var(--primary-red)]">
-                    Total Amount:
-                  </span>
-                  <span className="text-sm font-bold text-[var(--primary-red)]">
-                    ₹{order.totalAmount || 0}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  Order ID: {order.id?.slice(-8) || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Created: {order.createdAt
+              {/* Remove category/subcategory badges */}
+              {/* Show selected products */}
+              {renderSelectedProducts(order.selectedProducts || [])}
+              <div>
+                <span className="text-xs text-gray-400">
+                  Created:{" "}
+                  {order.createdAt
                     ? new Date(order.createdAt).toLocaleString()
-                    : "N/A"}
-                </div>
+                    : ""}
+                </span>
+              </div>
+              {/* Show total amount */}
+              <div className="text-xs font-semibold text-[var(--primary-red)]">
+                Total Amount: ₹{order.totalAmount || 0}
               </div>
             </div>
           ))}
