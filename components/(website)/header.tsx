@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Menu, Search, User, LogIn, UserPlus, Globe, X, ShoppingCart } from "lucide-react"
+import { Menu, User, LogIn, UserPlus, Globe, X, ShoppingCart } from "lucide-react"
 import { Language, useLanguage } from "@/context/language-context"
 import { useCart } from "@/context/cart-context"
 import {
@@ -16,19 +16,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import SearchBanner from "./searchBanner"
 
 export default function Header() {
-  const [searchQuery, setSearchQuery] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
   const { t, language, setLanguage } = useLanguage()
   const { totalItems } = useCart()
   const router = useRouter()
   const pathname = usePathname()
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Search:", searchQuery)
-  }
 
   const handleLogin = () => router.push("/login")
   const handleRegister = () => router.push("/signup")
@@ -114,16 +109,7 @@ export default function Header() {
 
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-lg mx-4">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={t("search.placeholder") || "Search..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-full"
-              />
-            </form>
+            <SearchBanner />
           </div>
 
           {/* Desktop Navigation */}
@@ -236,16 +222,7 @@ export default function Header() {
 
             {/* Mobile Search */}
             <div className="px-4 mt-2 md:hidden">
-              <form onSubmit={handleSearch} className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder={t("search.placeholder") || "Search..."}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 w-full"
-                />
-              </form>
+              <SearchBanner />
             </div>
             
             {/* Mobile Cart */}
