@@ -119,10 +119,15 @@ const UsersPage = () => {
   };
 
   const handleLogout = () => {
+
     localStorage.removeItem("user");
     document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
+    // Redirect
     router.push("/login");
   };
+
 
   const handleEditSubmit = async () => {
     if (!user) return;

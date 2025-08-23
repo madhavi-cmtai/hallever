@@ -71,15 +71,19 @@ const Sidebar = () => {
 
         {/* Logout */}
         <div className="mt-6">
-          <a
-            href="/logout"
+          <button
+            onClick={() => {
+              localStorage.removeItem("user");
+              window.location.href = "/login";
+            }}
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-gray-700 hover:bg-[#ffe4e4] hover:text-[#d32f2f]"
             style={{ fontFamily: "var(--font-main)" }}
           >
             <LogOut className="w-5 h-5 text-red-500 group-hover:text-[#d32f2f]" />
             <span className="text-red-500">Logout</span>
-          </a>
+          </button>
         </div>
+
       </nav>
     </div>
   );
