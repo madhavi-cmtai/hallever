@@ -7,6 +7,7 @@ import Footer from "../(website)/footer";
 import PopUpOffer from "../(website)/popupOffer";
 import FloatingChat from "../(website)/floatingButton";
 import { LanguageProvider } from "@/context/language-context";
+import { CartProvider } from "@/context/cart-context";
 import { Provider } from "react-redux";
 import { store } from "@/lib/redux/store";
 
@@ -27,19 +28,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <Provider store={store}>
             <LanguageProvider>
-                {/* Header */}
-                {!shouldHideHeaderFooter && <Header />}
+                <CartProvider>
+                    {/* Header */}
+                    {!shouldHideHeaderFooter && <Header />}
 
-                {/* Floating UI (only for website pages, not dashboard) */}
-                {!isDashboard  && <FloatingChat />}
-                {!isDashboard  && <PopUpOffer />}
+                    {/* Floating UI (only for website pages, not dashboard) */}
+                    {!isDashboard  && <FloatingChat />}
+                    {!isDashboard  && <PopUpOffer />}
 
 
-                {/* Main Content */}
-                <main className="flex-1">{children}</main>
+                    {/* Main Content */}
+                    <main className="flex-1">{children}</main>
 
-                {/* Footer */}
-                {!shouldHideHeaderFooter && <Footer />}
+                    {/* Footer */}
+                    {!shouldHideHeaderFooter && <Footer />}
+                </CartProvider>
             </LanguageProvider>
         </Provider>
     );

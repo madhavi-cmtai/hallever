@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ProductItem } from "@/lib/redux/slice/productSlice";
-import { OrderForm } from "../orderForm";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { fetchProducts, selectProducts } from "@/lib/redux/slice/productSlice";
@@ -147,11 +146,6 @@ export default function ProductDetailsPage() {
 
                            
                         </div>
-                    </div>
-
-                    {/* Order Form Section */}
-                    <div className="p-6 border-t mt-8">
-                        <OrderForm />
                     </div>
                 </motion.div>
             </AnimatePresence>

@@ -4,8 +4,9 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Menu, Search, User, LogIn, UserPlus, Globe, X } from "lucide-react"
+import { Menu, Search, User, LogIn, UserPlus, Globe, X, ShoppingCart } from "lucide-react"
 import { Language, useLanguage } from "@/context/language-context"
+import { useCart } from "@/context/cart-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
   const { t, language, setLanguage } = useLanguage()
+  const { totalItems } = useCart()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -144,6 +146,22 @@ export default function Header() {
 
           {/* Actions */}
           <div className="hidden sm:flex items-center space-x-3 ml-4">
+            {/* Cart Icon */}
+            <Link href="/cart">
+              <Button variant="ghost" size="icon" className="w-10 h-10 p-2 hover:bg-accent relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2 -right-2 bg-[#E10600] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                  >
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </motion.div>
+                )}
+              </Button>
+            </Link>
+
             {/* User Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -230,6 +248,20 @@ export default function Header() {
               </form>
             </div>
             
+            {/* Mobile Cart */}
+            <div className="px-4 mt-2">
+              <Link href="/cart" onClick={() => setMenuOpen(false)}>
+                <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  Cart
+                  {totalItems > 0 && (
+                    <span className="bg-[#E10600] text-white text-xs rounded-full px-2 py-1 font-bold">
+                      {totalItems > 99 ? '99+' : totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
 
             {/* Mobile Actions */}
             <div className="flex sm:hidden items-center space-x-3 px-4 mt-4">

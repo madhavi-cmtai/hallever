@@ -11,7 +11,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { useLanguage } from "@/context/language-context";
-import { Loader2 } from "lucide-react";
+import { useCart } from "@/context/cart-context";
+import { Loader2, ShoppingCart, Check } from "lucide-react";
 import Link from "next/link";
 import { generateSlug } from "@/lib/utils";
 
@@ -59,19 +60,29 @@ const subCategories: Record<string, string[]> = {
 export default function ProductSection() {
     const dispatch = useDispatch<AppDispatch>();
     const { t } = useLanguage();
+    const { addToCart, isInCart } = useCart();
 
     const products = useSelector(selectProducts);
     const isLoading = useSelector(selectIsLoading);
 
     const [selectedImageIndices, setSelectedImageIndices] = useState<Record<string, number>>({});
-    const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+    const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         dispatch(fetchProducts());
     }, [dispatch]);
 
+    const handleAddToCart = (product: ProductItem) => {
+        addToCart(product);
+        
+        // Show success feedback
+        setAddedToCart(prev => ({ ...prev, [String(product.id)]: true }));
+        setTimeout(() => {
+            setAddedToCart(prev => ({ ...prev, [String(product.id)]: false }));
+        }, 2000);
+    };
 
     const handleImageSelect = (productId: string | number, index: number) => {
         setSelectedImageIndices((prev) => ({
@@ -171,6 +182,9 @@ export default function ProductSection() {
                         {filteredProducts.map((product) => {
                             const currentImageIndex = selectedImageIndices[product.id!] || 0;
                             const productSlug = generateSlug(product.name);
+                            const isInCartState = isInCart(String(product.id));
+                            const showAddedFeedback = addedToCart[String(product.id)];
+                            
                             return (
                                 <div
                                     key={product.id}
@@ -217,19 +231,32 @@ export default function ProductSection() {
                                         </ul>
 
                                         <div className="flex justify-between gap-2">
+                                            <button
+                                                onClick={() => handleAddToCart(product)}
+                                                disabled={isInCartState}
+                                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded transition-all duration-300 ${
+                                                    isInCartState || showAddedFeedback
+                                                        ? "bg-green-600 text-white cursor-not-allowed"
+                                                        : "bg-[var(--primary-red)] text-white hover:bg-red-700 hover:scale-105"
+                                                }`}
+                                                style={{ minHeight: "38px" }}
+                                            >
+                                                {isInCartState || showAddedFeedback ? (
+                                                    <>
+                                                        <Check className="w-4 h-4" />
+                                                        {showAddedFeedback ? "Added!" : "In Cart"}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ShoppingCart className="w-4 h-4" />
+                                                        Add to Cart
+                                                    </>
+                                                )}
+                                            </button>
+
                                             <Link href={`/products/${productSlug}`}>
                                                 <button
-                                                    className="text-center bg-[var(--primary-red)] text-white px-4 py-2 text-sm rounded hover:bg-red-700 transition"
-                                                    style={{ minHeight: "38px" }}
-                                                >
-                                                    {t("button.shopNow")}
-                                                </button>
-                                            </Link>
-
-
-                                            <Link href={`/products/${productSlug}`}>
-                                                <button
-                                                    className="text-center border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition"
+                                                    className="flex-1 text-center border border-[var(--primary-red)] text-[var(--primary-red)] px-4 py-2 text-sm rounded hover:bg-[var(--primary-red)] hover:text-white transition hover:scale-105"
                                                     style={{ minHeight: "38px" }}
                                                 >
                                                     {t("button.knowMore")}
@@ -243,8 +270,6 @@ export default function ProductSection() {
                     </div>
                 )}
             </div>
-
-        
         </section>
     );
 }
