@@ -9,19 +9,13 @@ import authReducer from "./slice/authSlice";
 import countReducer from "./slice/countSlice";
 import offerReducer from "./slice/offerSlice";
 import jobApplicationReducer from './slice/jobApplicationsSlice';
-<<<<<<< Updated upstream
 import testimonialsReducer from "./slice/testimonialsSlice"
 import teamReducer from "./slice/teamSlice"
 import offerBannerReducer from "./slice/offerBannerSlice"
 import orderReducer from "./slice/orderSlice"
 import forgotPasswordReducer from "./slice/forgotPasswordSlice"
-=======
-import testimonialsReducer from "./slice/testimonialsSlice";
-import teamReducer from "./slice/teamSlice";
-import offerBannerReducer from "./slice/offerBannerSlice";
-import orderReducer from "./slice/orderSlice";
 import cartReducer from "./slice/cartSlice";
->>>>>>> Stashed changes
+
       
 
 export const store = configureStore({

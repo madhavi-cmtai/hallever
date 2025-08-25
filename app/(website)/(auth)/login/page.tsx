@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/config/firebase";
@@ -18,21 +18,44 @@ const LoginForm = () => {
         name: "",
         email: "",
         phone: "",
-        status: "pending"   
+        status: "pending"
     });
     const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        if (loading) return;
+
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                if (user && user.role) {
+                    if (user.role.toLowerCase() == "admin") {
+                        router.push("/dashboard");
+                    } else {
+                        router.push("/users");
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to parse user from localStorage", error);
+                localStorage.removeItem("user");
+            }
+        }
+    }, [router, loading]); // loading को dependency array में जोड़ें
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setAlert(null);
         setLoading(true);
 
         try {
-            // 1. Firebase login
+            const preLoginCartString = localStorage.getItem("cart");
+            const preLoginCart = preLoginCartString ? JSON.parse(preLoginCartString) : [];
+
             await signInWithEmailAndPassword(auth, email, password);
 
-            // 2. Call backend for login
             const res = await fetch("/api/routes/auth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -44,35 +67,58 @@ const LoginForm = () => {
                 throw new Error(result.errorMessage || "Login failed.");
             }
 
-            // 3. Fetch user profile
             const profileRes = await fetch(`/api/routes/auth?email=${encodeURIComponent(email)}`);
             const profileData = await profileRes.json();
 
-            if (!profileRes.ok || !profileData.data) {
+            if (!profileData || !profileData.data) {
                 throw new Error("User profile not found.");
             }
 
             const user = profileData.data;
 
-            // 4. Store user in localStorage & cookie
-            localStorage.setItem("user", JSON.stringify(user));
-            document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/`;
+            let cartWasUpdated = false;
+            if (preLoginCart.length > 0) {
+                user.cart = user.cart || [];
+                const userCartProductIds = new Set(user.cart.map((item: any) => item.id));
 
-            // 5. Redirect based on role
-            if (user.role === "admin") {
-                setAlert({ type: "success", message: "Logged in successfully! Redirecting to admin dashboard..." });
-                setTimeout(() => router.replace("/dashboard"), 1000);
-            } else {
-                setAlert({ type: "success", message: "Logged in successfully! Redirecting to your profile..." });
-                setTimeout(() => router.replace("/users"), 1000);
+                preLoginCart.forEach((product: any) => {
+                    if (!userCartProductIds.has(product.id)) {
+                        user.cart.push(product);
+                        cartWasUpdated = true;
+                    }
+                });
+
+                if (cartWasUpdated) {
+                    await fetch(`/api/routes/auth`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: user.email, updatedData: { cart: user.cart } }),
+                    });
+                }
             }
-        } catch (error) {
+
+            localStorage.setItem("user", JSON.stringify(user));
+
+            if (preLoginCart.length > 0) {
+                localStorage.removeItem("cart");
+            }
+
+            // --- सबसे महत्वपूर्ण बदलाव यहाँ है ---
+            // setTimeout को हटा दें और तुरंत रीडायरेक्ट करें।
+            if (user.role && user.role.toLowerCase() === "admin") {
+                setAlert({ type: "success", message: "Logged in successfully! Redirecting..." });
+                router.replace("/dashboard");
+            } else {
+                setAlert({ type: "success", message: "Logged in successfully! Redirecting..." });
+                router.replace("/users");
+            }
+
+        } catch (error: any) {
             console.error(error);
             setAlert({ type: "error", message: error.message || "Login failed. Please try again." });
+            setLoading(false); // विफलता पर लोडिंग को false पर सेट करें
         }
-
-        setLoading(false);
-        setTimeout(() => setAlert(null), 3000);
+        // सफलता पर setLoading को हटाने की आवश्यकता नहीं है क्योंकि पेज वैसे भी रीडायरेक्ट हो जाएगा।
     };
 
     const handleForgotPassword = async (e: React.FormEvent) => {
@@ -81,27 +127,18 @@ const LoginForm = () => {
         setForgotPasswordLoading(true);
 
         try {
-            // Validate that all fields are filled
             if (!forgotPasswordData.name || !forgotPasswordData.email || !forgotPasswordData.phone) {
                 throw new Error("Please fill in all fields: Name, Email, and Phone");
             }
-
-            // Here you would typically make an API call to handle password reset
-            // For now, we'll simulate it
             dispatch(addForgotPassword(forgotPasswordData as ForgotPassword));
-            // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            setAlert({ 
-                type: "success", 
-                message: "Password reset request submitted successfully! We'll contact you soon." 
+            setAlert({
+                type: "success",
+                message: "Password reset request submitted successfully! We'll contact you soon."
             });
-            
-            // Reset form and hide forgot password section
             setForgotPasswordData({ name: "", email: "", phone: "", status: "pending" });
             setShowForgotPassword(false);
-            
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             setAlert({ type: "error", message: error.message || "Failed to submit password reset request. Please try again." });
         }
@@ -122,7 +159,6 @@ const LoginForm = () => {
                 <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md space-y-6">
                     <h2 className="text-2xl font-bold text-center text-[var(--primary-red)]">Forgot Password</h2>
                     <p className="text-center text-gray-500">Enter your details to request a password reset</p>
-
                     {alert && (
                         <div
                             className={`text-sm px-4 py-3 rounded-md ${alert.type === "success"
@@ -133,7 +169,6 @@ const LoginForm = () => {
                             {alert.message}
                         </div>
                     )}
-
                     <form onSubmit={handleForgotPassword} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -165,7 +200,6 @@ const LoginForm = () => {
                                 onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, phone: e.target.value })}
                             />
                         </div>
-
                         <div className="flex gap-3 pt-2">
                             <button
                                 type="submit"
@@ -183,7 +217,6 @@ const LoginForm = () => {
                             </button>
                         </div>
                     </form>
-
                     <div className="text-center">
                         <button
                             type="button"
@@ -203,7 +236,6 @@ const LoginForm = () => {
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md space-y-6">
                 <h2 className="text-2xl font-bold text-center text-[var(--primary-red)]">Login</h2>
                 <p className="text-center text-gray-500">Enter your credentials to access your account</p>
-
                 {alert && (
                     <div
                         className={`text-sm px-4 py-3 rounded-md ${alert.type === "success"
@@ -214,7 +246,6 @@ const LoginForm = () => {
                         {alert.message}
                     </div>
                 )}
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -227,7 +258,6 @@ const LoginForm = () => {
                             required
                         />
                     </div>
-
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Password</label>
                         <input
@@ -239,7 +269,6 @@ const LoginForm = () => {
                             required
                         />
                     </div>
-
                     <div className="text-right">
                         <button
                             type="button"
@@ -249,7 +278,6 @@ const LoginForm = () => {
                             Forgot Password?
                         </button>
                     </div>
-
                     <button
                         type="submit"
                         disabled={loading}
@@ -258,13 +286,11 @@ const LoginForm = () => {
                         {loading ? "Signing in..." : "Sign In"}
                     </button>
                 </form>
-
                 <div className="flex items-center gap-4">
                     <div className="flex-grow h-px bg-gray-300" />
                     <span className="text-gray-400 text-sm">OR</span>
                     <div className="flex-grow h-px bg-gray-300" />
                 </div>
-
                 <button
                     type="button"
                     onClick={() => router.push("/signup")}

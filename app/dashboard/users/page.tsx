@@ -80,7 +80,6 @@ const UsersPage = () => {
     updatedOn: ''
   });
 
-
   // Filter and search users
   useEffect(() => {
     let filtered = users;
@@ -149,22 +148,10 @@ const UsersPage = () => {
       alert('Please fill in email and name fields');
       return;
     }
-<<<<<<< Updated upstream
-    
+
     try {
       // Prepare update data - only include password if it was changed
-      const updateData = {
-        ...formData,
-        // Only include password if it was provided (not empty)
-        ...(formData.password && { password: formData.password })
-      };
-
-      console.log('Updating user:', selectedUser.uid, updateData);
-   
-=======
-
-    try {
-      await dispatch(updateUser({
+      const updateData: any = {
         uid: selectedUser.uid,
         name: formData.name,
         email: formData.email,
@@ -176,11 +163,17 @@ const UsersPage = () => {
         phone: formData.phone,
         status: formData.status,
         role: formData.role,
-      }));
+      };
+
+      // Only include password if it was provided (not empty)
+      if (formData.password) {
+        updateData.password = formData.password;
+      }
+
+      await dispatch(updateUser(updateData));
 
       // Refresh users list
       dispatch(fetchUsers());
->>>>>>> Stashed changes
       setIsEditModalOpen(false);
       setSelectedUser(null);
       resetForm();
@@ -252,8 +245,6 @@ const UsersPage = () => {
     });
     setIsEditModalOpen(true);
   };
-
-
 
   const openDeleteModal = (user: User) => {
     setSelectedUser(user);
@@ -725,7 +716,7 @@ const UsersPage = () => {
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder="Leave blank if no change needed"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank if you don't want to change the password</p>
+                  <p className="text-xs text-gray-500 mt-1">Leave blank if you don&apos;t want to change the password</p>
                 </div>
               </div>
             </div>
