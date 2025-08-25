@@ -37,7 +37,6 @@ class AuthService {
                 phoneNumber: extraData.phoneNumber,
             });
 
-            console.log(UserRecord);
 
             // 3. Save to Firestore
             await db.collection("users").doc(userRecord.uid).set({

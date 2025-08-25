@@ -26,7 +26,6 @@ export async function POST(req: NextRequest) {
         }
 
         const newOrder = await OrderService.addOrder({ formData, selectedProducts, totalAmount: body.totalAmount });
-        console.log("this is neworder", newOrder);
 
         return NextResponse.json({ success: true, data: newOrder }, { status: 201 });
 

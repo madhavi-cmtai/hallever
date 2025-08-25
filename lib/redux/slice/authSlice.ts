@@ -124,11 +124,12 @@ export const registerUser = (user: { email: string; password: string; fullName?:
             dispatch(setError(response.data.errorMessage || "Registration failed"));
         }
     } catch (error) {
-        const axiosError = error as AxiosError;
-        dispatch(setError(axiosError.message || "Failed to register the user"));
-    } finally {
+        const axiosError = error as AxiosError<{ errorMessage?: string; message?: string }>;
+        const data = axiosError.response?.data;
+        dispatch(setError(data?.errorMessage || data?.message || axiosError.message || "Failed to register the user"));
+      } finally {
         dispatch(setIsLoading(false));
-    }
+      }
 };
 
 export const deleteUserByUid = (uid: string) => async (dispatch: Dispatch) => {
