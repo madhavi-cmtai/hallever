@@ -211,6 +211,7 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
 
       onSaved();
     } catch (err) {
+      console.log(err);
       setError("Failed to save team member");
     }
     setLoading(false);

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchOffer, selectOffer } from "@/lib/redux/slice/offerSlice"
 import { AppDispatch } from "@/lib/redux/store"
@@ -12,18 +13,29 @@ import { Gift, Clock, Star } from "lucide-react"
 
 export default function HomePage() {
     const [showOffer, setShowOffer] = useState(false)
+    const pathname = usePathname()
 
     const dispatch = useDispatch<AppDispatch>()
     const offer = useSelector(selectOffer)
 
+    // Do not show popup on auth pages or dashboard
+    const isBlockedRoute = (() => {
+        if (!pathname) return false
+        if (pathname === "/login" || pathname === "/signup" || pathname === "/logout") return true
+        if (pathname.startsWith("/dashboard")) return true
+        return false
+    })()
+
     useEffect(() => {
+        if (isBlockedRoute) return
+
         const timer = setTimeout(() => {
             dispatch(fetchOffer())
             setShowOffer(true)
         }, 5000) // Show after 5 seconds
 
         return () => clearTimeout(timer)
-    }, [dispatch])
+    }, [dispatch, isBlockedRoute])
 
     const handleCloseOffer = () => {
         setShowOffer(false)
@@ -33,6 +45,8 @@ export default function HomePage() {
         console.log("Offer claimed!")
         setShowOffer(false)
     }
+
+    if (isBlockedRoute) return null
 
     return (
         <div>

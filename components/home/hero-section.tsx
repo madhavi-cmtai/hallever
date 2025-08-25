@@ -1,12 +1,8 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { useLanguage } from "@/context/language-context";
 
 export const Hero = () => {
-    const { t } = useLanguage();
 
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden">

@@ -13,7 +13,7 @@ export class JobService {
             // Filter out undefined or null fields before saving
             const cleanedJobData: Record<string, unknown> = Object.fromEntries(
                 Object.entries(jobData).filter(
-                    ([_, value]) => value !== undefined && value !== null
+                    ([value]) => value !== undefined && value !== null
                 )
             );
 
@@ -81,7 +81,7 @@ export class JobService {
 
             const cleanedUpdateData: Record<string, unknown> = Object.fromEntries(
                 Object.entries(jobData).filter(
-                    ([_, value]) => value !== undefined && value !== null
+                    ([value]) => value !== undefined && value !== null
                 )
             );
 

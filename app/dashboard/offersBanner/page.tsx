@@ -206,6 +206,7 @@ const OfferBannerModal: React.FC<OfferBannerModalProps> = ({
 
       onSaved();
     } catch (err) {
+      console.log(err);
       setError("Failed to save offer banner");
     }
     setLoading(false);

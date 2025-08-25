@@ -174,7 +174,7 @@ export const updateOrder = (order: Order) => async (dispatch: AppDispatch) => {
 export const deleteOrder = (id: string) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await axios.delete<{ statusCode: number; data: Order }>(`/api/routes/orders/${id}`);
+        await axios.delete<{ statusCode: number; data: Order }>(`/api/routes/orders/${id}`);
         dispatch(deleteOrderSuccess(id));
     } catch (error) {
         const err = error as { message?: string };

@@ -38,12 +38,9 @@ import { AppDispatch } from '@/lib/redux/store';
 import { 
   fetchForgotPasswords, 
   updateForgotPassword, 
-  deleteForgotPassword,
   selectForgotPasswords, 
   selectLoading, 
   selectError,
-  selectSelectedForgotPassword,
-  setSelectedForgotPassword,
 } from '@/lib/redux/slice/forgotPasswordSlice';
 import type { ForgotPassword } from '@/lib/redux/slice/forgotPasswordSlice';
 
@@ -57,7 +54,6 @@ const ForgotPasswordPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedForgotPassword, setSelectedForgotPassword] = useState<ForgotPassword | null>(null);
@@ -96,6 +92,7 @@ const ForgotPasswordPage = () => {
           });
         }
       } catch (e) {
+        console.log(e);
         // If parsing fails, return as is
       }
     }

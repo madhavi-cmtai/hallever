@@ -183,6 +183,7 @@ const TestimonialModal: React.FC<TestimonialModalProps> = ({
       }
       onSaved();
     } catch (err) {
+      console.log(err);
       setError("Failed to save testimonial");
     }
     setLoading(false);

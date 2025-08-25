@@ -15,10 +15,6 @@ interface TeamMember {
     image?: string;
 }
 
-interface TeamMembersProps {
-    showBio?: boolean; // control whether bio is displayed
-}
-
 // Container animation variants
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -38,7 +34,7 @@ const cardVariants: Variants = {
     },
 };
 
-export default function TeamMembers({ showBio = false }: TeamMembersProps) {
+export default function TeamMembers() {
     const dispatch = useDispatch<AppDispatch>();
     const team = useSelector(selectTeam) || [];
     const loading = useSelector(selectTeamLoading);

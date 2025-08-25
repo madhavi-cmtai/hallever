@@ -16,7 +16,6 @@ interface ServiceModalProps {
 const ServiceModal: React.FC<ServiceModalProps> = ({ open, onClose, editItem }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [_imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
     useEffect(() => {
@@ -41,7 +40,6 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ open, onClose, editItem }) 
         const files = e.target.files;
         if (!files) return;
         const selectedFiles = Array.from(files);
-        setImageFiles(selectedFiles);
         const previews = selectedFiles.map((file) => URL.createObjectURL(file));
         setImagePreviews(previews);
     };
@@ -55,7 +53,6 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ open, onClose, editItem }) 
     const resetForm = () => {
         setTitle("");
         setDescription("");
-        setImageFiles([]);
         setImagePreviews([]);
     };
 

@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import {
   Mail,
   Phone,
-  MapPin,
   Calendar,
   Edit,
   ShoppingBag,
@@ -148,7 +147,6 @@ const UsersPage = () => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
 
         // Update the user object with the correct field names
         const updatedUser = {
