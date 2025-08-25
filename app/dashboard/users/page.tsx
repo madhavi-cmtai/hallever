@@ -34,7 +34,15 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { useDispatch } from 'react-redux';
-import { fetchUsers, selectUsers, selectIsLoading, selectError } from '@/lib/redux/slice/authSlice';
+import {
+  fetchUsers,
+  selectUsers,
+  selectIsLoading,
+  selectError,
+  addUser,
+  updateUser,
+  deleteUserByUid
+} from '@/lib/redux/slice/authSlice';
 import { useSelector } from 'react-redux';
 import { AppDispatch } from '@/lib/redux/store';
 
@@ -63,12 +71,11 @@ const UsersPage = () => {
     gender: '',
     nationality: '',
     dob: '',
-    maritalStatus: '',
+    // maritalStatus removed
     phone: '',
     password: '',
     status: 'active' as 'active' | 'inactive' | 'pending',
     role: 'user' as 'user' | 'admin' | 'moderator',
-    tlcId: '',
     createdOn: '',
     updatedOn: ''
   });
@@ -110,26 +117,22 @@ const UsersPage = () => {
     }
 
     try {
-      const newUser: User = {
-        uid: Date.now().toString(),
+      await dispatch(addUser({
         email: formData.email,
+        password: 'defaultPassword123', // You may want to add a password field
         name: formData.name,
         address: formData.address,
         gender: formData.gender,
         nationality: formData.nationality,
         dob: formData.dob,
-        maritalStatus: formData.maritalStatus,
+        // maritalStatus removed
         phone: formData.phone,
         status: formData.status,
         role: formData.role,
-        tlcId: formData.tlcId,
-        createdOn: new Date().toISOString().split('T')[0],
-        updatedOn: new Date().toISOString().split('T')[0]
-      };
-      
-      console.log('Creating user:', newUser);
-      
-      
+      }));
+
+      // Refresh users list
+      dispatch(fetchUsers());
       setIsCreateModalOpen(false);
       resetForm();
       alert('User created successfully!');
@@ -140,12 +143,13 @@ const UsersPage = () => {
   };
 
   const handleEditUser = async () => {
-    if (!selectedUser) return;
-    
+    if (!selectedUser?.uid) return;
+
     if (!formData.email || !formData.name) {
       alert('Please fill in email and name fields');
       return;
     }
+<<<<<<< Updated upstream
     
     try {
       // Prepare update data - only include password if it was changed
@@ -157,6 +161,26 @@ const UsersPage = () => {
 
       console.log('Updating user:', selectedUser.uid, updateData);
    
+=======
+
+    try {
+      await dispatch(updateUser({
+        uid: selectedUser.uid,
+        name: formData.name,
+        email: formData.email,
+        address: formData.address,
+        gender: formData.gender,
+        nationality: formData.nationality,
+        dob: formData.dob,
+        // maritalStatus removed
+        phone: formData.phone,
+        status: formData.status,
+        role: formData.role,
+      }));
+
+      // Refresh users list
+      dispatch(fetchUsers());
+>>>>>>> Stashed changes
       setIsEditModalOpen(false);
       setSelectedUser(null);
       resetForm();
@@ -168,10 +192,12 @@ const UsersPage = () => {
   };
 
   const handleDeleteUser = async () => {
-    if (!selectedUser) return;
-    
+    if (!selectedUser?.uid) return;
+
     try {
-      console.log('Deleting user:', selectedUser.uid);   
+      await dispatch(deleteUserByUid(selectedUser.uid));
+      // Refresh users list
+      dispatch(fetchUsers());
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
       alert('User deleted successfully!');
@@ -180,6 +206,12 @@ const UsersPage = () => {
       alert('Error deleting user. Please try again.');
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      alert(error);
+    }
+  }, [error]);
 
   const resetForm = () => {
     setFormData({
@@ -190,12 +222,11 @@ const UsersPage = () => {
       gender: '',
       nationality: '',
       dob: '',
-      maritalStatus: '',
+      // maritalStatus removed
       phone: '',
       password: '',
       status: 'active',
       role: 'user',
-      tlcId: '',
       createdOn: '',
       updatedOn: ''
     });
@@ -211,12 +242,11 @@ const UsersPage = () => {
       gender: user.gender || '',
       nationality: user.nationality || '',
       dob: user.dob || '',
-      maritalStatus: user.maritalStatus || '',
+      // maritalStatus removed
       phone: user.phone || '',
       password: '', // Leave blank for edit - user can change if needed
       status: (user.status as 'active' | 'inactive' | 'pending') || 'active',
       role: (user.role as 'user' | 'admin' | 'moderator') || 'user',
-      tlcId: user.tlcId || '',
       createdOn: user.createdOn,
       updatedOn: user.updatedOn
     });
@@ -584,20 +614,7 @@ const UsersPage = () => {
                     onChange={(e) => setFormData({...formData, dob: e.target.value})}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="maritalStatus" className="mb-2 block">Marital Status</Label>
-                  <Select value={formData.maritalStatus} onValueChange={(value) => setFormData({...formData, maritalStatus: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select marital status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Marital Status field removed */}
               </div>
             </div>
 
@@ -615,15 +632,7 @@ const UsersPage = () => {
                     rows={3}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="tlcId" className="mb-2 block">TLC ID</Label>
-                  <Input
-                    id="tlcId"
-                    value={formData.tlcId}
-                    onChange={(e) => setFormData({...formData, tlcId: e.target.value})}
-                    placeholder="Enter TLC ID"
-                  />
-                </div>
+                {/* tlcId field removed */}
                 <div>
                   <Label htmlFor="role" className="mb-2 block">Role</Label>
                   <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value as 'user' | 'admin' | 'moderator'})}>
@@ -756,20 +765,7 @@ const UsersPage = () => {
                     onChange={(e) => setFormData({...formData, dob: e.target.value})}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="edit-maritalStatus" className="mb-2 block">Marital Status</Label>
-                  <Select value={formData.maritalStatus} onValueChange={(value) => setFormData({...formData, maritalStatus: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select marital status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Marital Status field removed */}
               </div>
             </div>
 
@@ -787,15 +783,7 @@ const UsersPage = () => {
                     rows={3}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="edit-tlcId" className="mb-2 block">TLC ID</Label>
-                  <Input
-                    id="edit-tlcId"
-                    value={formData.tlcId}
-                    onChange={(e) => setFormData({...formData, tlcId: e.target.value})}
-                    placeholder="Enter TLC ID"
-                  />
-                </div>
+                {/* tlcId field removed */}
                 <div>
                   <Label htmlFor="edit-role" className="mb-2 block">Role</Label>
                   <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value as 'user' | 'admin' | 'moderator'})}>
