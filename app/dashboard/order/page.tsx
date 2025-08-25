@@ -49,6 +49,7 @@ const OrdersPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [manualTotalAmount, setManualTotalAmount] = useState<number>(0);
   const [useManualTotal, setUseManualTotal] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch all orders on mount using the slice thunk
   useEffect(() => {
@@ -138,10 +139,12 @@ const OrdersPage = () => {
   // Delete order using the slice thunk
   const handleDelete = async () => {
     if (orderToDelete) {
+      setIsDeleting(true);
       await dispatch(deleteOrder(orderToDelete));
       await dispatch(fetchOrders());
       setOrderToDelete(null);
       setDeleteModalOpen(false);
+      setIsDeleting(false);
     }
   };
 
@@ -449,17 +452,19 @@ const OrdersPage = () => {
             <DialogTitle className="text-[var(--primary-red)]">Delete Order</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to delete this order?{" "}
-            <span className="font-semibold text-[var(--primary-red)]">{orderToDelete}</span>
+            Are you sure you want to delete this order?
           </p>
+          {/* Order ID is intentionally not shown here */}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} disabled={isDeleting}>
               Cancel
             </Button>
             <Button
               onClick={handleDelete}
               className="bg-[var(--primary-red)] hover:bg-[var(--primary-pink)] text-white"
+              disabled={isDeleting}
             >
+              {isDeleting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Delete
             </Button>
           </div>
