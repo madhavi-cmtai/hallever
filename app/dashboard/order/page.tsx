@@ -24,9 +24,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash, Plus, Loader2 } from "lucide-react";
 
+// --- Loader selector (add this if not already in your slice) ---
+import { useSelector as useReduxSelector } from "react-redux";
+
+// You may need to adjust this selector based on your slice's state shape
+const selectOrdersLoading = (state: any) =>
+  state.orders?.loading || state.order?.loading || false;
+
 const OrdersPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const orders = useSelector(selectAllOrders);
+  const ordersLoading = useReduxSelector(selectOrdersLoading);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [form, setForm] = useState<OrderFormData>({
@@ -218,54 +226,62 @@ const OrdersPage = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.isArray(orders) &&
-          orders.map((order) => (
-            <div
-              key={order.id}
-              className="border border-gray-200 rounded-xl p-4 space-y-2 shadow-sm bg-white"
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-[var(--primary-red)]">
-                  {order.formData.fullName}
-                </h3>
-                <div className="flex gap-2">
-                  <Pencil
-                    className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:opacity-70"
-                    onClick={() => openEditModal(order)}
-                  />
-                  <Trash
-                    className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:text-[var(--primary-pink)]"
-                    onClick={() => {
-                      setOrderToDelete(order.id || null);
-                      setDeleteModalOpen(true);
-                    }}
-                  />
+      {/* Loader for orders */}
+      {ordersLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary-red)]" />
+          <span className="ml-3 text-[var(--primary-red)] font-medium">Loading orders...</span>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.isArray(orders) &&
+            orders.map((order) => (
+              <div
+                key={order.id}
+                className="border border-gray-200 rounded-xl p-4 space-y-2 shadow-sm bg-white"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-[var(--primary-red)]">
+                    {order.formData.fullName}
+                  </h3>
+                  <div className="flex gap-2">
+                    <Pencil
+                      className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:opacity-70"
+                      onClick={() => openEditModal(order)}
+                    />
+                    <Trash
+                      className="w-4 h-4 cursor-pointer text-[var(--primary-red)] hover:text-[var(--primary-pink)]"
+                      onClick={() => {
+                        setOrderToDelete(order.id || null);
+                        setDeleteModalOpen(true);
+                      }}
+                    />
+                  </div>
+                </div>
+                <p className="text-sm">{order.formData.email}</p>
+                <p className="text-sm">{order.formData.phone}</p>
+                {order.formData.message && (
+                  <p className="text-sm text-gray-600">{order.formData.message}</p>
+                )}
+                {/* Remove category/subcategory badges */}
+                {/* Show selected products */}
+                {renderSelectedProducts(order.selectedProducts || [])}
+                <div>
+                  <span className="text-xs text-gray-400">
+                    Created:{" "}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleString()
+                      : ""}
+                  </span>
+                </div>
+                {/* Show total amount */}
+                <div className="text-xs font-semibold text-[var(--primary-red)]">
+                  Total Amount: ₹{order.totalAmount || 0}
                 </div>
               </div>
-              <p className="text-sm">{order.formData.email}</p>
-              <p className="text-sm">{order.formData.phone}</p>
-              {order.formData.message && (
-                <p className="text-sm text-gray-600">{order.formData.message}</p>
-              )}
-              {/* Remove category/subcategory badges */}
-              {/* Show selected products */}
-              {renderSelectedProducts(order.selectedProducts || [])}
-              <div>
-                <span className="text-xs text-gray-400">
-                  Created:{" "}
-                  {order.createdAt
-                    ? new Date(order.createdAt).toLocaleString()
-                    : ""}
-                </span>
-              </div>
-              {/* Show total amount */}
-              <div className="text-xs font-semibold text-[var(--primary-red)]">
-                Total Amount: ₹{order.totalAmount || 0}
-              </div>
-            </div>
-          ))}
-      </div>
+            ))}
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={closeModal}>
