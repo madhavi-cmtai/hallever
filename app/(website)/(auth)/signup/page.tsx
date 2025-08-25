@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { store } from "@/lib/redux/store";
-import { registerUser } from "@/lib/redux/slice/authSlice";
+import { registerUser, selectError } from "@/lib/redux/slice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
 
 interface AlertType {
     type: "success" | "error";
@@ -12,7 +13,8 @@ interface AlertType {
 
 const SignupForm = () => {
     const router = useRouter();
-
+    const dispatch = useDispatch<AppDispatch>();
+    const error = useSelector(selectError);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
@@ -47,17 +49,16 @@ const SignupForm = () => {
             return;
         }
 
-        await store.dispatch(registerUser({
+        await dispatch(registerUser({
             email,
             password,
             fullName: name,
             phoneNumber: formattedPhone,
         }));
 
-        const state = store.getState().auth;
-
-        if (state.error) {
-            setAlert({ type: "error", message: state.error });
+        if (error) {
+            console.log("error", error)
+            setAlert({ type: "error", message: error as string });
         } else {
             setAlert({ type: "success", message: "Account created successfully!" });
             setTimeout(() => router.replace("/login"), 2000);

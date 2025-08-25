@@ -33,8 +33,6 @@ function isValidCategory(value: string): value is Category {
 export async function POST(req: NextRequest) {
     try {
         const { fields, files } = await parseFormData(req);
-        console.log("Parsed fields:", fields);
-        console.log("Parsed files:", files);
 
         const name = normalizeField(fields.name);
         const summary = normalizeField(fields.summary);
