@@ -17,6 +17,7 @@ const links = [
   { name: "Testimonials", href: "/dashboard/testimonials", icon: <ShieldUser /> },
   { name: "Services", href: "/dashboard/services", icon: <Settings /> },
   { name: "Offers", href: "/dashboard/offers", icon: <Gift /> },
+  { name: "Forgot Password", href: "/dashboard/forgot-password", icon: <FileText /> },
   { name: "Leads", href: "/dashboard/leads", icon: <Users /> },
 ];
 

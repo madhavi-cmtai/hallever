@@ -13,6 +13,7 @@ import testimonialsReducer from "./slice/testimonialsSlice"
 import teamReducer from "./slice/teamSlice"
 import offerBannerReducer from "./slice/offerBannerSlice"
 import orderReducer from "./slice/orderSlice"
+import forgotPasswordReducer from "./slice/forgotPasswordSlice"
       
 
 export const store = configureStore({
@@ -30,7 +31,7 @@ export const store = configureStore({
         team:teamReducer,
         offersBanner:offerBannerReducer,
         order: orderReducer,
-
+        forgotPassword: forgotPasswordReducer,
     },
 });
 

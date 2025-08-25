@@ -65,6 +65,7 @@ const UsersPage = () => {
     dob: '',
     maritalStatus: '',
     phone: '',
+    password: '',
     status: 'active' as 'active' | 'inactive' | 'pending',
     role: 'user' as 'user' | 'admin' | 'moderator',
     tlcId: '',
@@ -103,8 +104,8 @@ const UsersPage = () => {
   }, [dispatch]);
 
   const handleCreateUser = async () => {
-    if (!formData.email || !formData.name) {
-      alert('Please fill in email and name fields');
+    if (!formData.email || !formData.name || !formData.password) {
+      alert('Please fill in email, name, and password fields');
       return;
     }
 
@@ -147,8 +148,14 @@ const UsersPage = () => {
     }
     
     try {
+      // Prepare update data - only include password if it was changed
+      const updateData = {
+        ...formData,
+        // Only include password if it was provided (not empty)
+        ...(formData.password && { password: formData.password })
+      };
 
-      console.log('Updating user:', selectedUser.uid, formData);
+      console.log('Updating user:', selectedUser.uid, updateData);
    
       setIsEditModalOpen(false);
       setSelectedUser(null);
@@ -185,6 +192,7 @@ const UsersPage = () => {
       dob: '',
       maritalStatus: '',
       phone: '',
+      password: '',
       status: 'active',
       role: 'user',
       tlcId: '',
@@ -205,6 +213,7 @@ const UsersPage = () => {
       dob: user.dob || '',
       maritalStatus: user.maritalStatus || '',
       phone: user.phone || '',
+      password: '', // Leave blank for edit - user can change if needed
       status: (user.status as 'active' | 'inactive' | 'pending') || 'active',
       role: (user.role as 'user' | 'admin' | 'moderator') || 'user',
       tlcId: user.tlcId || '',
@@ -526,6 +535,17 @@ const UsersPage = () => {
                     placeholder="Enter phone number"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="password" className="mb-2 block">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    placeholder="Enter password"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -686,6 +706,17 @@ const UsersPage = () => {
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     placeholder="Enter phone number"
                   />
+                </div>
+                <div>
+                  <Label htmlFor="edit-password" className="mb-2 block">Password</Label>
+                  <Input
+                    id="edit-password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    placeholder="Leave blank if no change needed"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave blank if you don't want to change the password</p>
                 </div>
               </div>
             </div>
