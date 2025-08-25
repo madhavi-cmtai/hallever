@@ -24,9 +24,9 @@ const chartData = [
 
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen w-full bg-[#FDFDFD] py-10 px-4 flex flex-col gap-8">
+    <div className="min-h-screen w-full py-10 px-4 flex flex-col gap-8">
       {/* Header */}
-      <div className="max-w-6xl w-full mx-auto bg-[#FEF0F3] border rounded-2xl shadow p-6 text-center md:text-left">
+      <div className="w-full mx-auto bg-[#FEF0F3] border rounded-2xl shadow p-6 text-center md:text-left">
         <h1 className="text-3xl font-bold text-[#FEA8A9]">Admin Dashboard</h1>
         <p className="text-gray-600 mt-2">
           Overview of your website content and leads.
@@ -34,7 +34,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Chart Section */}
-      <div className="max-w-6xl w-full mx-auto bg-white border rounded-2xl shadow p-6">
+      <div className=" w-full mx-auto bg-white border rounded-2xl shadow p-6">
         <h2 className="text-xl font-bold text-[#FEA8A9] mb-4">Content Overview</h2>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -50,7 +50,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard title="Blogs" value={stats.blogs} icon={<BookOpen className="w-8 h-8 text-[#FE97AC]" />} />
         <StatCard title="Products" value={stats.products} icon={<Package className="w-8 h-8 text-[#FE97AC]" />} />
         <StatCard title="Services" value={stats.services} icon={<MapPin className="w-8 h-8 text-[#FE97AC]" />} />
