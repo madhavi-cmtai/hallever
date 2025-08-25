@@ -49,23 +49,23 @@ const SignupForm = () => {
             return;
         }
 
-        await dispatch(registerUser({
-            email,
-            password,
-            fullName: name,
-            phoneNumber: formattedPhone,
-        }));
+        try {
+            await dispatch(registerUser({
+                email,
+                password,
+                fullName: name,
+                phoneNumber: formattedPhone,
+            }));
 
-        if (error) {
-            console.log("error", error)
-            setAlert({ type: "error", message: error as string });
-        } else {
             setAlert({ type: "success", message: "Account created successfully!" });
+            setLoading(false);
             setTimeout(() => router.replace("/login"), 2000);
+            setTimeout(() => setAlert(null), 3000);
+        } catch (err: any) {
+            setAlert({ type: "error", message: err?.message || "Registration failed. Please try again." });
+            setLoading(false);
+            setTimeout(() => setAlert(null), 4000);
         }
-
-        setLoading(false);
-        setTimeout(() => setAlert(null), 3000);
     };
 
 

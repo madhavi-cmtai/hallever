@@ -120,16 +120,21 @@ export const registerUser = (user: { email: string; password: string; fullName?:
         const response = await axios.put("/api/routes/auth", user);
         if (response.status === 200 || response.status === 201) {
             dispatch(setUser(response.data.data));
+            return response.data.data;
         } else {
-            dispatch(setError(response.data.errorMessage || "Registration failed"));
+            const message = response.data?.errorMessage || "Registration failed";
+            dispatch(setError(message));
+            throw new Error(message);
         }
     } catch (error) {
         const axiosError = error as AxiosError<{ errorMessage?: string; message?: string }>;
         const data = axiosError.response?.data;
-        dispatch(setError(data?.errorMessage || data?.message || axiosError.message || "Failed to register the user"));
-      } finally {
+        const message = data?.errorMessage || data?.message || axiosError.message || "Failed to register the user";
+        dispatch(setError(message));
+        throw new Error(message);
+    } finally {
         dispatch(setIsLoading(false));
-      }
+    }
 };
 
 export const deleteUserByUid = (uid: string) => async (dispatch: Dispatch) => {
