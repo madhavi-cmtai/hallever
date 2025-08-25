@@ -296,7 +296,7 @@ const LoginForm = () => {
                     onClick={() => router.push("/signup")}
                     className="w-full border text-sm text-gray-700 py-2 rounded-md bg-white hover:bg-gray-100 transition"
                 >
-                    Don't have an account? <span className="font-semibold">Sign up</span>
+                    Don&apos;t have an account? <span className="font-semibold">Sign up</span>
                 </button>
             </div>
         </div>

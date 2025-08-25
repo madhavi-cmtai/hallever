@@ -9,10 +9,10 @@ import CartService, { CartItem } from "@/app/api/services/cartServices";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
 
     if (!userId || userId === "guest") {
       return NextResponse.json({
@@ -46,10 +46,10 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
     const body = await req.json();
     const items: CartItem[] = body.items;
 
@@ -61,7 +61,6 @@ export async function POST(
     }
 
     if (!userId || userId === "guest") {
-      // Guest cart is not persisted in backend
       return NextResponse.json({
         success: true,
         items,
@@ -92,10 +91,10 @@ export async function POST(
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
     const body = await req.json();
     const item: CartItem = body.item;
 
@@ -107,7 +106,6 @@ export async function PATCH(
     }
 
     if (!userId || userId === "guest") {
-      // Guest cart is not persisted in backend
       return NextResponse.json({
         success: true,
         item,
@@ -131,15 +129,17 @@ export async function PATCH(
   }
 }
 
-
-
-
+/**
+ * PUT /api/routes/cart/[id]
+ * Update the quantity of a cart item.
+ * Expects: { id: string, quantity: number }
+ */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
     const body = await req.json();
     const { id: itemId, quantity } = body;
 
@@ -151,7 +151,6 @@ export async function PUT(
     }
 
     if (!userId || userId === "guest") {
-      // Guest cart is not persisted in backend
       return NextResponse.json({
         success: true,
         id: itemId,
@@ -183,30 +182,27 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
     let itemId: string | undefined = undefined;
 
-    // Try to get item id from query or body
     if (req.method === "DELETE") {
-      // Try to get from query string
       const url = new URL(req.url);
       itemId = url.searchParams.get("id") || undefined;
-      // Or from body (for fetch API DELETE with body)
+
       if (!itemId) {
         try {
           const body = await req.json();
           if (body && typeof body.id === "string") {
             itemId = body.id;
           }
-        } catch {}
+        } catch { }
       }
     }
 
     if (!userId || userId === "guest") {
-      // Guest cart is not persisted in backend
       return NextResponse.json({
         success: true,
         id: itemId,
@@ -215,7 +211,6 @@ export async function DELETE(
     }
 
     if (itemId) {
-      // Remove a specific item
       const updatedCart = await CartService.removeFromCart(userId, itemId);
       return NextResponse.json({
         success: true,
@@ -223,7 +218,6 @@ export async function DELETE(
         message: "Item removed from cart",
       });
     } else {
-      // Clear the entire cart
       await CartService.clearCart(userId);
       return NextResponse.json({
         success: true,

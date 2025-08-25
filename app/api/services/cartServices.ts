@@ -89,7 +89,7 @@ class CartService {
     // Merge guest cart with user cart (for login/sync)
     async mergeGuestCart(userId: string, guestItems: CartItem[]): Promise<Cart> {
         const cart = await this.getCart(userId);
-        let merged: { [id: string]: CartItem } = {};
+        const merged: { [id: string]: CartItem } = {};
         if (cart) {
             cart.items.forEach(item => { merged[item.id] = { ...item }; });
         }
