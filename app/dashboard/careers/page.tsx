@@ -30,7 +30,9 @@ export default function CareersPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
     const [deleteJobItem, setDeleteJobItem] = useState<Job | null>(null);
-    const [deleting, setDeleting] = useState(false);
+    const [deleting, setDeleting] = useState<string | null>(null); // store job id if deleting
+    const [saving, setSaving] = useState(false); // loader for add/update
+    const [updatingJobId, setUpdatingJobId] = useState<string | null>(null); // loader for update job
 
     const careers = useSelector((state: RootState) => state.careers.careers);
     const loading = useSelector((state: RootState) => state.careers.isLoading);
@@ -62,21 +64,29 @@ export default function CareersPage() {
         }
     };
 
-    const handleSave = (data: Job) => {
-        if (selectedJob) {
-            dispatch(updateCareer({ ...data, id: selectedJob.id }));
-        } else {
-            dispatch(createCareer(data));
+    // Add loader to add/update
+    const handleSave = async (data: Job) => {
+        setSaving(true);
+        try {
+            if (selectedJob) {
+                setUpdatingJobId(selectedJob.id!);
+                await dispatch(updateCareer({ ...data, id: selectedJob.id }));
+                setUpdatingJobId(null);
+            } else {
+                await dispatch(createCareer(data));
+            }
+            setIsModalOpen(false);
+            setSelectedJob(null);
+        } finally {
+            setSaving(false);
         }
-        setIsModalOpen(false);
-        setSelectedJob(null);
     };
 
     const handleDelete = async () => {
         if (!deleteJobItem) return;
-        setDeleting(true);
+        setDeleting(deleteJobItem.id);
         await dispatch(deleteCareer(deleteJobItem.id));
-        setDeleting(false);
+        setDeleting(null);
         setDeleteJobItem(null);
     };
 
@@ -136,14 +146,22 @@ export default function CareersPage() {
                                     <td className="px-4 py-2 space-x-2">
                                         <button
                                             onClick={() => handleEdit(job.id!)}
-                                            className="text-blue-600 hover:underline"
+                                            className="text-blue-600 hover:underline flex items-center gap-1"
+                                            disabled={!!deleting || updatingJobId === job.id}
                                         >
+                                            {updatingJobId === job.id && (
+                                                <Loader2 className="w-4 h-4 animate-spin inline-block" />
+                                            )}
                                             Edit
                                         </button>
                                         <button
                                             onClick={() => setDeleteJobItem(job)}
-                                            className="text-red-600 hover:underline"
+                                            className="text-red-600 hover:underline flex items-center gap-1"
+                                            disabled={!!deleting}
                                         >
+                                            {deleting === job.id && (
+                                                <Loader2 className="w-4 h-4 animate-spin inline-block" />
+                                            )}
                                             Delete
                                         </button>
                                     </td>
@@ -183,14 +201,14 @@ export default function CareersPage() {
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
-                            disabled={deleting}
+                            disabled={!!deleting}
                             className="gap-2"
                         >
                             {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                             Delete
                         </Button>
                         <DialogClose asChild>
-                            <Button type="button" variant="ghost" disabled={deleting}>
+                            <Button type="button" variant="ghost" disabled={!!deleting}>
                                 Cancel
                             </Button>
                         </DialogClose>

@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Job } from "@/lib/redux/slice/careerSlice";
 
 interface Props {
@@ -45,11 +45,13 @@ export default function CareerModal({
 }: Props) {
     const [form, setForm] = useState<Job>(defaultJob());
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             setForm(defaultJob(editItem || {}));
             setError("");
+            setLoading(false);
         }
     }, [isOpen, editItem]);
 
@@ -95,20 +97,25 @@ export default function CareerModal({
             form.responsibilities.some((r) => r.trim());
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!validateForm()) {
             setError("Please fill all required fields.");
             return;
         }
-
-        onSave({
-            ...form,
-            updatedOn: new Date().toISOString(),
-            createdOn: form.createdOn || new Date().toISOString(),
-        });
-
-        onClose();
+        setLoading(true);
+        try {
+            await Promise.resolve(
+                onSave({
+                    ...form,
+                    updatedOn: new Date().toISOString(),
+                    createdOn: form.createdOn || new Date().toISOString(),
+                })
+            );
+            onClose();
+        } finally {
+            setLoading(false);
+        }
     };
 
     const renderListInput = (field: "skills" | "responsibilities", label: string) => (
@@ -222,7 +229,11 @@ export default function CareerModal({
                         <Button
                             type="submit"
                             className="w-full bg-[var(--primary-red)] text-white"
+                            disabled={loading}
                         >
+                            {loading && (
+                                <Loader2 className="w-4 h-4 animate-spin mr-2 inline-block" />
+                            )}
                             {editItem ? "Update Job" : "Post Job"}
                         </Button>
                     </div>
