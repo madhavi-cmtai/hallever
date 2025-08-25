@@ -98,6 +98,14 @@ const LoginForm = () => {
             }
 
             localStorage.setItem("user", JSON.stringify(user));
+            // Also set user cookie for middleware (server-side) route protection
+            try {
+                const cookieValue = encodeURIComponent(JSON.stringify(user));
+                const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+                document.cookie = `user=${cookieValue}; Path=/; Max-Age=86400; SameSite=Strict; ${isSecure ? 'Secure;' : ''}`;
+            } catch (e) {
+                console.warn('Failed to set user cookie', e);
+            }
 
             if (preLoginCart.length > 0) {
                 localStorage.removeItem("cart");
