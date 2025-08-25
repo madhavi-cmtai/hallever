@@ -123,7 +123,27 @@ const LoginForm = () => {
 
         } catch (error: any) {
             console.error(error);
-            setAlert({ type: "error", message: error.message || "Login failed. Please try again." });
+            const code = error?.code as string | undefined;
+            let message = error?.message || "Login failed. Please try again.";
+            switch (code) {
+                case "auth/invalid-credential":
+                case "auth/wrong-password":
+                    message = "Invalid email or password.";
+                    break;
+                case "auth/user-not-found":
+                    message = "No account found with this email.";
+                    break;
+                case "auth/too-many-requests":
+                    message = "Too many attempts. Please try again later.";
+                    break;
+                case "auth/invalid-email":
+                    message = "Please enter a valid email address.";
+                    break;
+                case "auth/network-request-failed":
+                    message = "Network error. Check your connection and try again.";
+                    break;
+            }
+            setAlert({ type: "error", message });
             setLoading(false); // विफलता पर लोडिंग को false पर सेट करें
         }
         // सफलता पर setLoading को हटाने की आवश्यकता नहीं है क्योंकि पेज वैसे भी रीडायरेक्ट हो जाएगा।
