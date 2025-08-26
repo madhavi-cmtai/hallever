@@ -51,7 +51,24 @@ const CartPage = () => {
   }, [products, cartItems, updatePricesFromProducts]);
 
   const removeItem = (id: string) => {
-    removeFromCart(id);
+    if (cartItems.length === 1 && cartItems[0]?.id === id) {
+      clearCart();
+    } else {
+      removeFromCart(id);
+    }
+  };
+
+  const handleDecrement = (id: string, quantity: number) => {
+    if (quantity <= 1) {
+      // If this is the last item in the cart, clear entirely
+      if (cartItems.length === 1) {
+        clearCart();
+      } else {
+        removeFromCart(id);
+      }
+    } else {
+      updateQuantity(id, quantity - 1);
+    }
   };
 
   const handleCheckout = async () => {
@@ -220,7 +237,7 @@ const CartPage = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => handleDecrement(item.id, item.quantity)}
                               className="w-8 h-8 p-0"
                             >
                               <Minus className="w-4 h-4" />
