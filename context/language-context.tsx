@@ -1622,7 +1622,7 @@ const teTranslations: Record<string, string> = {
 
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-    const [language, setLanguageState] = useState<Language>("en");
+    const [language, setLanguageState] = useState<Language>("hi");
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem("language") as Language;

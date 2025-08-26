@@ -32,7 +32,7 @@ export default function HomePage() {
         const timer = setTimeout(() => {
             dispatch(fetchOffer())
             setShowOffer(true)
-        }, 5000) // Show after 5 seconds
+        }, 15000) // Show after 15 seconds
 
         return () => clearTimeout(timer)
     }, [dispatch, isBlockedRoute])
@@ -73,7 +73,7 @@ export default function HomePage() {
                             </div>
 
                             <DialogHeader className="space-y-4 mb-6">
-                                <DialogTitle className="text-3xl font-bold text-white">
+                                <DialogTitle className="text-3xl font-bold text-white text-center">
                                     🎉 {offer?.title || "Special Offer!"}
                                 </DialogTitle>
                             </DialogHeader>

@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import SearchBanner from "./searchBanner"
+import PopupLanguage from "@/components/(website)/popupLanguage"
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -105,6 +106,8 @@ export default function Header() {
   }
 
   return (
+    <>
+    <PopupLanguage />
     <header className="w-full bg-background border-b border-border shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -291,5 +294,6 @@ export default function Header() {
         )}
       </div>
     </header>
+    </>
   )
 }
