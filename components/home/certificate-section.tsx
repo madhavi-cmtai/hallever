@@ -29,6 +29,17 @@ export default function CertificateSection() {
             label: "Import-Export Licensed",
             image: "/certificates/import.webp",
         },
+        {
+            label: "BIS Certified",
+            image: "/certificates/bis.png",
+        },
+        
+        {
+            label: "Trust Seal",
+            image: "/certificates/trustseal.png",
+        },
+        
+        
     ];
 
     // Increased image size from 96x96 to 144x144
