@@ -78,6 +78,7 @@ export const fetchTestimonials = () => async (dispatch: Dispatch): Promise<void>
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to fetch testimonials"));
+        window.location.reload();
     }
 };
 
@@ -90,6 +91,7 @@ export const addTestimonial = (testimonial: Testimonial) => async (dispatch: Dis
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to add testimonial"));
+        window.location.reload();
     }
 };
 
@@ -102,6 +104,7 @@ export const updateTestimonial = (id: string, testimonial: Partial<Testimonial>)
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to update testimonial"));
+        window.location.reload();
     }
 };
 
@@ -113,6 +116,7 @@ export const deleteTestimonial = (id: string) => async (dispatch: Dispatch): Pro
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to delete testimonial"));
+        window.location.reload();
     }
 };
 
