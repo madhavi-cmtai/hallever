@@ -26,7 +26,7 @@ export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => {
+  const refreshUserData = () => {
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       try {
@@ -34,11 +34,36 @@ export default function Header() {
       } catch (error) {
         console.error("Failed to parse user from localStorage", error)
         localStorage.removeItem("user")
+        setUser(null)
       }
     } else {
       setUser(null)
     }
-  }, [pathname])
+  }
+
+  useEffect(() => {
+    refreshUserData()
+  }, [pathname, totalItems]) // Listen to totalItems changes to refresh user data
+
+  // Listen for cart changes to update header
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "user") {
+        try {
+          if (e.newValue) {
+            setUser(JSON.parse(e.newValue))
+          } else {
+            setUser(null)
+          }
+        } catch (error) {
+          console.error("Failed to parse user from storage change", error)
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [])
 
   const handleLogin = () => {
     router.push("/login")

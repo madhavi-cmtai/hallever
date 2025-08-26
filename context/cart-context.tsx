@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
 interface CartItem {
     id: string;
@@ -22,6 +22,8 @@ interface CartContextType {
     totalItems: number;
     totalAmount: number;
     isInCart: (id: string) => boolean;
+    updateCartFromServer: (serverCart: any[]) => void;
+    syncCartToServer: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -32,11 +34,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     // Load cart from localStorage on mount
     useEffect(() => {
         loadCartFromStorage();
+        loadUserCartFromServer();
     }, []);
 
     // Save cart to localStorage whenever it changes
     useEffect(() => {
-        saveCartToStorage();
+        saveCartToStorage(cartItems);
     }, [cartItems]);
 
     const loadCartFromStorage = () => {
@@ -51,9 +54,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const saveCartToStorage = () => {
+    const saveCartToStorage = (cartToSave: CartItem[]) => {
         try {
-            localStorage.setItem('hallever-cart', JSON.stringify(cartItems));
+            localStorage.setItem('hallever-cart', JSON.stringify(cartToSave));
         } catch (error) {
             console.error('Error saving cart to localStorage:', error);
         }
@@ -108,6 +111,79 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return cartItems.some(item => item.id === id);
     };
 
+    const updateCartFromServer = (serverCart: any[]) => {
+        // Convert server cart format to local cart format
+        const convertedCart: CartItem[] = serverCart.map(item => ({
+            id: String(item.id),
+            name: item.name,
+            price: item.price || 0,
+            quantity: item.quantity || 1,
+            image: Array.isArray(item.images) ? item.images[0] || "/placeholder.svg" : item.image || "/placeholder.svg",
+            wattage: item.wattage,
+            category: item.category,
+            subCategory: item.subCategory
+        }));
+        
+        setCartItems(convertedCart);
+        saveCartToStorage(convertedCart);
+    };
+
+    const loadUserCartFromServer = async () => {
+        try {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user && user.email && user.cart && user.cart.length > 0) {
+                    // User has cart data, update local cart
+                    updateCartFromServer(user.cart);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user cart from server:', error);
+        }
+    };
+
+    const syncCartToServer = useCallback(async () => {
+        try {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user && user.email && user.uid) {
+                    console.log("🔄 Syncing cart to server for user:", user.uid);
+                    
+                    // Update user's cart on server using PATCH method
+                    const response = await fetch(`/api/routes/auth`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            uid: user.uid,
+                            cart: cartItems 
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("❌ Cart sync failed:", errorData);
+                        throw new Error(errorData.errorMessage || "Failed to sync cart");
+                    }
+
+                    const result = await response.json();
+                    console.log("✅ Cart synced successfully:", result);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error syncing cart to server:', error);
+            // Don't throw error to prevent app crashes, just log it
+        }
+    }, [cartItems]);
+
+    // Sync cart to server whenever cart changes
+    useEffect(() => {
+        if (cartItems.length > 0) {
+            syncCartToServer();
+        }
+    }, [cartItems, syncCartToServer]);
+
     const value: CartContextType = {
         cartItems,
         addToCart,
@@ -116,7 +192,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         totalItems,
         totalAmount,
-        isInCart
+        isInCart,
+        updateCartFromServer,
+        syncCartToServer
     };
 
     return (

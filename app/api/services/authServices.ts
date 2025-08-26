@@ -150,22 +150,31 @@ class AuthService {
     //  Update Firestore profile fields
     static async updateUserInFirestore(uid: string, updateData: Record<string, unknown>) {
         try {
+            consoleManager.log("Updating Firestore user:", uid, "Data keys:", Object.keys(updateData));
+            
+            // Handle cart data specifically
+            if (updateData.cart) {
+                consoleManager.log("Cart update detected:", {
+                    uid,
+                    cartItems: Array.isArray(updateData.cart) ? updateData.cart.length : 'not array'
+                });
+            }
+
             await db.collection("users").doc(uid).update({
                 ...updateData,
                 updatedOn: new Date().toISOString(),
             });
-            consoleManager.log("Firestore user updated:", uid);
+            consoleManager.log("✅ Firestore user updated successfully:", uid);
         } catch (error: unknown) {
-            let errorMessage = "Registration failed.";
+            let errorMessage = "Failed to update user in Firestore.";
 
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
 
-            consoleManager.error("registerUser error:", errorMessage);
+            consoleManager.error("❌ updateUserInFirestore error:", errorMessage);
             throw new Error(errorMessage);
         }
-
     }
 
     //  Get user by UID

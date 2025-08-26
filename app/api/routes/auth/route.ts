@@ -129,19 +129,63 @@ export async function DELETE(req: Request) {
 export async function PATCH(req: Request) {
     try {
         const body = await req.json();
-        const { uid, password, email, phoneNumber, ...updateData } = body;
+        const { uid, password, email, phoneNumber, cart, ...updateData } = body;
+        
+        consoleManager.log("PATCH request received:", { uid, hasCart: !!cart, updateDataKeys: Object.keys(updateData) });
+        
         if (!uid) {
-            return NextResponse.json({ statusCode: 400, errorMessage: "User ID is required." }, { status: 400 });
+            return NextResponse.json({ 
+                statusCode: 400, 
+                errorCode: "INVALID_INPUT",
+                errorMessage: "User ID is required." 
+            }, { status: 400 });
         }
+
+        // Validate user exists
+        const userDoc = await db.collection("users").doc(uid).get();
+        if (!userDoc.exists) {
+            return NextResponse.json({ 
+                statusCode: 404, 
+                errorCode: "USER_NOT_FOUND",
+                errorMessage: "User not found." 
+            }, { status: 404 });
+        }
+
         // Only update Auth if Auth fields are present
         if (password || email || phoneNumber) {
-            await AuthService.updateUser(uid, { ...(password && { password }), ...(email && { email }), ...(phoneNumber && { phoneNumber }) });
+            await AuthService.updateUser(uid, { 
+                ...(password && { password }), 
+                ...(email && { email }), 
+                ...(phoneNumber && { phoneNumber }) 
+            });
         }
+
+        // Prepare Firestore update data
+        const firestoreUpdateData = { ...updateData };
+        if (cart !== undefined) {
+            firestoreUpdateData.cart = cart;
+            consoleManager.log("🛒 Updating cart for user:", uid, "Cart items:", Array.isArray(cart) ? cart.length : 'invalid cart data');
+        }
+
         // Always update Firestore (profile fields)
-        await AuthService.updateUserInFirestore(uid, updateData);
-        return NextResponse.json({ statusCode: 200, message: "User updated successfully" }, { status: 200 });
+        await AuthService.updateUserInFirestore(uid, firestoreUpdateData);
+        
+        consoleManager.log("✅ User updated successfully:", uid);
+        
+        return NextResponse.json({ 
+            statusCode: 200, 
+            message: "User updated successfully",
+            errorCode: "NO",
+            errorMessage: "",
+            data: { uid, updated: true }
+        }, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ statusCode: 500, errorMessage: error.message }, { status: 500 });
+        consoleManager.error("❌ Error in PATCH /api/auth:", error.message);
+        return NextResponse.json({ 
+            statusCode: 500, 
+            errorCode: "UPDATE_FAILED",
+            errorMessage: error.message || "Failed to update user" 
+        }, { status: 500 });
     }
 }
 

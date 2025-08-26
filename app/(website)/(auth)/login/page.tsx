@@ -7,6 +7,7 @@ import { auth } from "@/lib/config/firebase";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { addForgotPassword, ForgotPassword } from "@/lib/redux/slice/forgotPasswordSlice";
+import { useCart } from "@/context/cart-context";
 
 const LoginForm = () => {
     const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ const LoginForm = () => {
     const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
+    const { updateCartFromServer } = useCart();
 
     useEffect(() => {
         if (loading) return;
@@ -89,15 +91,36 @@ const LoginForm = () => {
                 });
 
                 if (cartWasUpdated) {
-                    await fetch(`/api/routes/auth`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: user.email, updatedData: { cart: user.cart } }),
-                    });
+                    try {
+                        console.log("🔄 Updating user cart after login merge");
+                        const response = await fetch(`/api/routes/auth`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                uid: user.uid,
+                                cart: user.cart 
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            console.error("❌ Failed to update user cart:", errorData);
+                        } else {
+                            console.log("✅ User cart updated successfully");
+                        }
+                    } catch (error) {
+                        console.error("❌ Error updating user cart:", error);
+                    }
                 }
             }
 
             localStorage.setItem("user", JSON.stringify(user));
+            
+            // Update cart context with user's cart from server
+            if (user.cart && user.cart.length > 0) {
+                updateCartFromServer(user.cart);
+            }
+            
             // Also set user cookie for middleware (server-side) route protection
             try {
                 const cookieValue = encodeURIComponent(JSON.stringify(user));

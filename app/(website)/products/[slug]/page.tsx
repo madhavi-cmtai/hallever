@@ -9,14 +9,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { fetchProducts, selectProducts } from "@/lib/redux/slice/productSlice";
 import { findProductBySlug } from "@/lib/utils";
+import { useCart } from "@/context/cart-context";
+import { ShoppingCart, Check } from "lucide-react";
 
 export default function ProductDetailsPage() {
     const { slug } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const products = useSelector(selectProducts);
+    const { addToCart } = useCart();
     const [product, setProduct] = useState<ProductItem | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [addedToCart, setAddedToCart] = useState(false);
 
     // Fetch products and find the one by slug
     useEffect(() => {
@@ -144,7 +148,29 @@ export default function ProductDetailsPage() {
                                 </div>
                             </div>
 
-                           
+                            {/* Add to Cart Button */}
+                            <div className="pt-4">
+                                <button
+                                    onClick={() => {
+                                        addToCart(product);
+                                        setAddedToCart(true);
+                                        setTimeout(() => setAddedToCart(false), 2000);
+                                    }}
+                                    className="w-full bg-[#E10600] text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                                >
+                                    {addedToCart ? (
+                                        <>
+                                            <Check className="w-5 h-5" />
+                                            Added to Cart!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShoppingCart className="w-5 h-5" />
+                                            Add to Cart
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>

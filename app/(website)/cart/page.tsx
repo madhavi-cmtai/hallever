@@ -12,53 +12,30 @@ import { RootState, AppDispatch } from '@/lib/redux/store';
 import { fetchProducts } from '@/lib/redux/slice/productSlice';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/cart-context';
 // import CartHero from './cartHero';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  wattage?: string;
-  category?: string;
-  subCategory?: string;
-}
 
 const CartPage = () => {
   const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { products } = useSelector((state: RootState) => state.products);
+  const { 
+    cartItems, 
+    updateQuantity, 
+    removeFromCart, 
+    totalItems, 
+    totalAmount,
+    clearCart,
+    addToCart
+  } = useCart();
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [suggestedItems, setSuggestedItems] = useState<any[]>([]);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts());
-    loadCartFromStorage();
   }, [dispatch]);
-
-  const loadCartFromStorage = () => {
-    try {
-      const savedCart = localStorage.getItem('hallever-cart');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        setCartItems(parsedCart);
-      }
-    } catch (error) {
-      console.error('Error loading cart from localStorage:', error);
-    }
-  };
-
-  const saveCartToStorage = (cart: CartItem[]) => {
-    try {
-      localStorage.setItem('hallever-cart', JSON.stringify(cart));
-    } catch (error) {
-      console.error('Error saving cart to localStorage:', error);
-    }
-  };
 
   useEffect(() => {
     // Filter suggested items based on cart items
@@ -70,23 +47,9 @@ const CartPage = () => {
     }
   }, [products, cartItems]);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    const updatedCart = cartItems.map(item =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    );
-    setCartItems(updatedCart);
-    saveCartToStorage(updatedCart);
-  };
-
   const removeItem = (id: string) => {
-    const updatedCart = cartItems.filter(item => item.id !== id);
-    setCartItems(updatedCart);
-    saveCartToStorage(updatedCart);
+    removeFromCart(id);
   };
-
-  const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleCheckout = async () => {
     // Check if user is logged in
@@ -134,8 +97,7 @@ const CartPage = () => {
           setTimeout(() => {
             setShowSuccessMessage(false);
             // Clear cart after successful order
-            setCartItems([]);
-            saveCartToStorage([]);
+            clearCart();
             // Redirect to products page
             router.push("/products");
           }, 3000);
@@ -154,25 +116,8 @@ const CartPage = () => {
     }
   };
 
-  const addToCart = (product: any) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-    if (existingItem) {
-      updateQuantity(product.id, existingItem.quantity + 1);
-    } else {
-      const newItem: CartItem = {
-        id: String(product.id),
-        name: product.name,
-        price: product.price || 0,
-        quantity: 1,
-        image: Array.isArray(product.images) ? product.images[0] || '/images/products/hero.png' : product.images || '/images/products/hero.png',
-        wattage: product.wattage || '',
-        category: product.category,
-        subCategory: product.subCategory
-      };
-      const updatedCart = [...cartItems, newItem];
-      setCartItems(updatedCart);
-      saveCartToStorage(updatedCart);
-    }
+  const addToCartFromSuggested = (product: any) => {
+    addToCart(product);
   };
 
   if (cartItems.length === 0) {
@@ -406,7 +351,7 @@ const CartPage = () => {
                           <Button
                             size="sm"
                             className="absolute top-2 right-2 bg-[#E10600] hover:bg-[#C10600] text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => addToCart(product)}
+                            onClick={() => addToCartFromSuggested(product)}
                           >
                             <Plus className="w-4 h-4" />
                           </Button>

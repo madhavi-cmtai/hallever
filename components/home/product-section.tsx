@@ -233,18 +233,13 @@ export default function ProductSection() {
                                         <div className="flex justify-between gap-2">
                                             <button
                                                 onClick={() => handleAddToCart(product)}
-                                                disabled={isInCartState}
-                                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded transition-all duration-300 ${
-                                                    isInCartState || showAddedFeedback
-                                                        ? "bg-green-600 text-white cursor-not-allowed"
-                                                        : "bg-[var(--primary-red)] text-white hover:bg-red-700 hover:scale-105"
-                                                }`}
+                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded transition-all duration-300 bg-[var(--primary-red)] text-white hover:bg-red-700 hover:scale-105"
                                                 style={{ minHeight: "38px" }}
                                             >
-                                                {isInCartState || showAddedFeedback ? (
+                                                {showAddedFeedback ? (
                                                     <>
                                                         <Check className="w-4 h-4" />
-                                                        {showAddedFeedback ? "Added!" : "In Cart"}
+                                                        Added!
                                                     </>
                                                 ) : (
                                                     <>
