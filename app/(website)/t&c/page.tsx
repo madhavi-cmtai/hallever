@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 // ===== Customize these constants =====
-const COMPANY_NAME = "Hallelver";
-const LEGAL_ENTITY = "Hallelver Lighting Pvt. Ltd.";
-const WEBSITE_URL = "info@hallever.com";
-const CONTACT_EMAIL = "support@hallever.com";
+const COMPANY_NAME = "Hallever";
+const LEGAL_ENTITY = "Hallever India Pvt. Ltd.";
+const WEBSITE_URL = "info@halleverindia.in";
+const CONTACT_EMAIL = "support@halleverindia.com";
 const CONTACT_PHONE = "+91-9468909306";
 const CONTACT_ADDRESS = "Near Petrol Pump, Bansur Road, Kotputli, Rajasthan 303108";
 const LAST_UPDATED = "August 26, 2025";
@@ -154,7 +154,7 @@ export default function TermsAndConditionsPage() {
                 <h2>14) Governing Law & Jurisdiction</h2>
                 <p>
                     These Terms are governed by the laws of India. Any disputes shall be subject to the
-                    exclusive jurisdiction of the courts in Bengaluru, Karnataka.
+                    exclusive jurisdiction of the courts in Kotputli, Rajasthan.
                 </p>
 
                 <h2>15) Changes to Terms</h2>

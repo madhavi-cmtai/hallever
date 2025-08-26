@@ -4,14 +4,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 // ===== Customize these constants =====
-const COMPANY_NAME = "Hallelver"; // your brand name
-const LEGAL_ENTITY = "Hallelver Lighting Pvt. Ltd."; // registered entity (or same as brand)
-const WEBSITE_URL = "https://www.hallelver.com"; // canonical site URL
-const CONTACT_EMAIL = "privacy@hallever.com"; // data protection contact
-const CONTACT_PHONE = "+91-00000-00000"; // optional
-const CONTACT_ADDRESS = "123, Market Street, Bengaluru, Karnataka, 560001, India"; // optional
-const DPO_NAME = "Data Protection Officer"; // if applicable
-const LAST_UPDATED = "August 26, 2025"; // keep this current
+const COMPANY_NAME = "Hallever";
+const LEGAL_ENTITY = "Hallever India Pvt. Ltd.";
+const WEBSITE_URL = "info@halleverindia.in";
+const CONTACT_EMAIL = "support@halleverindia.com";
+const CONTACT_PHONE = "+91-9468909306";
+const CONTACT_ADDRESS = "Near Petrol Pump, Bansur Road, Kotputli, Rajasthan 303108";
+const LAST_UPDATED = "August 26, 2025";
+
 
 export const metadata: Metadata = {
     title: `Privacy Policy | ${COMPANY_NAME}`,
@@ -267,7 +267,7 @@ export default function PrivacyPolicyPage() {
                 <h2>17) Contact Us</h2>
                 <address className="not-italic">
                     <p className="m-0 font-medium">{LEGAL_ENTITY}</p>
-                    <p className="m-0">Attn: {DPO_NAME}</p>
+                    <p className="m-0">Attn: {CONTACT_EMAIL}</p>
                     {CONTACT_ADDRESS && <p className="m-0">{CONTACT_ADDRESS}</p>}
                     <p className="m-0">
                         Email: <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>

@@ -119,7 +119,7 @@ const enTranslations: Record<string, string> = {
 
     //home contact
     "contact.heading": "Are you? Ready to",
-    "contact.highlight": "Light Up your event ",
+    "contact.highlight": "Light Up your home and weeding events ",
     "contact.subheading": "Get in touch with our team for a free consultation and let's create something magical together.",
     "contact.getInTouch": "Get In Touch",
     "contact.methods.phone.title": "Call Us",
@@ -292,6 +292,7 @@ const enTranslations: Record<string, string> = {
     "footer.policies": "Policies",
     "footer.terms": "Terms & Conditions",
     "footer.privacy": "Privacy Policy",
+    "footer.return": "Return Policy",
 
 
     //floating button
@@ -569,6 +570,7 @@ const hiTranslations: Record<string, string> = {
     "footer.policies": "नीतियाँ",
     "footer.terms": "नियम और शर्तें",
     "footer.privacy": "गोपनीयता नीति",
+    "footer.return": "रिटर्न नीति",
 
 
     //floating button
@@ -826,6 +828,7 @@ const mrTranslations: Record<string, string> = {
     "footer.policies": "धोरणे",
     "footer.terms": "अटी व शर्ती",
     "footer.privacy": "गोपनीयता धोरण",
+    "footer.return": "रिटर्न धोरण",
     "chat.greeting": "हाय! 👋 लाइटिंग सोल्यूशन्ससाठी मदत हवी आहे?",
     "chat.header": "आमच्याशी चॅट करा",
     "chat.placeholder.name": "तुमचे नाव",
@@ -1080,6 +1083,7 @@ const taTranslations: Record<string, string> = {
     "footer.policies": "கொள்கைகள்",
     "footer.terms": "விதிமுறைகள் மற்றும் நிபந்தனைகள்",
     "footer.privacy": "தனியுரிமைக் கொள்கை",
+    "footer.return": "திரும்பப் பெறும் கொள்கை",
     "chat.greeting": "ஹாய்! 👋 விளக்கு தீர்வுகளில் உதவி தேவையா?",
     "chat.header": "எங்களுடன் அரட்டையடிக்கவும்",
     "chat.placeholder.name": "உங்கள் பெயர்",
@@ -1337,6 +1341,7 @@ const bnTranslations: Record<string, string> = {
     "footer.policies": "নীতিমালা",
     "footer.terms": "শর্তাবলী",
     "footer.privacy": "গোপনীয়তা নীতি",
+    "footer.return": "রিটার্ন নীতি",
     "chat.greeting": "হাই! 👋 লাইটিং সলিউশনে সাহায্য লাগবে?",
     "chat.header": "আমাদের সাথে চ্যাট করুন",
     "chat.placeholder.name": "আপনার নাম",
@@ -1594,6 +1599,7 @@ const teTranslations: Record<string, string> = {
     "footer.policies": "పాలసీలు",
     "footer.terms": "నియమాలు మరియు షరతులు",
     "footer.privacy": "గోప్యతా విధానం",
+    "footer.return": "రిటర్న్ పాలసీ",
     "chat.greeting": "హాయ్! 👋 లైటింగ్ సొల్యూషన్స్‌లో సహాయం కావాలా?",
     "chat.header": "మాతో చాట్ చేయండి",
     "chat.placeholder.name": "మీ పేరు",

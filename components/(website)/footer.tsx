@@ -97,16 +97,21 @@ const Footer = () => {
                             </ul>
                             {/* Policies Section */}
                             <div className="mt-6 space-y-2">
-                                <h3 className="text-lg font-semibold">Policies</h3>
+                                <h3 className="text-lg font-semibold">{t('footer.policies')}</h3>
                                 <ul className="space-y-2">
                                     <li>
                                         <Link href="/t&c" className="text-gray-600 hover:text-red-500 transition-all text-sm">
-                                            Terms &amp; Conditions
+                                            {t('footer.terms')}
                                         </Link>
                                     </li>
                                     <li>
                                         <Link href="/privacy" className="text-gray-600 hover:text-red-500 transition-all text-sm">
-                                            Privacy Policy
+                                            {t('footer.privacy')}
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/return-policy" className="text-gray-600 hover:text-red-500 transition-all text-sm">
+                                            {t('footer.return')}
                                         </Link>
                                     </li>
                                 </ul>
