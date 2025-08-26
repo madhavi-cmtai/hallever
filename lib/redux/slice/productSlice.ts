@@ -134,6 +134,7 @@ export const addProduct = (formData: FormData) => async (dispatch: Dispatch) => 
             },
         });
         dispatch(fetchProducts() as unknown as AnyAction);
+        window.location.reload();
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to add product"));
@@ -149,6 +150,7 @@ export const updateProduct = (formData: FormData, id: string) => async (dispatch
             },
         });
         dispatch(fetchProducts() as unknown as AnyAction);
+        window.location.reload();
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to update product"));
@@ -163,6 +165,7 @@ export const deleteProduct = (id: string) => async (dispatch: Dispatch) => {
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to delete product"));
+        window.location.reload();
     }
 };
 
