@@ -33,11 +33,13 @@ const Footer = () => {
     ];
 
     const socialLinks = [
-        { icon: Facebook, href: '#', name: 'Facebook' },
-        { icon: Twitter, href: '#', name: 'Twitter' },
-        { icon: Instagram, href: '#', name: 'Instagram' },
-        { icon: Linkedin, href: 'https://www.linkedin.com/in/hallever-india-4a23b2373', name: 'LinkedIn' },
-        { icon: Youtube, href: 'https://www.youtube.com/@rajasthanled_official_rj32', name: 'Youtube' },
+        { icon: Facebook, href: 'https://www.facebook.com/share/19fsS4g9M6/', name: 'Facebook' },
+        // { icon: Twitter, href: '#', name: 'Twitter' },
+        { icon: Instagram, href: 'https://www.instagram.com/halleverindia_official', name: 'Instagram' },
+        {
+            icon: Linkedin, href: 'https://www.linkedin.com/in/hallever-india-4a23b2373', name: 'LinkedIn'
+        },
+        // { icon: Youtube, href: 'https://www.youtube.com/@rajasthanled_official_rj32', name: 'Youtube' },
     ];
 
     return (
@@ -83,7 +85,7 @@ const Footer = () => {
                             </ul>
                         </motion.div>
 
-                        {/* Services */}
+                        {/* Services & Policies */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-4">
                             <h3 className="text-lg font-semibold">{t('footer.ourServices')}</h3>
                             <ul className="space-y-2">
@@ -93,7 +95,24 @@ const Footer = () => {
                                     </li>
                                 ))}
                             </ul>
+                            {/* Policies Section */}
+                            <div className="mt-6 space-y-2">
+                                <h3 className="text-lg font-semibold">Policies</h3>
+                                <ul className="space-y-2">
+                                    <li>
+                                        <Link href="/t&c" className="text-gray-600 hover:text-red-500 transition-all text-sm">
+                                            Terms &amp; Conditions
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/privacy" className="text-gray-600 hover:text-red-500 transition-all text-sm">
+                                            Privacy Policy
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </div>
                         </motion.div>
+
 
                         {/* Social Links */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="space-y-4">
