@@ -30,6 +30,7 @@ export interface Order {
     formData: OrderFormData;
     selectedProducts: SelectedProduct[];
     totalAmount: number;
+    status?: 'processing' | 'in_transit' | 'delivered' | 'cancelled' | 'pending';
     createdAt?: string;
     updatedAt?: string;
 }
@@ -146,7 +147,7 @@ export const fetchOrders = () => async (dispatch: AppDispatch) => {
 };
 
 // Add a new order
-export const addOrder = (order: { formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number }) => async (dispatch: AppDispatch) => {
+export const addOrder = (order: { formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number; status?: Order['status'] }) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
         const res = await axios.post<{ success: boolean; data: Order }>("/api/routes/orders", order);

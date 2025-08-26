@@ -181,13 +181,41 @@ const LoginForm = () => {
             if (!forgotPasswordData.name || !forgotPasswordData.email || !forgotPasswordData.phone) {
                 throw new Error("Please fill in all fields: Name, Email, and Phone");
             }
-            dispatch(addForgotPassword(forgotPasswordData as ForgotPassword));
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setAlert({
-                type: "success",
-                message: "Password reset request submitted successfully! We'll contact you soon."
+
+            // Validate that email exists in DB before submitting request
+            const emailToCheck = (forgotPasswordData.email || '').trim().toLowerCase();
+            const profileRes = await fetch(`/api/routes/auth?email=${encodeURIComponent(emailToCheck)}`);
+            if (!profileRes.ok) {
+                const err = await profileRes.json().catch(() => ({}));
+                const msg = err?.errorMessage || 'Email not found. Please enter a registered email.';
+                throw new Error(msg);
+            }
+
+            // Validate phone last-10 digits
+            const digits = (forgotPasswordData.phone || '').replace(/\D/g, '');
+            const local10 = digits.length >= 10 ? digits.slice(-10) : digits;
+            if (local10.length !== 10) {
+                throw new Error('Phone number must be exactly 10 digits');
+            }
+
+            // Submit request to API and only show success if API returns ok
+            const resp = await fetch('/api/routes/forgotPassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: forgotPasswordData.name,
+                    email: emailToCheck,
+                    phone: forgotPasswordData.phone,
+                    status: 'pending'
+                })
             });
-            setForgotPasswordData({ name: "", email: "", phone: "", status: "pending" });
+            const respBody = await resp.json().catch(() => ({}));
+            if (!resp.ok || respBody?.success === false) {
+                throw new Error(respBody?.message || 'Failed to submit password reset request.');
+            }
+
+            setAlert({ type: 'success', message: "Password reset request submitted successfully! We'll contact you soon." });
+            setForgotPasswordData({ name: '', email: '', phone: '', status: 'pending' });
             setShowForgotPassword(false);
         } catch (error: any) {
             console.error(error);

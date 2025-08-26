@@ -27,7 +27,8 @@ const CartPage = () => {
     totalItems, 
     totalAmount,
     clearCart,
-    addToCart
+    addToCart,
+    updatePricesFromProducts,
   } = useCart();
 
   const [suggestedItems, setSuggestedItems] = useState<any[]>([]);
@@ -40,12 +41,14 @@ const CartPage = () => {
   useEffect(() => {
     // Filter suggested items based on cart items
     if (products.length > 0) {
+      // Refresh cart item prices from latest products
+      updatePricesFromProducts(products);
       const suggested = products
         .filter(product => !cartItems.find(item => item.id === product.id))
         .slice(0, 4);
       setSuggestedItems(suggested);
     }
-  }, [products, cartItems]);
+  }, [products, cartItems, updatePricesFromProducts]);
 
   const removeItem = (id: string) => {
     removeFromCart(id);

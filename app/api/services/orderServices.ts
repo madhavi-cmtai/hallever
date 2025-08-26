@@ -9,6 +9,7 @@ export interface Order {
     formData: OrderFormData;
     selectedProducts: SelectedProduct[];
     totalAmount: number;
+    status?: 'processing' | 'in_transit' | 'delivered' | 'cancelled' | 'pending';
     createdOn?: FirebaseFirestore.Timestamp;
     updatedOn?: FirebaseFirestore.Timestamp;
 }
@@ -73,10 +74,11 @@ class OrderService {
     }
 
     // Add new order
-    static async addOrder(data: { formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number }): Promise<Order> {
+    static async addOrder(data: { formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number; status?: Order['status'] }): Promise<Order> {
         // Add the order to Firestore
         const newOrderRef = await db.collection("orders").add({
             ...data,
+            status: data.status || 'processing',
             createdOn: admin.firestore.FieldValue.serverTimestamp(),
         });
 
@@ -89,12 +91,12 @@ class OrderService {
             formData: orderData?.formData,
             selectedProducts: orderData?.selectedProducts,
             totalAmount: orderData?.totalAmount,
+            status: orderData?.status,
             createdOn: orderData?.createdOn,
         } as Order;
 
-        // Update cache
-        this.orders.unshift(newOrder);
-        consoleManager.log("✅ Order added to cache:", newOrder.id);
+        // Refresh cache to avoid duplicates
+        await this.getAllOrders(true);
 
         return newOrder;
     }
@@ -103,7 +105,7 @@ class OrderService {
     // Update order
     static async updateOrder(
         orderId: string,
-        updatedData: Partial<{ formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number }>
+        updatedData: Partial<{ formData: OrderFormData; selectedProducts: SelectedProduct[]; totalAmount: number; status?: Order['status'] }>
     ): Promise<Order> {
         const orderRef = db.collection("orders").doc(orderId);
 
@@ -120,16 +122,13 @@ class OrderService {
             formData: orderData?.formData,
             selectedProducts: orderData?.selectedProducts,
             totalAmount: orderData?.totalAmount,
+            status: orderData?.status,
             createdOn: orderData?.createdOn,
             updatedOn: orderData?.updatedOn,
         } as Order;
 
-        // Update cache
-        const index = this.orders.findIndex(o => o.id === orderId);
-        if (index !== -1) {
-            this.orders[index] = updatedOrder;
-        }
-        consoleManager.log("✅ Order updated in cache:", orderId);
+        // Refresh cache to avoid inconsistencies
+        await this.getAllOrders(true);
 
         return updatedOrder;
     }

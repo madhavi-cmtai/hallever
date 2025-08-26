@@ -156,7 +156,7 @@ export default function ProductDetailsPage() {
                                         setAddedToCart(true);
                                         setTimeout(() => setAddedToCart(false), 2000);
                                     }}
-                                    className="w-full bg-[#E10600] text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                                    className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center gap-2 ${addedToCart ? 'bg-green-600 hover:bg-green-700' : 'bg-[#E10600] hover:bg-red-700'}`}
                                 >
                                     {addedToCart ? (
                                         <>

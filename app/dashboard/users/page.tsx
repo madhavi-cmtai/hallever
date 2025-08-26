@@ -66,13 +66,13 @@ const UsersPage = () => {
   const [formData, setFormData] = useState({
     uid: '',
     email: '',
-    name: '',
+    fullName: '',
     address: '',
     gender: '',
     nationality: '',
     dob: '',
     // maritalStatus removed
-    phone: '',
+    phoneNumber: '',
     password: '',
     status: 'active' as 'active' | 'inactive' | 'pending',
     role: 'user' as 'user' | 'admin' | 'moderator',
@@ -94,10 +94,10 @@ const UsersPage = () => {
 
     if (searchQuery) {
       filtered = filtered.filter(user =>
-        (user.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (user.fullName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (user.address?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-        (user.phone?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+        (user.phoneNumber?.toLowerCase() || '').includes(searchQuery.toLowerCase())
       );
     }
 
@@ -109,9 +109,30 @@ const UsersPage = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
+  const normalizePhone = (raw: string) => {
+    const digits = (raw || '').replace(/\D/g, '');
+    const local10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const country = digits.length > 10 ? digits.slice(0, digits.length - 10) : '91';
+    return {
+      local10,
+      e164: `+${country}${local10}`
+    };
+  };
+
   const handleCreateUser = async () => {
-    if (!formData.email || !formData.name || !formData.password) {
-      alert('Please fill in email, name, and password fields');
+    if (!formData.email || !formData.fullName || !formData.password) {
+      alert('Please fill in email, full name, and password fields');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const { local10, e164 } = normalizePhone(formData.phoneNumber);
+    if (!emailRegex.test(formData.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    if (formData.phoneNumber && local10.length !== 10) {
+      alert('Phone number must be exactly 10 digits');
       return;
     }
 
@@ -119,13 +140,13 @@ const UsersPage = () => {
       await dispatch(addUser({
         email: formData.email,
         password: 'defaultPassword123', // You may want to add a password field
-        name: formData.name,
+        fullName: formData.fullName,
         address: formData.address,
         gender: formData.gender,
         nationality: formData.nationality,
         dob: formData.dob,
         // maritalStatus removed
-        phone: formData.phone,
+        phoneNumber: formData.phoneNumber ? normalizePhone(formData.phoneNumber).e164 : '',
         status: formData.status,
         role: formData.role,
       }));
@@ -144,8 +165,19 @@ const UsersPage = () => {
   const handleEditUser = async () => {
     if (!selectedUser?.uid) return;
 
-    if (!formData.email || !formData.name) {
-      alert('Please fill in email and name fields');
+    if (!formData.email || !formData.fullName) {
+      alert('Please fill in email and full name fields');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const { local10, e164 } = normalizePhone(formData.phoneNumber);
+    if (!emailRegex.test(formData.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    if (formData.phoneNumber && local10.length !== 10) {
+      alert('Phone number must be exactly 10 digits');
       return;
     }
 
@@ -153,14 +185,14 @@ const UsersPage = () => {
       // Prepare update data - only include password if it was changed
       const updateData: any = {
         uid: selectedUser.uid,
-        name: formData.name,
+        fullName: formData.fullName,
         email: formData.email,
         address: formData.address,
         gender: formData.gender,
         nationality: formData.nationality,
         dob: formData.dob,
         // maritalStatus removed
-        phone: formData.phone,
+        phoneNumber: formData.phoneNumber ? e164 : '',
         status: formData.status,
         role: formData.role,
       };
@@ -210,13 +242,13 @@ const UsersPage = () => {
     setFormData({
       uid: '',
       email: '',
-      name: '',
+      fullName: '',
       address: '',
       gender: '',
       nationality: '',
       dob: '',
       // maritalStatus removed
-      phone: '',
+      phoneNumber: '',
       password: '',
       status: 'active',
       role: 'user',
@@ -230,13 +262,13 @@ const UsersPage = () => {
     setFormData({
       uid: user.uid || '',
       email: user.email,
-      name: user.name || '',
+      fullName: user.fullName || '',
       address: user.address || '',
       gender: user.gender || '',
       nationality: user.nationality || '',
       dob: user.dob || '',
       // maritalStatus removed
-      phone: user.phone || '',
+      phoneNumber: user.phoneNumber || '',
       password: '', // Leave blank for edit - user can change if needed
       status: (user.status as 'active' | 'inactive' | 'pending') || 'active',
       role: (user.role as 'user' | 'admin' | 'moderator') || 'user',
@@ -404,7 +436,7 @@ const UsersPage = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search users by name, email, phone, or address..."
+                    placeholder="Search users by full name, email, phone number, or address..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -460,14 +492,14 @@ const UsersPage = () => {
                   >
                     <div className="flex items-center space-x-4">
                       <Avatar className="w-12 h-12">
-                        <AvatarImage src={user.name} alt={user.name} />
+                        <AvatarImage src={user.fullName} alt={user.fullName} />
                         <AvatarFallback className="bg-gradient-to-br from-red-400 to-red-600 text-white">
-                          {user.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                          {user.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div>
-                        <h3 className="font-semibold text-gray-900">{user.name}</h3>
+                        <h3 className="font-semibold text-gray-900">{user.fullName}</h3>
                         <p className="text-sm text-gray-600">{user.email}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge className={getStatusColor(user.status || 'active')}>
@@ -526,11 +558,11 @@ const UsersPage = () => {
               <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name" className="mb-2 block">Full Name *</Label>
+                  <Label htmlFor="fullName" className="mb-2 block">Full Name *</Label>
                   <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     placeholder="Enter full name"
                     required
                   />
@@ -548,12 +580,14 @@ const UsersPage = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="mb-2 block">Phone</Label>
+                  <Label htmlFor="phoneNumber" className="mb-2 block">Phone Number</Label>
                   <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    id="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                     placeholder="Enter phone number"
+                    type="tel"
+                    maxLength={14}
                   />
                 </div>
                 <div>
@@ -677,11 +711,11 @@ const UsersPage = () => {
               <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-name" className="mb-2 block">Full Name *</Label>
+                  <Label htmlFor="edit-fullName" className="mb-2 block">Full Name *</Label>
                   <Input
-                    id="edit-name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    id="edit-fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     placeholder="Enter full name"
                     required
                   />
@@ -699,12 +733,14 @@ const UsersPage = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-phone" className="mb-2 block">Phone</Label>
+                  <Label htmlFor="edit-phoneNumber" className="mb-2 block">Phone Number</Label>
                   <Input
-                    id="edit-phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    id="edit-phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                     placeholder="Enter phone number"
+                    type="tel"
+                    maxLength={14}
                   />
                 </div>
                 <div>
@@ -825,7 +861,7 @@ const UsersPage = () => {
           </DialogHeader>
           <div className="py-4">
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete <strong>{selectedUser?.name}</strong>? 
+              Are you sure you want to delete <strong>{selectedUser?.fullName}</strong>? 
               This action cannot be undone.
             </p>
             <div className="flex gap-3">

@@ -43,6 +43,7 @@ const OrdersPage = () => {
     phone: "",
     message: "",
   } as OrderFormData);
+  const [status, setStatus] = useState<'processing' | 'in_transit' | 'delivered' | 'cancelled' | 'pending'>('processing');
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
@@ -68,6 +69,7 @@ const OrdersPage = () => {
     setManualTotalAmount(order.totalAmount || 0);
     setUseManualTotal(false);
     setEditOrderId(order.id || null);
+    setStatus((order.status as any) || 'processing');
     setModalOpen(true);
   };
 
@@ -83,6 +85,7 @@ const OrdersPage = () => {
     setManualTotalAmount(0);
     setUseManualTotal(false);
     setEditOrderId(null);
+    setStatus('processing');
     setModalOpen(true);
   };
 
@@ -100,10 +103,31 @@ const OrdersPage = () => {
     setUseManualTotal(false);
   };
 
+  const normalizePhone = (raw: string) => {
+    const digits = (raw || '').replace(/\D/g, '');
+    const local10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const country = digits.length > 10 ? digits.slice(0, digits.length - 10) : '91';
+    return { local10, e164: `+${country}${local10}` };
+  };
+
   // Add or update order using the slice thunks
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Basic validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      alert('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+    const { local10, e164 } = normalizePhone(form.phone);
+    if (local10.length !== 10) {
+      alert('Phone must be exactly 10 digits');
+      setIsLoading(false);
+      return;
+    }
 
     // Calculate total from selected products
     const calculatedTotal = selectedProducts.reduce(
@@ -115,9 +139,10 @@ const OrdersPage = () => {
     const finalTotalAmount = useManualTotal ? manualTotalAmount : calculatedTotal;
 
     const orderPayload = {
-      formData: { ...form },
+      formData: { ...form, phone: e164 },
       selectedProducts: [...selectedProducts],
       totalAmount: finalTotalAmount,
+      status,
     };
 
     if (editOrderId) {
@@ -263,6 +288,11 @@ const OrdersPage = () => {
                 </div>
                 <p className="text-sm">{order.formData.email}</p>
                 <p className="text-sm">{order.formData.phone}</p>
+                {order.status && (
+                  <span className="inline-block mt-1 text-xs px-2 py-1 rounded-full bg-gray-100">
+                    {order.status.replace(/_/g, ' ')}
+                  </span>
+                )}
                 {order.formData.message && (
                   <p className="text-sm text-gray-600">{order.formData.message}</p>
                 )}
@@ -316,6 +346,20 @@ const OrdersPage = () => {
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               required
             />
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Status</span>
+              <select
+                className="border rounded px-2 py-1 text-sm"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as any)}
+              >
+                <option value="processing">Processing</option>
+                <option value="in_transit">In Transit</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
             <Textarea
               placeholder="Message"
               value={form.message}

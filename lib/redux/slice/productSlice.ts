@@ -133,7 +133,7 @@ export const addProduct = (formData: FormData) => async (dispatch: Dispatch) => 
                 "Content-Type": "multipart/form-data",
             },
         });
-        dispatch(setProducts(res.data.data));
+        dispatch(fetchProducts() as unknown as AnyAction);
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to add product"));
@@ -148,7 +148,7 @@ export const updateProduct = (formData: FormData, id: string) => async (dispatch
                 "Content-Type": "multipart/form-data",
             },
         });
-        dispatch(setProducts(res.data.data));
+        dispatch(fetchProducts() as unknown as AnyAction);
     } catch (error) {
         const axiosError = error as AxiosError;
         dispatch(setError(axiosError.message || "Failed to update product"));

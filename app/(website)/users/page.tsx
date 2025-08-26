@@ -54,7 +54,8 @@ interface OrderData {
     image: string;
   }>;
   totalAmount: number;
-  createdAt: string;
+  createdAt: string; // normalized ISO string
+  status?: 'processing' | 'in_transit' | 'delivered' | 'cancelled' | 'pending';
 }
 
 const UsersPage = () => {
@@ -68,6 +69,7 @@ const UsersPage = () => {
   const [updating, setUpdating] = useState(false);
   const [editForm, setEditForm] = useState({
     fullName: "",
+    email: "",
     phoneNumber: "",
   });
 
@@ -85,6 +87,7 @@ const UsersPage = () => {
         setUser(userData);
         setEditForm({
           fullName: userData.fullName || userData.name || "",
+          email: userData.email || "",
           phoneNumber: userData.phoneNumber || userData.phone || "",
         });
 
@@ -106,11 +109,31 @@ const UsersPage = () => {
       const response = await fetch("/api/routes/orders");
       if (response.ok) {
         const data = await response.json();
-        // Filter orders for the current user
-        const userOrders = data.data.filter((order: OrderData) =>
-          order.formData.email === userEmail
-        );
-        setOrders(userOrders);
+        // Normalize and filter for current user
+        const normalized: OrderData[] = (data.data || []).map((order: any) => {
+          // createdOn may be Firestore Timestamp; handle {seconds} or {_seconds}
+          let createdAtISO = '';
+          const createdOn = order.createdOn;
+          const sec = createdOn && typeof createdOn === 'object' ? (createdOn.seconds ?? createdOn._seconds) : undefined;
+          if (typeof sec === 'number') {
+            createdAtISO = new Date(sec * 1000).toISOString();
+          } else if (order.createdAt) {
+            const d = new Date(order.createdAt);
+            createdAtISO = isNaN(d.getTime()) ? '' : d.toISOString();
+          }
+          return {
+            id: order.id,
+            formData: order.formData,
+            selectedProducts: order.selectedProducts || [],
+            totalAmount: order.totalAmount || 0,
+            createdAt: createdAtISO,
+            status: order.status,
+          } as OrderData;
+        }).filter((order: OrderData) => order.formData?.email === userEmail);
+
+        // sort newest first
+        normalized.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setOrders(normalized);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -127,12 +150,33 @@ const UsersPage = () => {
     router.push("/login");
   };
 
+  const normalizePhone = (raw: string) => {
+    const digits = (raw || '').replace(/\D/g, '');
+    const local10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const country = digits.length > 10 ? digits.slice(0, digits.length - 10) : '91';
+    return {
+      local10,
+      e164: `+${country}${local10}`
+    };
+  };
 
   const handleEditSubmit = async () => {
     if (!user) return;
 
     setUpdating(true);
     try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(editForm.email)) {
+        alert('Please enter a valid email address');
+        setUpdating(false);
+        return;
+      }
+      const { local10, e164 } = normalizePhone(editForm.phoneNumber);
+      if (editForm.phoneNumber && local10.length !== 10) {
+        alert('Phone number must be exactly 10 digits');
+        setUpdating(false);
+        return;
+      }
       // Use PATCH method to match your Redux slice
       const response = await fetch(`/api/routes/auth`, {
         method: "PATCH",
@@ -142,7 +186,8 @@ const UsersPage = () => {
         body: JSON.stringify({
           uid: user.uid, // Include the uid in the request body
           name: editForm.fullName, // Use 'name' field to match your User interface
-          phone: editForm.phoneNumber, // Use 'phone' field to match your User interface
+          email: editForm.email,
+          phone: editForm.phoneNumber ? e164 : '', // Use 'phone' field to match your User interface
         }),
       });
 
@@ -152,7 +197,8 @@ const UsersPage = () => {
         const updatedUser = {
           ...user,
           name: editForm.fullName, // Update 'name' field
-          phone: editForm.phoneNumber, // Update 'phone' field
+          email: editForm.email,
+          phone: editForm.phoneNumber ? e164 : '', // Update 'phone' field
           // Keep both field names for backward compatibility
           fullName: editForm.fullName,
           phoneNumber: editForm.phoneNumber,
@@ -183,32 +229,37 @@ const UsersPage = () => {
   };
 
   const getStatusIcon = (order: OrderData) => {
-    // Simple status logic based on order date
+    const status = (order.status || '').toLowerCase();
+    if (status === 'delivered') return <CheckCircle className="w-4 h-4 text-green-500" />;
+    if (status === 'in_transit') return <Truck className="w-4 h-4 text-blue-500" />;
+    if (status === 'processing' || status === 'pending') return <Clock className="w-4 h-4 text-yellow-500" />;
+    // Fallback based on date if no status
     const orderDate = new Date(order.createdAt);
     const now = new Date();
-    const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysDiff > 7) {
-      return <CheckCircle className="w-4 h-4 text-green-500" />;
-    } else if (daysDiff > 3) {
-      return <Truck className="w-4 h-4 text-blue-500" />;
-    } else {
-      return <Clock className="w-4 h-4 text-yellow-500" />;
-    }
+    const daysDiff = isNaN(orderDate.getTime()) ? 0 : Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 7) return <CheckCircle className="w-4 h-4 text-green-500" />;
+    if (daysDiff > 3) return <Truck className="w-4 h-4 text-blue-500" />;
+    return <Clock className="w-4 h-4 text-yellow-500" />;
   };
 
   const getStatusText = (order: OrderData) => {
+    if (order.status) {
+      const map: Record<string, string> = {
+        delivered: 'Delivered',
+        in_transit: 'In Transit',
+        processing: 'Processing',
+        pending: 'Pending',
+        cancelled: 'Cancelled',
+      };
+      return map[(order.status as string).toLowerCase()] || 'Processing';
+    }
+    // Fallback based on date
     const orderDate = new Date(order.createdAt);
     const now = new Date();
-    const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysDiff > 7) {
-      return 'Delivered';
-    } else if (daysDiff > 3) {
-      return 'In Transit';
-    } else {
-      return 'Processing';
-    }
+    const daysDiff = isNaN(orderDate.getTime()) ? 0 : Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 7) return 'Delivered';
+    if (daysDiff > 3) return 'In Transit';
+    return 'Processing';
   };
 
   const getStatusColor = (status: string) => {
@@ -315,12 +366,24 @@ const UsersPage = () => {
                             />
                           </div>
                           <div>
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={editForm.email}
+                              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                              placeholder="Enter your email"
+                            />
+                          </div>
+                          <div>
                             <Label htmlFor="phoneNumber">Phone Number</Label>
                             <Input
                               id="phoneNumber"
                               value={editForm.phoneNumber}
                               onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
                               placeholder="Enter your phone number"
+                              type="tel"
+                              maxLength={14}
                             />
                           </div>
                           <div className="flex gap-3 pt-4">
@@ -439,7 +502,7 @@ const UsersPage = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                                   <div>
-                                    <span className="font-medium">Date:</span> {new Date(order.createdAt).toLocaleDateString()}
+                                    <span className="font-medium">Date:</span> {(() => { const d = new Date(order.createdAt); return isNaN(d.getTime()) ? '-' : d.toLocaleDateString(); })()}
                                   </div>
                                   <div>
                                     <span className="font-medium">Amount:</span>

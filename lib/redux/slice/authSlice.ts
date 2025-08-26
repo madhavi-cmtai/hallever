@@ -6,14 +6,13 @@ import axios, { AxiosError } from "axios";
 export interface User {
     uid?: string;
     email: string;
-    name?: string;
-    username?: string;
+    fullName?: string;
     address?: string;
     gender?: string;
     nationality?: string;
     dob?: string;
     maritalStatus?: string;
-    phone?: string;
+    phoneNumber?: string;
     status?: string;
     role?: string;
     tlcId?: string;
@@ -209,7 +208,7 @@ export const updateUser = (payload: { uid: string } & Record<string, unknown>) =
     }
 };
 
-export const addUser = (payload: { email: string; password: string; name?: string; role?: string; phone?: string; address?: string; status?: string; gender?: string; nationality?: string; dob?: string; maritalStatus?: string }) => async (dispatch: Dispatch) => {
+export const addUser = (payload: { email: string; password: string; fullName?: string; role?: string; phoneNumber?: string; address?: string; status?: string; gender?: string; nationality?: string; dob?: string; maritalStatus?: string }) => async (dispatch: Dispatch) => {
     dispatch(setIsLoading(true));
     try {
         const response = await axios.put("/api/routes/auth", payload);
