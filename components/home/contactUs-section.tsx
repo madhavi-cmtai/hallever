@@ -41,11 +41,29 @@ const ContactSection = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Helper to check if all required fields are filled
+    const isFormValid = () => {
+        return (
+            formData.name.trim() !== "" &&
+            formData.email.trim() !== "" &&
+            formData.phone.trim() !== "" &&
+            !!formData.role &&
+            formData.city.trim() !== ""
+        );
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setSuccess(false);
         setError(null);
+
+        // Validate required fields
+        if (!isFormValid()) {
+            setError("Please fill in all required fields.");
+            return;
+        }
+
+        setLoading(true);
 
         try {
             const { role, ...rest } = formData;
@@ -54,7 +72,7 @@ const ContactSection = () => {
             setSuccess(true);
             setFormData({ name: "", email: "", phone: "", role: undefined, city: "", message: "" });
         } catch (error) {
-            setError((error)?.message || "Something went wrong");
+            setError((error as any)?.message || "Something went wrong");
         } finally {
             setLoading(false);
         }
@@ -148,22 +166,23 @@ const ContactSection = () => {
                             {t("contact.form.note")}
                         </p>
 
-                        <form className="space-y-4" onSubmit={handleSubmit}>
+                        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-card-foreground mb-1">
-                                        {t("contact.form.name")}
+                                        {t("contact.form.name")} <span className="text-red-500">*</span>
                                     </label>
                                     <Input
                                         name="name"
                                         placeholder={t("contact.form.name")}
                                         value={formData.name}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-card-foreground mb-1">
-                                        {t("contact.form.email")}
+                                        {t("contact.form.email")} <span className="text-red-500">*</span>
                                     </label>
                                     <Input
                                         type="email"
@@ -171,15 +190,16 @@ const ContactSection = () => {
                                         placeholder={t("contact.form.email")}
                                         value={formData.email}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-card-foreground mb-1">
-                                        {t("contact.form.roleLabel")}
+                                        {t("contact.form.roleLabel")} <span className="text-red-500">*</span>
                                     </label>
-                                    <Select value={formData.role} onValueChange={(v: Role) => setFormData({ ...formData, role: v })}>
+                                    <Select value={formData.role} onValueChange={(v: Role) => setFormData({ ...formData, role: v })} required>
                                         <SelectTrigger>
                                             <SelectValue placeholder={t("contact.form.roleLabel")} />
                                         </SelectTrigger>
@@ -193,19 +213,20 @@ const ContactSection = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-card-foreground mb-1">
-                                        {t("contact.form.city")}
+                                        {t("contact.form.city")} <span className="text-red-500">*</span>
                                     </label>
                                     <Input
                                         name="city"
                                         placeholder={t("contact.form.city")}
                                         value={formData.city}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-card-foreground mb-1">
-                                    {t("contact.form.phone")}
+                                    {t("contact.form.phone")} <span className="text-red-500">*</span>
                                 </label>
                                 <Input
                                     type="tel"
@@ -213,6 +234,7 @@ const ContactSection = () => {
                                     placeholder={t("contact.form.phone")}
                                     value={formData.phone}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
                             <div>
