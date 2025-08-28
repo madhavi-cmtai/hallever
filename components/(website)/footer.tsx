@@ -127,6 +127,7 @@ const Footer = () => {
                                     {socialLinks.map((social) => (
                                         <motion.a
                                             key={social.name}
+                                            target="_blank"
                                             href={social.href}
                                             whileHover={{ scale: 1.1 }}
                                             className="p-2 bg-white rounded-md hover:bg-red-500 hover:text-white transition-all"
