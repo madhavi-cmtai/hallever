@@ -1,6 +1,7 @@
 
 import ContactHero from "./contactHero";
 import ContactSection from "@/components/home/contactUs-section";
+import AddressCards from "./addressCards";
 
 
 const AboutPage = () => {
@@ -8,6 +9,7 @@ const AboutPage = () => {
         <main>
 
             <ContactHero />
+            <AddressCards />
             <ContactSection />
         </main>
     );

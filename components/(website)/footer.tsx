@@ -34,12 +34,12 @@ const Footer = () => {
 
     const socialLinks = [
         { icon: Facebook, href: 'https://www.facebook.com/share/19fsS4g9M6/', name: 'Facebook' },
-        // { icon: Twitter, href: '#', name: 'Twitter' },
+        { icon: Twitter, href: 'https://x.com/halleverindia', name: 'Twitter' },
         { icon: Instagram, href: 'https://www.instagram.com/halleverindia_official', name: 'Instagram' },
         {
             icon: Linkedin, href: 'https://www.linkedin.com/in/hallever-india-4a23b2373', name: 'LinkedIn'
         },
-        // { icon: Youtube, href: 'https://www.youtube.com/@rajasthanled_official_rj32', name: 'Youtube' },
+        { icon: Youtube, href: 'https://www.youtube.com/@HALLEVERINDIA', name: 'Youtube' },
     ];
 
     return (
@@ -51,7 +51,7 @@ const Footer = () => {
 
                         {/* Company Info */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-4">
-                            <h2 className="text-2xl font-bold text-red-500">Hallever</h2>
+                            <h2 className="text-2xl font-bold text-red-500">Hallever India Pvt. Ltd.</h2>
                             <p className="text-sm text-gray-600 leading-relaxed">
                                 {t('footer.description')}
                             </p>
@@ -173,7 +173,7 @@ const Footer = () => {
                 {/* Copyright */}
                 <div className="py-6 border-t border-border text-center">
                     <p className="text-sm text-gray-600">
-                        © {currentYear} Hallever. {t('footer.rights')}
+                        © {currentYear} Hallever India Pvt. Ltd. {t('footer.rights')}
                     </p>
                 </div>
             </div>

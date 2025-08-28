@@ -22,6 +22,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash, Plus, Loader2 } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+type Role = "dealer" | "customer" | "agency" | "distributor";
 
 interface LeadForm {
   name: string;
@@ -29,6 +32,8 @@ interface LeadForm {
   phone: string;
   message: string;
   status: string;
+  role?: Role;
+  city?: string;
 }
 
 const LeadsPage = () => {
@@ -46,6 +51,7 @@ const LeadsPage = () => {
   const [editLeadId, setEditLeadId] = useState<string | null>(null);
   const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<Role | "all">("all");
 
   useEffect(() => {
     dispatch(fetchLeads());
@@ -96,6 +102,8 @@ const LeadsPage = () => {
       phone: lead.phone || "",
       message: lead.message || "",
       status: lead.status,
+      role: lead.role as Role | undefined,
+      city: lead.city || "",
     });
     setEditLeadId(lead.id || null);
     setModalOpen(true);
@@ -104,7 +112,7 @@ const LeadsPage = () => {
   const closeModal = () => {
     setModalOpen(false);
     setEditLeadId(null);
-    setForm({ name: "", email: "", phone: "", message: "", status: "new" });
+    setForm({ name: "", email: "", phone: "", message: "", status: "new", role: undefined, city: "" });
   };
 
   const handleDelete = async () => {
@@ -116,21 +124,39 @@ const LeadsPage = () => {
     }
   };
 
+  const displayedLeads = (Array.isArray(leads) ? leads : []).filter((lead) =>
+    roleFilter === "all" ? true : lead.role === roleFilter
+  );
+
   return (
     <div className="p-4 space-y-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h2 className="text-xl font-bold text-[var(--primary-red)]">Lead List</h2>
-        <Button
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as Role | "all") }>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="dealer">Dealer</SelectItem>
+              <SelectItem value="customer">Customer</SelectItem>
+              <SelectItem value="agency">Agency</SelectItem>
+              <SelectItem value="distributor">Distributor</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
           onClick={openAddModal}
           className="gap-2 w-full sm:w-auto bg-[var(--primary-red)] hover:bg-[var(--primary-pink)] text-white"
         >
           <Plus className="w-4 h-4" />
           Add Lead
-        </Button>
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.isArray(leads) && leads.map((lead) => (
+        {displayedLeads.map((lead) => (
           <div
             key={lead.id}
             className="border border-gray-200 rounded-xl p-4 space-y-2 shadow-sm bg-white"
@@ -153,6 +179,12 @@ const LeadsPage = () => {
             </div>
             <p className="text-sm">{lead.email}</p>
             <p className="text-sm">{lead.phone}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {lead.role && (
+                <Badge className="bg-gray-100 text-gray-800 border border-gray-300 capitalize">{lead.role}</Badge>
+              )}
+              {lead.city && <span className="text-xs text-gray-600">{lead.city}</span>}
+            </div>
             {lead.message && <p className="text-sm text-gray-600">{lead.message}</p>}
             <Badge
               className={
@@ -207,6 +239,23 @@ const LeadsPage = () => {
               placeholder="Message"
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
+            />
+            <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as Role })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Role (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dealer">Dealer</SelectItem>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="agency">Agency</SelectItem>
+                <SelectItem value="distributor">Distributor</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              type="text"
+              placeholder="City (optional)"
+              value={form.city || ""}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
             <select
               className="w-full px-3 py-2 border rounded-md focus:outline-none border-[var(--primary-red)] text-[var(--primary-red)]"

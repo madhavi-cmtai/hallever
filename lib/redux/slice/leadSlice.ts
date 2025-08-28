@@ -11,6 +11,8 @@ export interface Lead {
     email: string;
     status?: "new" | "contacted" | "converted" | "rejected";
     phone?: string;
+    role?: "dealer" | "customer" | "agency" | "distributor";
+    city?: string;
     message?: string;
     createdOn?: string;
     updatedOn?: string;

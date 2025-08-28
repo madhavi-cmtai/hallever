@@ -17,13 +17,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { name, email, phone, message } = body;
+        const { name, email, phone, message, city, role } = body;
 
         if (!name || !email || !message) {
             return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
         }
 
-        const newLead = await LeadService.addLead({ name, email, phone, message });
+        const newLead = await LeadService.addLead({ name, email, phone, message, city, role });
 
         return NextResponse.json({ success: true, data: newLead }, { status: 201 });
     } catch (error) {

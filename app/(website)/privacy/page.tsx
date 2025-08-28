@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 // ===== Customize these constants =====
-const COMPANY_NAME = "Hallever";
+const COMPANY_NAME = "Hallever India Pvt. Ltd.";
 const LEGAL_ENTITY = "Hallever India Pvt. Ltd.";
 const WEBSITE_URL = "info@halleverindia.in";
-const CONTACT_EMAIL = "support@halleverindia.com";
+const CONTACT_EMAIL = "customercare@halleverindia.com";
 const CONTACT_PHONE = "+91-9468909306";
 const CONTACT_ADDRESS = "Near Petrol Pump, Bansur Road, Kotputli, Rajasthan 303108";
 const LAST_UPDATED = "August 26, 2025";

@@ -4,19 +4,33 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Phone, MessageSquare, Mail, Send } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import { addLead } from "@/lib/redux/slice/leadSlice";
 
+type Role = "dealer" | "customer" | "agency" | "distributor";
+
+interface ContactFormData {
+    name: string;
+    email: string;
+    phone: string;
+    role?: Role;
+    city: string;
+    message: string;
+}
+
 const ContactSection = () => {
     const { t } = useLanguage();
     const dispatch = useDispatch<AppDispatch>();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<ContactFormData>({
         name: "",
         email: "",
         phone: "",
+        role: undefined,
+        city: "",
         message: "",
     });
     const [loading, setLoading] = useState(false);
@@ -34,9 +48,11 @@ const ContactSection = () => {
         setError(null);
 
         try {
-            await dispatch(addLead({ ...formData, status: "new" }));
+            const { role, ...rest } = formData;
+            const payload = { ...rest, status: "new", ...(role ? { role } : {}) };
+            await dispatch(addLead(payload as any));
             setSuccess(true);
-            setFormData({ name: "", email: "", phone: "", message: "" });
+            setFormData({ name: "", email: "", phone: "", role: undefined, city: "", message: "" });
         } catch (error) {
             setError((error)?.message || "Something went wrong");
         } finally {
@@ -48,7 +64,7 @@ const ContactSection = () => {
         if (type === "whatsapp") {
             window.open("https://wa.me/919468909306", "_blank");
         } else if (type === "email") {
-            window.open("mailto:customercare@hallever.com", "_blank");
+            window.open("mailto:customercare@halleverindia.com", "_blank");
         } else if (type === "phone") {
             window.open("tel:+919468909306", "_self");
         }
@@ -154,6 +170,35 @@ const ContactSection = () => {
                                         name="email"
                                         placeholder={t("contact.form.email")}
                                         value={formData.email}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-card-foreground mb-1">
+                                        {t("contact.form.roleLabel")}
+                                    </label>
+                                    <Select value={formData.role} onValueChange={(v: Role) => setFormData({ ...formData, role: v })}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={t("contact.form.roleLabel")} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="dealer">{t("contact.form.role.dealer")}</SelectItem>
+                                            <SelectItem value="customer">{t("contact.form.role.customer")}</SelectItem>
+                                            <SelectItem value="agency">{t("contact.form.role.agency")}</SelectItem>
+                                            <SelectItem value="distributor">{t("contact.form.role.distributor")}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-card-foreground mb-1">
+                                        {t("contact.form.city")}
+                                    </label>
+                                    <Input
+                                        name="city"
+                                        placeholder={t("contact.form.city")}
+                                        value={formData.city}
                                         onChange={handleChange}
                                     />
                                 </div>

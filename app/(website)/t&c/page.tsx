@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 // ===== Customize these constants =====
-const COMPANY_NAME = "Hallever";
+const COMPANY_NAME = "Hallever India Pvt. Ltd.";
 const LEGAL_ENTITY = "Hallever India Pvt. Ltd.";
 const WEBSITE_URL = "info@halleverindia.in";
-const CONTACT_EMAIL = "support@halleverindia.com";
+const CONTACT_EMAIL = "customercare@halleverindia.com";
 const CONTACT_PHONE = "+91-9468909306";
 const CONTACT_ADDRESS = "Near Petrol Pump, Bansur Road, Kotputli, Rajasthan 303108";
 const LAST_UPDATED = "August 26, 2025";
@@ -88,7 +88,7 @@ export default function TermsAndConditionsPage() {
                 <h2>5) Returns & Refunds</h2>
                 <p>
                     Please refer to our <Link href="/returns-policy" className="underline">Returns Policy</Link>
-                    for details. In general, defective or damaged items may be returned within 7–14 days of
+                    for details. In general, defective or damaged items may be returned within 2-3 days of
                     delivery. Refunds are processed to the original payment method subject to inspection and
                     approval.
                 </p>
