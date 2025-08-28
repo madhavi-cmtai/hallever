@@ -34,7 +34,7 @@ const Footer = () => {
 
     const socialLinks = [
         { icon: Facebook, href: 'https://www.facebook.com/share/19fsS4g9M6/', name: 'Facebook' },
-        { icon: Twitter, href: 'https://x.com/halleverindia', name: 'Twitter' },
+        { icon: Twitter, href: 'https://x.com/Parveen75582498?t=TlBHbDj5jrjhWbR3IptL0Q&s=09', name: 'Twitter' },
         { icon: Instagram, href: 'https://www.instagram.com/halleverindia_official', name: 'Instagram' },
         {
             icon: Linkedin, href: 'https://www.linkedin.com/in/hallever-india-4a23b2373', name: 'LinkedIn'
