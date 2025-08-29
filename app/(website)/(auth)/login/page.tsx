@@ -6,7 +6,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/config/firebase";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
-import { addForgotPassword, ForgotPassword } from "@/lib/redux/slice/forgotPasswordSlice";
 import { useCart } from "@/context/cart-context";
 
 const LoginForm = () => {
@@ -23,7 +22,6 @@ const LoginForm = () => {
     });
     const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
     const router = useRouter();
-    const dispatch = useDispatch<AppDispatch>();
     const { updateCartFromServer } = useCart();
 
     useEffect(() => {
@@ -33,12 +31,10 @@ const LoginForm = () => {
         if (storedUser) {
             try {
                 const user = JSON.parse(storedUser);
-                if (user && user.role) {
-                    if (user.role.toLowerCase() == "admin") {
-                        router.push("/dashboard");
-                    } else {
-                        router.push("/users");
-                    }
+                const normalizedRole = typeof user?.role === "string" ? user.role.toLowerCase().trim() : "";
+                const isAdmin = normalizedRole === "admin" || user?.isAdmin === true;
+                if (user && (normalizedRole || typeof user?.isAdmin !== "undefined")) {
+                    router.push(isAdmin ? "/dashboard" : "/users");
                 }
             } catch (error) {
                 console.error("Failed to parse user from localStorage", error);
@@ -123,9 +119,10 @@ const LoginForm = () => {
             
             // Also set user cookie for middleware (server-side) route protection
             try {
-                const cookieValue = encodeURIComponent(JSON.stringify(user));
+                const minimalUser = { uid: user.uid, role: user.role, email: user.email };
+                const cookieValue = encodeURIComponent(JSON.stringify(minimalUser));
                 const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
-                document.cookie = `user=${cookieValue}; Path=/; Max-Age=86400; SameSite=Strict; ${isSecure ? 'Secure;' : ''}`;
+                document.cookie = `user=${cookieValue}; Path=/; Max-Age=86400; SameSite=Lax; ${isSecure ? 'Secure;' : ''}`;
             } catch (e) {
                 console.warn('Failed to set user cookie', e);
             }
@@ -136,13 +133,10 @@ const LoginForm = () => {
 
             // --- सबसे महत्वपूर्ण बदलाव यहाँ है ---
             // setTimeout को हटा दें और तुरंत रीडायरेक्ट करें।
-            if (user.role && user.role.toLowerCase() === "admin") {
-                setAlert({ type: "success", message: "Logged in successfully! Redirecting..." });
-                router.replace("/dashboard");
-            } else {
-                setAlert({ type: "success", message: "Logged in successfully! Redirecting..." });
-                router.replace("/users");
-            }
+            const normalizedRole = typeof user?.role === "string" ? user.role.toLowerCase().trim() : "";
+            const isAdmin = normalizedRole === "admin" || user?.isAdmin === true;
+            setAlert({ type: "success", message: "Logged in successfully! Redirecting..." });
+            router.replace(isAdmin ? "/dashboard" : "/users");
 
         } catch (error: any) {
             console.error(error);

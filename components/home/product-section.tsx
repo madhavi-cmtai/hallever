@@ -182,7 +182,6 @@ export default function ProductSection() {
                         {filteredProducts.map((product) => {
                             const currentImageIndex = selectedImageIndices[product.id!] || 0;
                             const productSlug = generateSlug(product.name);
-                            const isInCartState = isInCart(String(product.id));
                             const showAddedFeedback = addedToCart[String(product.id)];
                             
                             return (

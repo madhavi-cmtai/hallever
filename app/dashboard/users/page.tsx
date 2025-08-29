@@ -126,7 +126,7 @@ const UsersPage = () => {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const { local10, e164 } = normalizePhone(formData.phoneNumber);
+    const { local10 } = normalizePhone(formData.phoneNumber);
     if (!emailRegex.test(formData.email)) {
       alert('Please enter a valid email address');
       return;

@@ -14,7 +14,6 @@ interface AlertType {
 const SignupForm = () => {
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const error = useSelector(selectError);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");

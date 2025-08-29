@@ -13,7 +13,8 @@ export default function middleware(request: NextRequest) {
         if (!user) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
-        if (user.role === "admin") {
+        const role = typeof user?.role === "string" ? user.role.toLowerCase().trim() : "";
+        if (role === "admin") {
             return NextResponse.redirect(new URL("/dashboard", request.url));
         }
     }
@@ -23,7 +24,8 @@ export default function middleware(request: NextRequest) {
         if (!user) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
-        if (user.role === "user") {
+        const role = typeof user?.role === "string" ? user.role.toLowerCase().trim() : "";
+        if (role !== "admin") {
             return NextResponse.redirect(new URL("/profile", request.url));
         }
     }
